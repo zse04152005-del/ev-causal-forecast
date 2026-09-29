@@ -168,7 +168,7 @@ anchor:
   allow_placeholder: true
 train:
   seed: 0
-  device: cpu
+  device: cuda
   batch_size: 8
   epochs: 2
   patience: 5

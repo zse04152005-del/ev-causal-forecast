@@ -15,6 +15,6 @@
  "n_params": 32711,
  "epochs_run": 69,
  "best_val_loss": 0.013516265170343225,
- "seconds": 181.5641872882843,
+ "seconds": 178.05442690849304,
  "device": "cuda"
 }
