@@ -1,0 +1,40 @@
+{
+ "version": "placeholder",
+ "source": "placeholder",
+ "target": "any",
+ "price": "total",
+ "estimand": "window_3h_log_mean",
+ "design": "none",
+ "note": "阶段 6 之前的占位锚定：β̂ = PIAST 参考值 −0.45，se 很宽；评价脚本遇到它会拒绝输出论文结果",
+ "own": [
+  {
+   "group": "all",
+   "context": "all",
+   "beta": -0.45,
+   "se": 0.5,
+   "level": "placeholder"
+  }
+ ],
+ "cross": [
+  {
+   "ring": "ring1",
+   "delta": 0.0,
+   "se": 0.2
+  },
+  {
+   "ring": "ring2",
+   "delta": 0.0,
+   "se": 0.2
+  },
+  {
+   "ring": "ring3",
+   "delta": 0.0,
+   "se": 0.2
+  }
+ ],
+ "shift": {
+  "gamma": 0.0,
+  "se": 1.0
+ },
+ "lag_weights": null
+}

@@ -1,0 +1,14 @@
+{
+ "target": "utilization",
+ "n_test_origins": 841,
+ "test_valid_share": 0.7570219435736677,
+ "test_MAE": 0.07983557566314546,
+ "test_RMSE": 0.12771748281881376,
+ "test_WAPE": 0.4085401213016336,
+ "test_CRPS_q": 0.05114319192774028,
+ "test_PICP90_raw": 0.9086092901207684,
+ "test_PICP90_aci_mean": 0.894121804839195,
+ "val_MAE": 0.07619365919130076,
+ "model": "naive_last",
+ "seconds": 2.9604153633117676
+}

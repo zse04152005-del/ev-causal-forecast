@@ -1,0 +1,9 @@
+# 统一换行符：Mac 与 Windows 之间同步时不产生无意义的改动
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.ps1 text eol=crlf
+*.png binary
+*.pdf binary
+*.npz binary
+*.pt binary

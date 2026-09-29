@@ -1,0 +1,102 @@
+== 环境
+Python 3.11.16
+torch 2.14.0 | numpy 2.4.6 | pandas 3.0.6 | mps True | cuda False
+Darwin 192.168.5.68 24.6.0 Darwin Kernel Version 24.6.0: Mon Jul 14 11:30:40 PDT 2025; root:xnu-11417.140.69~1/RELEASE_ARM64_T8132 arm64
+== 单元测试
+test_placeholder_roundtrip (tests.test_causal.TestAnchors.test_placeholder_roundtrip) ... ok
+test_repo_anchor_files_load (tests.test_causal.TestAnchors.test_repo_anchor_files_load) ... ok
+test_specific_overrides_general (tests.test_causal.TestAnchors.test_specific_overrides_general) ... ok
+test_window_factor_and_projection (tests.test_causal.TestAnchors.test_window_factor_and_projection) ... ok
+test_cells_and_merge (tests.test_causal.TestSwitchDID.test_cells_and_merge) ... ok
+test_design_a_is_confounded (tests.test_causal.TestSwitchDID.test_design_a_is_confounded) ... ok
+test_design_c_recovers_beta (tests.test_causal.TestSwitchDID.test_design_c_recovers_beta) ... ok
+test_deterministic_schedule_not_identified_within_zone (tests.test_causal.TestSwitchDID.test_deterministic_schedule_not_identified_within_zone) ... ok
+test_fe_ols_simple (tests.test_causal.TestSwitchDID.test_fe_ols_simple) ... ok
+test_holidays_and_makeup (tests.test_data.TestCalendar.test_holidays_and_makeup) ... ok
+test_classify (tests.test_data.TestPrices.test_classify) ... ok
+test_ring_exposure (tests.test_data.TestPrices.test_ring_exposure) ... ok
+test_frozen_rules (tests.test_data.TestQuality.test_frozen_rules) ... ok
+test_stale_flag_is_causal (tests.test_data.TestQuality.test_stale_flag_is_causal) ... ok
+test_counts_match_audit (tests.test_data.TestRealData.test_counts_match_audit) ... ok
+test_frozen_matches_audit_file (tests.test_data.TestRealData.test_frozen_matches_audit_file) ... ok
+test_reference_price_uses_train_only (tests.test_data.TestRealData.test_reference_price_uses_train_only) ... ok
+test_windows_no_leakage (tests.test_data.TestRealData.test_windows_no_leakage) ... ok
+test_scaler_ignores_invalid (tests.test_data.TestSplitScaler.test_scaler_ignores_invalid) ... ok
+test_split_dates (tests.test_data.TestSplitScaler.test_split_dates) ... ok
+test_restores_coverage (tests.test_eval.TestACI.test_restores_coverage) ... ok
+test_plugin_ratio (tests.test_eval.TestCounterfactualAndScenarios.test_plugin_ratio) ... ok
+test_scenarios (tests.test_eval.TestCounterfactualAndScenarios.test_scenarios) ... ok
+test_perfect_and_mask (tests.test_eval.TestMetrics.test_perfect_and_mask) ... ok
+test_table_shape (tests.test_eval.TestMetrics.test_table_shape) ... ok
+test_semisynthetic_design_d_recovers_under_endogeneity (tests.test_eval.TestRealDataEval.test_semisynthetic_design_d_recovers_under_endogeneity) ... ok
+test_switch_consistency_perfect_forecaster (tests.test_eval.TestRealDataEval.test_switch_consistency_perfect_forecaster) ... ok
+test_dm (tests.test_eval.TestStats.test_dm) ... ok
+test_wilcoxon (tests.test_eval.TestStats.test_wilcoxon) ... ok
+test_ablation_switches (tests.test_models.TestCPASTGNN.test_ablation_switches) ... ok
+test_clip (tests.test_models.TestCPASTGNN.test_clip) ... /Users/zhangshien/Desktop/EV充电因果预测sci论文/03_代码/tests/test_models.py:81: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:821.)
+  self.assertLessEqual(float(model(batch())["y_q"].max()), 0.3 + 1e-6)
+ok
+test_cut_mode_has_no_price_parameters (tests.test_models.TestCPASTGNN.test_cut_mode_has_no_price_parameters) ... ok
+test_lag_kernel (tests.test_models.TestCPASTGNN.test_lag_kernel) ... ok
+test_losses_and_training_step (tests.test_models.TestCPASTGNN.test_losses_and_training_step) ... ok
+test_override_identity_and_corollary1 (tests.test_models.TestCPASTGNN.test_override_identity_and_corollary1) ... ok
+test_override_with_lags_keeps_past_prices (tests.test_models.TestCPASTGNN.test_override_with_lags_keeps_past_prices) ... ok
+test_pinball_mask (tests.test_models.TestCPASTGNN.test_pinball_mask) ... ok
+test_price_blind_baseline (tests.test_models.TestCPASTGNN.test_price_blind_baseline) ... ok
+test_shapes_and_noncrossing (tests.test_models.TestCPASTGNN.test_shapes_and_noncrossing) ... ok
+test_sign_and_monotone_constraints (tests.test_models.TestCPASTGNN.test_sign_and_monotone_constraints) ... ok
+test_forward_on_real_batch (tests.test_models.TestRealBatch.test_forward_on_real_batch) ... /Users/zhangshien/Desktop/EV充电因果预测sci论文/03_代码/src/models/heads/price.py:29: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:219.)
+  self.register_buffer("groups", torch.as_tensor(groups, dtype=torch.long))
+ok
+
+----------------------------------------------------------------------
+Ran 41 tests in 2.905s
+
+OK
+== 极小训练 1：Graph WaveNet + 截断反馈
+19:08:14 INFO 运行 smoke_gwn_cut，设备 cpu，torch 2.14.0
+19:08:14 INFO 数据：T=4344 N=40 训练/验证/测试起点 3001/409/841；{'train': ('2022-09-01', '2023-01-05'), 'val': ('2023-01-06', '2023-01-23'), 'test': ('2023-01-24', '2023-02-28')}
+19:08:14 WARNING 正在使用占位锚定（β̂=−0.45）：结果只能用于调试，不能写进论文
+/Users/zhangshien/Desktop/EV充电因果预测sci论文/03_代码/src/models/heads/price.py:29: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:219.)
+  self.register_buffer("groups", torch.as_tensor(groups, dtype=torch.long))
+19:08:14 INFO 模型参数 32,583；锚定方式 cut；锚定来源 placeholder
+/Users/zhangshien/Desktop/EV充电因果预测sci论文/03_代码/scripts/train.py:153: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:821.)
+  tot += float(loss)
+19:08:15 INFO 第   1 轮  训练 0.02518  验证 pinball 0.02428  分时小区平均 β -0.450  0.7s
+19:08:16 INFO 第   2 轮  训练 0.02645  验证 pinball 0.02423  分时小区平均 β -0.450  0.7s
+19:08:18 INFO 切换点一致性（all）：观测 β -1.346（0.947）  模型 β -0.418（0.007）
+19:08:18 INFO 切换点一致性（novel）：观测 β +5.237（2.022）  模型 β -0.415（0.025）
+19:08:19 INFO 测试期 MAE 0.0847  WAPE 0.565  CRPS 0.0521  PICP90 原始 0.902 / ACI 0.906；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_gwn_cut
+== 极小训练 2：STAEformer + 软锚定
+19:08:20 INFO 运行 smoke_staeformer_soft，设备 cpu，torch 2.14.0
+19:08:20 INFO 数据：T=4344 N=40 训练/验证/测试起点 3001/409/841；{'train': ('2022-09-01', '2023-01-05'), 'val': ('2023-01-06', '2023-01-23'), 'test': ('2023-01-24', '2023-02-28')}
+19:08:20 WARNING 正在使用占位锚定（β̂=−0.45）：结果只能用于调试，不能写进论文
+/Users/zhangshien/Desktop/EV充电因果预测sci论文/03_代码/src/models/heads/price.py:29: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:219.)
+  self.register_buffer("groups", torch.as_tensor(groups, dtype=torch.long))
+19:08:20 INFO 模型参数 69,358；锚定方式 soft；锚定来源 placeholder
+/Users/zhangshien/Desktop/EV充电因果预测sci论文/03_代码/scripts/train.py:153: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:821.)
+  tot += float(loss)
+19:08:21 INFO 第   1 轮  训练 0.02510  验证 pinball 0.02403  分时小区平均 β -0.450  0.7s
+19:08:22 INFO 第   2 轮  训练 0.02588  验证 pinball 0.02286  分时小区平均 β -0.450  0.7s
+19:08:24 INFO 切换点一致性（all）：观测 β -1.346（0.947）  模型 β -0.745（0.100）
+19:08:24 INFO 切换点一致性（novel）：观测 β +5.237（2.022）  模型 β -1.487（0.089）
+19:08:25 INFO 测试期 MAE 0.0801  WAPE 0.535  CRPS 0.0485  PICP90 原始 0.902 / ACI 0.903；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_staeformer_soft
+== 极小训练 3：自由弹性（E-ID 用）+ 负荷转移 + 滞后核
+19:08:26 INFO 运行 smoke_free_lags，设备 cpu，torch 2.14.0
+19:08:27 INFO 数据：T=4344 N=40 训练/验证/测试起点 3001/409/841；{'train': ('2022-09-01', '2023-01-05'), 'val': ('2023-01-06', '2023-01-23'), 'test': ('2023-01-24', '2023-02-28')}
+19:08:27 WARNING 正在使用占位锚定（β̂=−0.45）：结果只能用于调试，不能写进论文
+/Users/zhangshien/Desktop/EV充电因果预测sci论文/03_代码/src/models/heads/price.py:29: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:219.)
+  self.register_buffer("groups", torch.as_tensor(groups, dtype=torch.long))
+19:08:27 INFO 模型参数 32,759；锚定方式 free；锚定来源 placeholder
+/Users/zhangshien/Desktop/EV充电因果预测sci论文/03_代码/scripts/train.py:153: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:821.)
+  tot += float(loss)
+19:08:28 INFO 第   1 轮  训练 0.02519  验证 pinball 0.02429  分时小区平均 β -0.999  0.7s
+19:08:28 INFO 第   2 轮  训练 0.02647  验证 pinball 0.02423  分时小区平均 β -0.998  0.7s
+19:08:30 INFO 切换点一致性（all）：观测 β -1.346（0.947）  模型 β -0.333（0.014）
+19:08:30 INFO 切换点一致性（novel）：观测 β +5.237（2.022）  模型 β -0.368（0.046）
+19:08:31 INFO 测试期 MAE 0.0847  WAPE 0.566  CRPS 0.0521  PICP90 原始 0.902 / ACI 0.906；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_free_lags
+== 结束

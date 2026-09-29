@@ -1,0 +1,42 @@
+== 环境
+torch 2.14.0 | mps True | cuda False
+== 单元测试（基线 + 模型）
+test_forward_on_real_batch (tests.test_baselines.TestBaselinesRealBatch.test_forward_on_real_batch) ... ok
+test_point_loss_and_training_step (tests.test_baselines.TestEncoders.test_point_loss_and_training_step) ... /Users/zhangshien/Desktop/EV充电因果预测sci论文/03_代码/tests/test_baselines.py:179: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:821.)
+  first = float(loss) if first is None else first
+ok
+test_price_blind_and_price_aware (tests.test_baselines.TestEncoders.test_price_blind_and_price_aware) ... ok
+test_shapes_noncrossing_all (tests.test_baselines.TestEncoders.test_shapes_noncrossing_all) ... ok
+test_short_input_rejected (tests.test_baselines.TestEncoders.test_short_input_rejected) ... ok
+test_sym_norm_and_isolated (tests.test_baselines.TestGraphMatrices.test_sym_norm_and_isolated) ... ok
+test_forward_and_price_history (tests.test_baselines.TestPAG.test_forward_and_price_history) ... ok
+test_pseudo_batch_and_pretrain_moves_parameters (tests.test_baselines.TestPAG.test_pseudo_batch_and_pretrain_moves_parameters) ... ok
+test_formula_8_and_9 (tests.test_baselines.TestPAGPseudoSamples.test_formula_8_and_9) ... ok
+test_shocks_and_mixing (tests.test_baselines.TestPAGPseudoSamples.test_shocks_and_mixing) ... ok
+test_attention_normalization_and_price_response (tests.test_baselines.TestPIAST.test_attention_normalization_and_price_response) ... ok
+test_forward_physics_and_clamp (tests.test_baselines.TestPIAST.test_forward_physics_and_clamp) ... /opt/miniconda3/envs/cpa/lib/python3.11/site-packages/torch/backends/mkldnn/__init__.py:96: UserWarning: TF32 acceleration on top of oneDNN is available for Intel GPUs. The current Torch version does not have Intel GPU Support. (Triggered internally at /Users/runner/work/pytorch/pytorch/aten/src/ATen/Context.cpp:265.)
+  torch._C._set_onednn_allow_tf32(_allow_tf32)
+ok
+test_released_code_quirks (tests.test_baselines.TestPIAST.test_released_code_quirks) ... ok
+test_single_step_has_no_horizon_embedding (tests.test_baselines.TestPIAST.test_single_step_has_no_horizon_embedding) ... ok
+test_arc_elasticity (tests.test_baselines.TestPointIntervalsAndReadout.test_arc_elasticity) ... ok
+test_residual_quantiles (tests.test_baselines.TestPointIntervalsAndReadout.test_residual_quantiles) ... ok
+test_ablation_switches (tests.test_models.TestCPASTGNN.test_ablation_switches) ... ok
+test_clip (tests.test_models.TestCPASTGNN.test_clip) ... ok
+test_cut_mode_has_no_price_parameters (tests.test_models.TestCPASTGNN.test_cut_mode_has_no_price_parameters) ... ok
+test_lag_kernel (tests.test_models.TestCPASTGNN.test_lag_kernel) ... ok
+test_losses_and_training_step (tests.test_models.TestCPASTGNN.test_losses_and_training_step) ... ok
+test_override_identity_and_corollary1 (tests.test_models.TestCPASTGNN.test_override_identity_and_corollary1) ... ok
+test_override_with_lags_keeps_past_prices (tests.test_models.TestCPASTGNN.test_override_with_lags_keeps_past_prices) ... ok
+test_pinball_mask (tests.test_models.TestCPASTGNN.test_pinball_mask) ... ok
+test_price_blind_baseline (tests.test_models.TestCPASTGNN.test_price_blind_baseline) ... ok
+test_shapes_and_noncrossing (tests.test_models.TestCPASTGNN.test_shapes_and_noncrossing) ... ok
+test_sign_and_monotone_constraints (tests.test_models.TestCPASTGNN.test_sign_and_monotone_constraints) ... ok
+test_forward_on_real_batch (tests.test_models.TestRealBatch.test_forward_on_real_batch) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 8.776s
+
+OK
+scripts/smoke_baselines.sh: line 20: name�: unbound variable

@@ -1,0 +1,147 @@
+# CPA-STGNN 默认配置（对应《模型设计文档_v1.1》）
+# 实验配置用 `_base_: ../default.yaml` 继承本文件，只写需要改的项；
+# 也可以在命令行覆盖，例如：python scripts/train.py model.D=16 data.zones=40
+
+paths:
+  root: null                          # 项目根目录；null = 自动（03_代码 的上一级），或设环境变量 CPA_PROJECT_ROOT
+  data_dir: 02_数据/raw/urbanev_github/data
+  processed_dir: 02_数据/processed/cpa
+  results_dir: 05_实验结果
+  assets_dir: 03_代码/assets          # 需要跨机器完全一致的小文件（小区静态特征与功能区）
+
+data:
+  target: utilization                 # D1：utilization（时长/桩数）| occupancy（占用/桩数）| volume（kWh）
+  price: total                        # D2：total（电价+服务费）| electricity（只用电价）
+  L: 24                               # 输入窗口（小时）
+  H: 24                               # 输出步长（小时）
+  report_steps: [1, 3, 6, 9, 12, 24]
+  future_weather: oracle              # oracle（未来天气用观测值）| none（只用历史天气）
+  split:
+    mode: ratio_days                  # ratio_days：按天 7:1:2；dates：用下面的日期
+    ratios: [0.7, 0.1, 0.2]
+    train_end: null                   # mode=dates 时填写，例如 "2023-01-05"
+    val_end: null
+  quality_mask: true                  # D8：训练损失与评价指标只用未冻结的点
+  stale_input_hours: 6                # 输入通道：截至当前"数值已连续不变"的小时数阈值（只用过去信息）
+  zones: null                         # null = 全部 275 个；整数 k = 取前 k 个（冒烟实验）
+  tou_strict_share: 0.5               # ≥50% 的天有日内价格变动 = 严格分时小区
+  rings_km: [[0, 2], [2, 4], [4, 6]]
+  scaler: global                      # 输入标准化：global | per_zone（均只在训练期拟合）
+  context:
+    day_start: 7                      # 白天 = [7, 21) 时
+    night_start: 21
+
+graph:
+  use_adj: true
+  use_dist: true
+  use_poi: true
+  poi_topk: 10
+  dist_eps: 0.1
+  adaptive: true
+  adaptive_dim: 10
+
+model:
+  name: cpastgnn                      # cpastgnn | naive_last | naive_seasonal | profile（后三个为 numpy 基线）
+  backbone: graph_wavenet             # graph_wavenet | staeformer
+  D: 32                               # 隐藏维度
+  dilations: [1, 2, 4, 8, 1, 2, 4, 8] # 感受野 31 ≥ L=24
+  kernel_size: 2
+  diffusion_steps: 2
+  dropout: 0.3
+  head_hidden: 64
+  quantiles: [0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95]
+  use_price: true                     # 消融 A5：false = 纯价格盲
+  price_input: false                  # 消融 A6：true = 价格作为普通输入，不用结构化价格项
+  use_spill: true                     # 消融 A7
+  use_shift: false                    # D3：负荷转移项
+  price_lags: 0                       # 价格滞后核阶数 M（0 = 静态）
+  clip_max: 1.0                       # 利用率 / 占用率上限；target=volume 时设为 null
+  staeformer:
+    d_model: 24
+    tod_dim: 24
+    dow_dim: 24
+    adaptive_dim: 80
+    heads: 4
+    layers: 3
+    ff_dim: 256
+
+baseline:                             # 深度基线（scripts/train_baseline.py；统一协议见 src/models/baselines/common.py）
+  name: stgcn                         # fcnn | lstm | gcn | gcnlstm（UrbanEV 官方）| stgcn | astgcn | agcrn | pag | piast
+  price_input: none                   # none 价格盲 | hist 历史价格作输入（UrbanEV 因子实验口径）| hist_fut 再加未来价格（对照 P3）
+  use_cov: true                       # 历史日历与天气作为节点输入（与 CPA-STGNN 相同）
+  loss: pinball                       # pinball 统一分位数头 | mse 点预测 + 验证期残差分位数（pag、piast 固定为 mse）
+  D: 64                               # 编码器输出维度
+  dropout: 0.1
+  lstm: {hidden: 16, layers: 2}                                     # UrbanEV 官方
+  gcn: {hidden: 32, layers: 1}                                      # UrbanEV 官方 load_net
+  gcnlstm: {gcn_out: 32, gcn_layers: 1, lstm_hidden: 32, lstm_layers: 1}
+  stgcn: {Kt: 3, Ks: 3, blocks: [[64, 16, 64], [64, 16, 64]]}       # 原文设置
+  astgcn: {K: 3, chev_filter: 64, time_filter: 64, blocks: 2}       # 原文设置（UrbanEV 官方：K 1、滤波器 32、1 个块）
+  agcrn: {hidden: 64, layers: 2, embed_dim: 10, cheb_k: 2}          # 官方 PEMS 设置
+  pag:
+    kcnn: 2
+    k: 6                              # TPA 滤波器数（发布代码）
+    heads: 4
+    beta: 0.5                         # 层间动量残差系数（论文公式 4）
+    dropout: 0.5                      # 发布代码
+    price_scale: 1.0                  # 发布代码直接用价格原值
+    pretrain: paper                   # paper = 论文算法 1（一阶 MAML + 公式 8、9 伪样本）| none = 发布代码实际行为（预训练不生效）
+    laws: [-1.48, -0.228]             # 先验弹性（论文；发布代码为 [-1.48, -0.74]）；E-PS 用单个值，如 [-3.0]
+    pretrain_epochs: 100              # 论文 200（5 分钟数据）
+    outer_lr: 0.005                   # 论文表 I 的 λ
+    gamma_den: 1000                   # 伪样本比例 γ_e = 1 − e / gamma_den（论文表 I）
+    lr: 1.0e-3                        # 微调：Adam，论文设置
+    weight_decay: 1.0e-5
+    released_code_quirks: false       # true = GAT 注意力按发布代码（与 PIAST 相同的两处问题）
+  piast:
+    kcnn: 2
+    mlp_hidden: 64
+    heads: 4
+    dropout: 0.2
+    prior: -0.45                      # 注入的参考弹性（原代码 e_begin = 0.45）；E-PS 取 -0.1 / -0.45 / -0.76 / -1.48 / -3.0
+    prior_weights: [1.0, 0.1]         # 阶段 1、2 中 L3 的权重（原代码 1 与 0.1）
+    clamp: [-1.0, 0.0]                # 原代码每步把 λ 截断到 [−1, 0]；null = 不截断（E-PS 对照）
+    epochs: [60, 40, 100]             # 三阶段轮数（原代码 300 / 200 / 500，按 5 分钟数据、批 1024；第三阶段按验证 MSE 早停）
+    lr: 1.0e-3                        # 原代码 Adam 默认学习率，不加权重衰减
+    price_scale: 1.5                  # 价格水平 = 总价 / 1.5（原代码）
+    released_code_quirks: false       # true = 复现发布代码的三处实现问题（见 piast.py 文件头）
+
+anchor:
+  mode: cut                           # D7：cut（截断反馈）| soft（软锚定）| free（只保留 β≤0）| none（无约束）
+  file: 03_代码/configs/anchor/placeholder.json
+  min_zones: 10                       # 格子内分时小区少于此数则合并到上一层级
+  max_se: 0.5                         # 格子 se 大于此值则合并
+  lambda_a: 1.0                       # 仅 soft
+  lambda_h: 0.1                       # 仅 soft / free
+  init_beta: null                     # free 模式初始化（E-ID 实验）；null = 用锚定值
+  fixed_beta: null                    # E-ID 剖面损失：cut 模式下把所有格子的 β 固定为该值
+  window_hours: 3                     # 口径对齐：切换前后各 3 小时的窗口
+  allow_placeholder: true             # 训练可以用占位锚定；evaluate.py 输出论文结果时会拒绝
+
+train:
+  seed: 0
+  device: auto                        # auto | cpu | cuda | mps
+  batch_size: 32
+  epochs: 100
+  patience: 15
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  grad_clip: 5.0
+  max_train_batches: null             # 冒烟实验：每轮最多多少批
+  eval_stride: 1                      # 验证 / 测试时预测起点的间隔（小时）
+  run_name: null                      # null = 自动生成
+
+conformal:
+  alpha: 0.1                          # 90% 区间
+  gamma: 0.005                        # ACI 步长
+  window: 168                         # 分数窗口（预测起点个数）
+  lower_q: 0.05
+  upper_q: 0.95
+
+causal:
+  outcome: duration                   # 识别所用的需求口径（与 utilization 只差常数桩数，对数差相同）
+  jump_threshold: 0.01                # |Δlog p| > 1% 才算切换
+  flat_hours: 3                       # 切换前后各 3 小时价格不变
+  exclude_holiday_pm1: true           # 排除法定假日及前后各 1 天
+  eps_pile_hours: 0.5                 # 对数窗口均值的平滑常数（桩·小时）
+  design: D                           # D9（已确认）：主设计 D = 仅分时小区、日期×时刻 + 小区×时刻固定效应；C 作效率对照

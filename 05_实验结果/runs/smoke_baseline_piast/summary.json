@@ -1,0 +1,23 @@
+{
+ "target": "occupancy",
+ "n_test_origins": 841,
+ "test_valid_share": 0.7337482659532303,
+ "test_MAE": 0.10160970200180616,
+ "test_RMSE": 0.1446530770460593,
+ "test_WAPE": 0.4541161491490041,
+ "test_CRPS_q": 0.0609895057802903,
+ "test_PICP90_raw": 0.8785058718870221,
+ "test_PICP90_aci_mean": 0.9033244300173037,
+ "val_MAE": 0.09571461218176916,
+ "model": "piast",
+ "price_input": "target_time_price",
+ "loss": "mse",
+ "n_params": 9587,
+ "epochs_run": 3,
+ "best_val_loss": 0.12058547344706327,
+ "seconds": 49.05890107154846,
+ "device": "cpu",
+ "piast_prior": -0.45,
+ "piast_lambda_mean_tou": -0.5260481238365173,
+ "arc_elasticity_tou_mean": 0.0
+}

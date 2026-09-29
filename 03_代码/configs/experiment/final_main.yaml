@@ -1,0 +1,6 @@
+# 主实验（Windows 4060）：完整 275 个小区，截断反馈，5 个种子用命令行覆盖 train.seed
+_base_: ../default.yaml
+train:
+  device: cuda
+anchor:
+  file: 03_代码/configs/anchor/hourly_train.json   # 阶段 6 完成后换成 5 分钟数据的正式锚定

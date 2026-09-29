@@ -1,0 +1,35 @@
+# 数据（不入库，通过网盘或 U 盘传输）
+02_数据/raw/
+02_数据/interim/
+02_数据/processed/
+
+# 实验产物
+05_实验结果/**/*.pt
+05_实验结果/**/*.pth
+05_实验结果/**/*.ckpt
+05_实验结果/**/checkpoints/
+05_实验结果/**/logs/
+wandb/
+mlruns/
+outputs/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+*.egg-info/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+~$*
+.~*
+
+# 文献 PDF 与从论文截取的图（版权原因不入库）
+01_文献/**/*.pdf
+01_文献/图表范例/论文图表模板/
+
+# 代码检查缓存
+.ruff_cache/

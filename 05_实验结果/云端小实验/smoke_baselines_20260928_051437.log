@@ -1,0 +1,168 @@
+== 环境
+torch 2.14.0 | mps True | cuda False
+== 单元测试（基线 + 模型）
+test_forward_on_real_batch (tests.test_baselines.TestBaselinesRealBatch.test_forward_on_real_batch) ... ok
+test_point_loss_and_training_step (tests.test_baselines.TestEncoders.test_point_loss_and_training_step) ... /Users/zhangshien/Desktop/EV充电因果预测sci论文/03_代码/tests/test_baselines.py:183: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:821.)
+  self.assertLess(float(loss), 0.8 * first, name)
+ok
+test_price_blind_and_price_aware (tests.test_baselines.TestEncoders.test_price_blind_and_price_aware) ... ok
+test_shapes_noncrossing_all (tests.test_baselines.TestEncoders.test_shapes_noncrossing_all) ... ok
+test_short_input_rejected (tests.test_baselines.TestEncoders.test_short_input_rejected) ... ok
+test_sym_norm_and_isolated (tests.test_baselines.TestGraphMatrices.test_sym_norm_and_isolated) ... ok
+test_forward_and_price_history (tests.test_baselines.TestPAG.test_forward_and_price_history) ... ok
+test_pseudo_batch_and_pretrain_moves_parameters (tests.test_baselines.TestPAG.test_pseudo_batch_and_pretrain_moves_parameters) ... ok
+test_formula_8_and_9 (tests.test_baselines.TestPAGPseudoSamples.test_formula_8_and_9) ... ok
+test_shocks_and_mixing (tests.test_baselines.TestPAGPseudoSamples.test_shocks_and_mixing) ... ok
+test_attention_normalization_and_price_response (tests.test_baselines.TestPIAST.test_attention_normalization_and_price_response) ... ok
+test_forward_physics_and_clamp (tests.test_baselines.TestPIAST.test_forward_physics_and_clamp) ... /opt/miniconda3/envs/cpa/lib/python3.11/site-packages/torch/backends/mkldnn/__init__.py:96: UserWarning: TF32 acceleration on top of oneDNN is available for Intel GPUs. The current Torch version does not have Intel GPU Support. (Triggered internally at /Users/runner/work/pytorch/pytorch/aten/src/ATen/Context.cpp:265.)
+  torch._C._set_onednn_allow_tf32(_allow_tf32)
+ok
+test_released_code_quirks (tests.test_baselines.TestPIAST.test_released_code_quirks) ... ok
+test_single_step_has_no_horizon_embedding (tests.test_baselines.TestPIAST.test_single_step_has_no_horizon_embedding) ... ok
+test_arc_elasticity (tests.test_baselines.TestPointIntervalsAndReadout.test_arc_elasticity) ... ok
+test_residual_quantiles (tests.test_baselines.TestPointIntervalsAndReadout.test_residual_quantiles) ... ok
+test_ablation_switches (tests.test_models.TestCPASTGNN.test_ablation_switches) ... ok
+test_clip (tests.test_models.TestCPASTGNN.test_clip) ... ok
+test_cut_mode_has_no_price_parameters (tests.test_models.TestCPASTGNN.test_cut_mode_has_no_price_parameters) ... ok
+test_lag_kernel (tests.test_models.TestCPASTGNN.test_lag_kernel) ... ok
+test_losses_and_training_step (tests.test_models.TestCPASTGNN.test_losses_and_training_step) ... ok
+test_override_identity_and_corollary1 (tests.test_models.TestCPASTGNN.test_override_identity_and_corollary1) ... ok
+test_override_with_lags_keeps_past_prices (tests.test_models.TestCPASTGNN.test_override_with_lags_keeps_past_prices) ... ok
+test_pinball_mask (tests.test_models.TestCPASTGNN.test_pinball_mask) ... ok
+test_price_blind_baseline (tests.test_models.TestCPASTGNN.test_price_blind_baseline) ... ok
+test_shapes_and_noncrossing (tests.test_models.TestCPASTGNN.test_shapes_and_noncrossing) ... ok
+test_sign_and_monotone_constraints (tests.test_models.TestCPASTGNN.test_sign_and_monotone_constraints) ... ok
+test_forward_on_real_batch (tests.test_models.TestRealBatch.test_forward_on_real_batch) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 9.565s
+
+OK
+== 极小训练：fcnn（价格盲）
+05:14:53 INFO 运行 smoke_baseline_fcnn，基线 fcnn，设备 cpu，torch 2.14.0
+05:14:54 INFO 数据：T=4344 N=40 目标 utilization 训练/验证/测试起点 3001/409/841
+05:14:54 INFO 模型参数 8,407；价格输入 none；损失 pinball（分位数）
+05:14:56 INFO 训练 第   1 轮  训练 0.02517  验证 0.02426  0.2s
+05:14:56 INFO 训练 第   2 轮  训练 0.02641  验证 0.02418  0.2s
+05:14:56 INFO 切换点一致性（all）：观测 β -1.346（0.947）  模型 β +0.015（0.005）
+05:14:56 INFO 切换点一致性（novel）：观测 β +5.237（2.022）  模型 β +0.041（0.004）
+05:14:59 INFO 测试期 MAE 0.0848  WAPE 0.566  CRPS 0.0520  PICP90 原始 0.904 / ACI 0.906；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_fcnn
+== 极小训练：lstm（价格盲）
+05:15:02 INFO 运行 smoke_baseline_lstm，基线 lstm，设备 cpu，torch 2.14.0
+05:15:03 INFO 数据：T=4344 N=40 目标 utilization 训练/验证/测试起点 3001/409/841
+05:15:03 INFO 模型参数 13,399；价格输入 none；损失 pinball（分位数）
+05:15:05 INFO 训练 第   1 轮  训练 0.02516  验证 0.02426  1.0s
+05:15:06 INFO 训练 第   2 轮  训练 0.02647  验证 0.02427  1.0s
+05:15:08 INFO 切换点一致性（all）：观测 β -1.346（0.947）  模型 β -0.003（0.002）
+05:15:08 INFO 切换点一致性（novel）：观测 β +5.237（2.022）  模型 β +0.000（0.006）
+05:15:11 INFO 测试期 MAE 0.0849  WAPE 0.567  CRPS 0.0522  PICP90 原始 0.902 / ACI 0.906；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_lstm
+== 极小训练：gcn（价格盲）
+05:15:13 INFO 运行 smoke_baseline_gcn，基线 gcn，设备 cpu，torch 2.14.0
+05:15:14 INFO 数据：T=4344 N=40 目标 utilization 训练/验证/测试起点 3001/409/841
+05:15:14 INFO 模型参数 27,167；价格输入 none；损失 pinball（分位数）
+05:15:16 INFO 训练 第   1 轮  训练 0.02511  验证 0.02415  0.3s
+05:15:16 INFO 训练 第   2 轮  训练 0.02619  验证 0.02386  0.2s
+05:15:16 INFO 切换点一致性（all）：观测 β -1.346（0.947）  模型 β +0.026（0.016）
+05:15:17 INFO 切换点一致性（novel）：观测 β +5.237（2.022）  模型 β +0.085（0.037）
+05:15:19 INFO 测试期 MAE 0.0832  WAPE 0.556  CRPS 0.0511  PICP90 原始 0.907 / ACI 0.906；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_gcn
+== 极小训练：gcnlstm（价格盲）
+05:15:21 INFO 运行 smoke_baseline_gcnlstm，基线 gcnlstm，设备 cpu，torch 2.14.0
+05:15:22 INFO 数据：T=4344 N=40 目标 utilization 训练/验证/测试起点 3001/409/841
+05:15:22 INFO 模型参数 32,159；价格输入 none；损失 pinball（分位数）
+05:15:24 INFO 训练 第   1 轮  训练 0.02515  验证 0.02424  1.0s
+05:15:25 INFO 训练 第   2 轮  训练 0.02632  验证 0.02406  0.9s
+05:15:28 INFO 切换点一致性（all）：观测 β -1.346（0.947）  模型 β +0.044（0.015）
+05:15:28 INFO 切换点一致性（novel）：观测 β +5.237（2.022）  模型 β +0.158（0.012）
+05:15:30 INFO 测试期 MAE 0.0842  WAPE 0.562  CRPS 0.0516  PICP90 原始 0.906 / ACI 0.906；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_gcnlstm
+== 极小训练：stgcn（价格盲）
+05:15:33 INFO 运行 smoke_baseline_stgcn，基线 stgcn，设备 cpu，torch 2.14.0
+05:15:33 INFO 数据：T=4344 N=40 目标 utilization 训练/验证/测试起点 3001/409/841
+05:15:33 INFO 模型参数 20,423；价格输入 none；损失 pinball（分位数）
+05:15:35 INFO 训练 第   1 轮  训练 0.02517  验证 0.02427  0.8s
+05:15:36 INFO 训练 第   2 轮  训练 0.02647  验证 0.02427  0.8s
+05:15:38 INFO 切换点一致性（all）：观测 β -1.346（0.947）  模型 β -0.000（0.001）
+05:15:38 INFO 切换点一致性（novel）：观测 β +5.237（2.022）  模型 β -0.007（0.002）
+05:15:41 INFO 测试期 MAE 0.0849  WAPE 0.567  CRPS 0.0522  PICP90 原始 0.903 / ACI 0.906；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_stgcn
+== 极小训练：astgcn（价格盲）
+05:15:43 INFO 运行 smoke_baseline_astgcn，基线 astgcn，设备 cpu，torch 2.14.0
+05:15:44 INFO 数据：T=4344 N=40 目标 utilization 训练/验证/测试起点 3001/409/841
+05:15:44 INFO 模型参数 23,571；价格输入 none；损失 pinball（分位数）
+05:15:46 INFO 训练 第   1 轮  训练 0.02517  验证 0.02424  0.8s
+05:15:47 INFO 训练 第   2 轮  训练 0.02642  验证 0.02415  0.8s
+05:15:49 INFO 切换点一致性（all）：观测 β -1.346（0.947）  模型 β +0.016（0.004）
+05:15:49 INFO 切换点一致性（novel）：观测 β +5.237（2.022）  模型 β +0.027（0.015）
+05:15:51 INFO 测试期 MAE 0.0844  WAPE 0.564  CRPS 0.0519  PICP90 原始 0.901 / ACI 0.905；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_astgcn
+== 极小训练：agcrn（价格盲）
+05:15:53 INFO 运行 smoke_baseline_agcrn，基线 agcrn，设备 cpu，torch 2.14.0
+05:15:54 INFO 数据：T=4344 N=40 目标 utilization 训练/验证/测试起点 3001/409/841
+05:15:54 INFO 模型参数 64,167；价格输入 none；损失 pinball（分位数）
+05:15:59 INFO 训练 第   1 轮  训练 0.02516  验证 0.02426  3.8s
+05:16:03 INFO 训练 第   2 轮  训练 0.02647  验证 0.02427  3.8s
+05:16:12 INFO 切换点一致性（all）：观测 β -1.346（0.947）  模型 β -0.000（0.005）
+05:16:12 INFO 切换点一致性（novel）：观测 β +5.237（2.022）  模型 β +0.007（0.015）
+05:16:14 INFO 测试期 MAE 0.0848  WAPE 0.567  CRPS 0.0522  PICP90 原始 0.902 / ACI 0.906；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_agcrn
+== 极小训练：stgcn（价格作输入，对照 P3）
+05:16:17 INFO 运行 smoke_baseline_stgcn_price，基线 stgcn，设备 cpu，torch 2.14.0
+05:16:18 INFO 数据：T=4344 N=40 目标 utilization 训练/验证/测试起点 3001/409/841
+05:16:18 INFO 模型参数 20,583；价格输入 hist_fut；损失 pinball（分位数）
+05:16:20 INFO 训练 第   1 轮  训练 0.02517  验证 0.02427  0.7s
+05:16:20 INFO 训练 第   2 轮  训练 0.02647  验证 0.02427  0.7s
+05:16:23 INFO 价格响应读出（分时小区 dl_hist+dl_fut 价格 +5%）：弧弹性均值 -0.005，中位数 -0.005，为负的比例 1.00
+05:16:23 INFO 切换点一致性（all）：观测 β -1.346（0.947）  模型 β -0.002（0.001）
+05:16:23 INFO 切换点一致性（novel）：观测 β +5.237（2.022）  模型 β -0.001（0.005）
+05:16:26 INFO 测试期 MAE 0.0848  WAPE 0.567  CRPS 0.0522  PICP90 原始 0.902 / ACI 0.906；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_stgcn_price
+== 极小训练：PAG（论文版元学习预训练 1 轮，占用率口径）
+05:16:28 INFO 运行 smoke_baseline_pag，基线 pag，设备 cpu，torch 2.14.0
+05:16:29 INFO 数据：T=4344 N=40 目标 occupancy 训练/验证/测试起点 3001/409/841
+05:16:29 INFO 模型参数 3,326；价格输入 历史价格（PAG）；损失 MSE（点预测）
+05:16:29 INFO PAG：论文版元学习预训练，先验 [-1.48, -0.228]，1 轮，支持集/查询集 1500/1501 个窗口
+05:16:31 INFO PAG 元学习预训练 第   1 轮  伪样本比例 1.000  查询集损失 0.13771
+05:16:31 INFO 微调 第   1 轮  训练 0.12746  验证 0.10850  0.4s
+05:16:31 INFO 微调 第   2 轮  训练 0.11811  验证 0.10217  0.4s
+05:16:33 INFO 价格响应读出（分时小区 dl_hist 价格 +5%）：弧弹性均值 -0.001，中位数 -0.001，为负的比例 1.00
+05:16:33 INFO 切换点一致性（all）：观测 β -0.515（0.649）  模型 β -0.258（0.111）
+05:16:33 INFO 切换点一致性（novel）：观测 β +6.664（1.613）  模型 β -0.039（0.345）
+05:16:35 INFO 测试期 MAE 0.1015  WAPE 0.454  CRPS 0.0609  PICP90 原始 0.879 / ACI 0.903；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_pag
+== 极小训练：PAG（发布代码行为：不预训练）
+05:16:38 INFO 运行 smoke_baseline_pag_released，基线 pag，设备 cpu，torch 2.14.0
+05:16:39 INFO 数据：T=4344 N=40 目标 occupancy 训练/验证/测试起点 3001/409/841
+05:16:39 INFO 模型参数 1,026；价格输入 历史价格（PAG）；损失 MSE（点预测）
+05:16:39 INFO PAG：不做预训练（发布代码实际行为 / 论文中的 PAG-）
+05:16:40 INFO 微调 第   1 轮  训练 0.12205  验证 0.10860  0.4s
+05:16:41 INFO 微调 第   2 轮  训练 0.11654  验证 0.10227  0.4s
+05:16:42 INFO 价格响应读出（分时小区 dl_hist 价格 +5%）：弧弹性均值 -0.001，中位数 -0.001，为负的比例 1.00
+05:16:42 INFO 切换点一致性（all）：观测 β -0.515（0.649）  模型 β -0.255（0.104）
+05:16:42 INFO 切换点一致性（novel）：观测 β +6.664（1.613）  模型 β -0.062（0.322）
+05:16:45 INFO 测试期 MAE 0.1015  WAPE 0.454  CRPS 0.0609  PICP90 原始 0.879 / ACI 0.903；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_pag_released
+== 极小训练：PIAST（修正版，占用率口径，先验 −0.45）
+05:16:47 INFO 运行 smoke_baseline_piast，基线 piast，设备 cpu，torch 2.14.0
+05:16:48 INFO 数据：T=4344 N=40 目标 occupancy 训练/验证/测试起点 3001/409/841
+05:16:48 INFO 模型参数 9,587；价格输入 预测时刻价格（PIAST）；损失 MSE（点预测）
+05:16:49 INFO PIAST：注入先验 -0.45，λ 截断 [-1.0, 0.0]，三阶段轮数 [1, 1, 1]，复现发布代码问题 False
+/opt/miniconda3/envs/cpa/lib/python3.11/site-packages/torch/backends/mkldnn/__init__.py:96: UserWarning: TF32 acceleration on top of oneDNN is available for Intel GPUs. The current Torch version does not have Intel GPU Support. (Triggered internally at /Users/runner/work/pytorch/pytorch/aten/src/ATen/Context.cpp:265.)
+  torch._C._set_onednn_allow_tf32(_allow_tf32)
+05:16:56 INFO 阶段1 强物理约束 第   1 轮  训练 0.33404  验证 0.19254  λ 均值 -0.462  7.6s
+05:17:05 INFO 阶段2 弱物理约束 第   1 轮  训练 0.20649  验证 0.14975  λ 均值 -0.462  8.1s
+05:17:12 INFO 阶段3 只用预测损失 第   1 轮  训练 0.15197  验证 0.12059  λ 均值 -0.462  7.0s
+05:17:36 INFO 价格响应读出（分时小区 dl_fut 价格 +5%）：弧弹性均值 +0.000，中位数 +0.000，为负的比例 0.00
+05:17:36 INFO PIAST 读出 λ：全部小区均值 -0.462；分时小区均值 -0.526（注入先验 -0.45）
+05:17:36 INFO 切换点一致性（all）：观测 β -0.515（0.649）  模型 β +0.000（0.000）
+05:17:36 INFO 切换点一致性（novel）：观测 β +6.664（1.613）  模型 β +0.000（0.000）
+05:17:38 INFO 测试期 MAE 0.1016  WAPE 0.454  CRPS 0.0610  PICP90 原始 0.879 / ACI 0.903；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_piast
+== 极小训练：PIAST（发布代码模式，先验 −1.48，不截断 λ）
+05:17:40 INFO 运行 smoke_baseline_piast_quirks，基线 piast，设备 cpu，torch 2.14.0
+05:17:41 INFO 数据：T=4344 N=40 目标 occupancy 训练/验证/测试起点 3001/409/841
+05:17:41 INFO 模型参数 7,287；价格输入 预测时刻价格（PIAST）；损失 MSE（点预测）
+05:17:43 INFO PIAST：注入先验 -1.48，λ 截断 None，三阶段轮数 [1, 1, 1]，复现发布代码问题 True
+/opt/miniconda3/envs/cpa/lib/python3.11/site-packages/torch/backends/mkldnn/__init__.py:96: UserWarning: TF32 acceleration on top of oneDNN is available for Intel GPUs. The current Torch version does not have Intel GPU Support. (Triggered internally at /Users/runner/work/pytorch/pytorch/aten/src/ATen/Context.cpp:265.)
+  torch._C._set_onednn_allow_tf32(_allow_tf32)
+05:17:49 INFO 阶段1 强物理约束 第   1 轮  训练 1.36865  验证 0.19254  λ 均值 -0.466  6.8s
+05:17:57 INFO 阶段2 弱物理约束 第   1 轮  训练 0.30945  验证 0.14974  λ 均值 -0.470  7.3s
+05:18:03 INFO 阶段3 只用预测损失 第   1 轮  训练 0.15196  验证 0.12058  λ 均值 -0.470  6.4s
+05:18:25 INFO 价格响应读出（分时小区 dl_fut 价格 +5%）：弧弹性均值 +0.000，中位数 +0.000，为负的比例 0.00
+05:18:25 INFO PIAST 读出 λ：全部小区均值 -0.470；分时小区均值 -0.539（注入先验 -1.48）
+05:18:25 INFO 切换点一致性（all）：观测 β -0.515（0.649）  模型 β +0.000（0.000）
+05:18:25 INFO 切换点一致性（novel）：观测 β +6.664（1.613）  模型 β +0.000（0.000）
+05:18:27 INFO 测试期 MAE 0.1016  WAPE 0.454  CRPS 0.0610  PICP90 原始 0.879 / ACI 0.903；输出 /Users/zhangshien/Desktop/EV充电因果预测sci论文/05_实验结果/runs/smoke_baseline_piast_quirks
+== 结束
