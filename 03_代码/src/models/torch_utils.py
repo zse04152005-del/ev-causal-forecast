@@ -39,3 +39,19 @@ def predict_array(model, W, bs: int, device, key: str = "y_q", price_override_fn
         ov = price_override_fn(tb) if price_override_fn is not None else None
         outs.append(model(tb, price_override=ov)[key].float().cpu().numpy())
     return np.concatenate(outs, axis=0)
+
+
+def price_override_from_path(P, lp_alt: np.ndarray, H: int, lags: int, device) -> callable:
+    """反事实价格路径 lp_alt [T, N] → predict_array 用的 price_override_fn（按批内的预测起点 t0 取未来价格特征）。"""
+    F = P.price_features(lp_alt)
+
+    def fn(tb: dict) -> dict:
+        t0 = tb["t0"].detach().cpu().numpy()
+        fut = t0[:, None] + np.arange(1, H + 1)[None, :]
+        out = {k + "_fut": torch.as_tensor(F[k][fut], dtype=torch.float32, device=device) for k in ("dl", "spill", "shift")}
+        if lags > 0:
+            ext = t0[:, None] + np.arange(1 - lags, H + 1)[None, :]
+            out["dl_fut_ext"] = torch.as_tensor(F["dl"][ext], dtype=torch.float32, device=device)
+        return out
+    return fn
+

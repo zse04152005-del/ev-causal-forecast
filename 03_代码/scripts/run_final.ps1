@@ -10,6 +10,7 @@
 #   eid        可识别性：free 模式 4 个初始值 × 3 个种子；剖面损失 9 个固定 β
 #   eps        先验敏感性：PAG（论文版 / 发布代码版）与 PIAST（截断 / 不截断）× 5 个先验，占用率口径
 #   sens       附录敏感性：滞后核（sens_lag.yaml），3 个种子
+#   ess        E-SS 半合成反事实基准（ess.yaml）：ρ ∈ {0, 0.5, 1} × 6 种模型（ρ = 0.5 时 3 个种子，另加真值锚定上界），共 31 次
 # 断点续跑：某个运行目录里已有 summary.json 就跳过；中断后重跑同一命令即可。
 # 日志：05_实验结果\云端小实验\run_final_<阶段>_<时间>.log（UTF-8）
 param([string]$Phase = "pilot")
@@ -68,7 +69,7 @@ foreach ($ph in $Phase.Split(",")) {
         Main "abl_A2_none_s$s" @("train.seed=$s", "anchor.mode=none")
         foreach ($b in "-0.45", "-0.76", "-1.48") { Main "abl_A3_prior${b}_s$s" @("train.seed=$s", "anchor.fixed_beta=$b") }
         Main "abl_A5_noprice_s$s" @("train.seed=$s", "model.use_price=false")
-        Main "abl_A6_priceinput_s$s" @("train.seed=$s", "model.price_input=true")
+        Main "abl_A6_priceinput_s$s" @("train.seed=$s", "model.price_input=true", "model.use_price=false")
         Main "abl_A10_staeformer_s$s" @("train.seed=$s", "model.backbone=staeformer")
         Main "abl_A11_predefined_s$s" @("train.seed=$s", "graph.adaptive=false")
         Main "abl_A11_adaptive_s$s" @("train.seed=$s", "graph.use_adj=false", "graph.use_dist=false", "graph.use_poi=false")
@@ -89,7 +90,26 @@ foreach ($ph in $Phase.Split(",")) {
       }
     }
     "sens" { foreach ($s in 0..2) { Run "sens_lag_s$s" "scripts/train.py" @("--config", "configs/experiment/sens_lag.yaml", "train.seed=$s") } }
-    default { Log "未知阶段：$ph（可选 pilot, tune, main, baselines, ablations, eid, eps, sens）" }
+    "ess" {
+      $variants = [ordered]@{
+        "A0cells"  = @("anchor.mode=cut", "ess.anchor=cells");
+        "A0pooled" = @("anchor.mode=cut", "ess.anchor=pooled");
+        "A1free"   = @("anchor.mode=free");
+        "A2none"   = @("anchor.mode=none");
+        "A5blind"  = @("model.use_price=false");
+        "A6input"  = @("model.use_price=false", "model.price_input=true")
+      }
+      foreach ($rho in "0.5", "0", "1") {
+        $seeds = if ($rho -eq "0.5") { 0..2 } else { 0..0 }
+        foreach ($s in $seeds) {
+          foreach ($k in $variants.Keys) {
+            Run "ess_rho${rho}_${k}_s$s" "scripts/train.py" (@("--config", "configs/experiment/ess.yaml", "--no-consistency", "ess.rho=$rho", "ess.seed=$s", "train.seed=$s") + $variants[$k])
+          }
+        }
+      }
+      Run "ess_rho0.5_A0oracle_s0" "scripts/train.py" @("--config", "configs/experiment/ess.yaml", "--no-consistency", "ess.rho=0.5", "ess.seed=0", "train.seed=0", "anchor.mode=cut", "ess.anchor=oracle")
+    }
+    default { Log "未知阶段：$ph（可选 pilot, tune, main, baselines, ablations, eid, eps, sens, ess）" }
   }
   Log "阶段 $ph 结束"
   $script:writer.Close()

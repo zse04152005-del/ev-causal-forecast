@@ -221,6 +221,35 @@ class TestRealBatch(unittest.TestCase):
         self.assertEqual(tuple(out["y_q"].shape), (2, 24, 20, 7))
         self.assertTrue(bool(torch.isfinite(out["y_q"]).all()))
 
+    def test_ess_counterfactual_pipeline(self):
+        """E-SS：半合成数据 + 真值锚定（oracle）下，模型的反事实效应应与真实效应一致（截断反馈、δ = 0）。"""
+        import tempfile
+
+        from src.causal.anchors import load_anchors
+        from src.data.windows import WindowDataset
+        from src.eval.ess import evaluate_ess, setup_ess
+        from src.models.torch_utils import predict_array, price_override_from_path
+        cfg = load_config(DEFAULT_CFG, ["ess.enabled=true", "ess.anchor=oracle", "model.D=8"])
+        with tempfile.TemporaryDirectory() as d:
+            E = setup_ess(prepared(), cfg, d)
+            Q = E.Q
+            a = load_anchors(E.anchor_path, G=Q.G, K=Q.K)
+            W = WindowDataset(Q, "test", stride=97)
+            torch.manual_seed(0)
+            model = CPASTGNN(cfg.model, N=Q.N, L=24, H=24, K=Q.K, cov_hist_dim=12, cov_fut_dim=W.n_cov_fut,
+                             static=Q.static, supports=Q.supports, groups=Q.groups, anchors=a, anchor_mode="cut",
+                             graph_cfg=cfg.graph, init_quantiles=np.linspace(0.02, 0.5, 7))
+            dev = torch.device("cpu")
+            q = list(cfg.model.quantiles)
+            fact = predict_array(model, W, 8, dev)
+            cf = {nm: predict_array(model, W, 8, dev, price_override_fn=price_override_from_path(Q, lp, 24, 0, dev))
+                  for nm, lp in E.scenarios.items()}
+            rep = evaluate_ess(E, W.origins, 24, fact, cf, q, model.price_parameters()["beta"], a.beta)
+        self.assertLess(rep["elasticity"]["MAE_treated"], 1e-5)
+        for nm, v in rep["scenarios"].items():
+            self.assertLess(abs(v["model"]["implied_beta"] - v["true_implied_beta"]), 0.15, nm)
+            self.assertLess(abs(v["plugin_P0"]["implied_beta"] - v["true_implied_beta"]), 0.15, nm)
+
 
 if __name__ == "__main__":
     unittest.main()

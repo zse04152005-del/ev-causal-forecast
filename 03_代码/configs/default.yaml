@@ -145,3 +145,20 @@ causal:
   exclude_holiday_pm1: true           # 排除法定假日及前后各 1 天
   eps_pile_hours: 0.5                 # 对数窗口均值的平滑常数（桩·小时）
   design: D                           # D9（已确认）：主设计 D = 仅分时小区、日期×时刻 + 小区×时刻固定效应；C 作效率对照
+
+ess:                                  # E-SS 半合成反事实基准（设计文档 11.3；src/eval/ess.py）；enabled=true 时 train.py 改在合成数据上训练与评价
+  enabled: false
+  rho: 0.5                            # 内生性：高价时段与小区自身需求高峰的重合程度（0 随机，1 恰在高峰）
+  betas_by_group: [-0.2, -0.8, -1.5]  # 真实弹性（按功能区）
+  delta: [0.0, 0.0, 0.0]              # 真实溢出（主模型 δ = 0，这里也取 0）
+  amp: 0.15                           # 合成分时的对数价差幅度
+  high_hours: 10
+  frac_treated: 0.5
+  day_shift_prob: 0.2                 # 时刻表跨日变动：整体平移 ±shift_hours 的日子占比
+  shift_hours: 3
+  flat_day_prob: 0.2                  # 不执行分时的日子占比
+  max_frozen: 0.2                     # 基线池：冻结比例 < 20% 的固定电价小区
+  seed: 0                             # 合成数据的随机种子（与 train.seed 分开）
+  anchor: cells                       # cells（格子 + 合并规则）| pooled（全市一个值，与主实验一致）| oracle（真值，上界）
+  design: D
+  scenarios: [flat, spread1.5]        # 测试期反事实：取消分时 / 峰谷差放大 1.5 倍

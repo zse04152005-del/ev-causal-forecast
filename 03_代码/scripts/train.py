@@ -27,7 +27,7 @@ from src.eval.counterfactual import switch_consistency  # noqa: E402
 from src.eval.runner import save_run  # noqa: E402
 from src.models.cpastgnn import CPASTGNN  # noqa: E402
 from src.models.losses import anchor_loss, hier_loss, pinball_loss  # noqa: E402
-from src.models.torch_utils import pick_device, predict_array, to_tensors  # noqa: E402
+from src.models.torch_utils import pick_device, predict_array, price_override_from_path, to_tensors  # noqa: E402
 from src.utils.config import load_config, save_config  # noqa: E402
 from src.utils.log import get_logger  # noqa: E402
 from src.utils.paths import project_root, resolve  # noqa: E402
@@ -71,13 +71,20 @@ def main():
 
     t_start = time.time()
     P = prepare(cfg)
+    ess = None
+    if cfg.get("ess") is not None and bool(cfg.ess.get("enabled", False)):    # E-SS：换成半合成数据（设计文档 11.3）
+        from src.eval.ess import setup_ess
+        ess = setup_ess(P, cfg, out_dir)
+        P = ess.Q
+        log.info(f"E-SS 半合成数据：{P.N} 个小区（处理组 {int(ess.S.treated.sum())}），ρ = {ess.S.rho}，"
+                 f"真实弹性 {list(cfg.ess.betas_by_group)}；锚定 {cfg.ess.anchor}（在合成训练期上重新估计）")
     lags = int(mc.get("price_lags", 0) or 0)
     kw = dict(L=cfg.data.L, H=cfg.data.H, future_weather=cfg.data.future_weather, price_lags=lags)
     W_tr, W_va = WindowDataset(P, "train", **kw), WindowDataset(P, "val", **kw)
     W_te = WindowDataset(P, "test", stride=int(tc.eval_stride), **kw)
     log.info(f"数据：T={P.T} N={P.N} 训练/验证/测试起点 {len(W_tr)}/{len(W_va)}/{len(W_te)}；{P.meta['split']}")
 
-    anchors = load_anchors(resolve(ac.file, root), G=P.G, K=P.K)
+    anchors = load_anchors(ess.anchor_path if ess is not None else resolve(ac.file, root), G=P.G, K=P.K)
     placeholder = anchors.is_placeholder                  # 先记下：改写 source 后 is_placeholder 会失效
     if ac.get("fixed_beta") is not None:                  # E-ID 剖面损失：把 β 固定在给定值
         anchors.beta[:] = float(ac.fixed_beta)
@@ -167,7 +174,21 @@ def main():
     extra = {"model": "cpastgnn", "backbone": mc.backbone, "anchor_mode": ac.mode, "anchor_source": anchors.source,
              "anchor_placeholder": placeholder, "n_params": n_par, "epochs_run": len(hist),
              "best_val_pinball": best, "seconds": time.time() - t_start, "device": str(device)}
-    if not a.no_consistency and cfg.data.H >= 6 and int(tc.eval_stride) == 1:
+    if ess is not None:
+        from src.eval.ess import evaluate_ess
+        H = int(cfg.data.H)
+        cf = {nm: predict_array(model, W_te, int(tc.batch_size), device, key="y_q",
+                                price_override_fn=price_override_from_path(P, lp_alt, H, lags, device))
+              for nm, lp_alt in ess.scenarios.items()}
+        rep = evaluate_ess(ess, W_te.origins, H, yq_te, cf, quantiles, pp.get("beta"), anchors.beta,
+                           clip=None if mc.get("clip_max") is None else float(mc.clip_max))
+        with open(os.path.join(out_dir, "ess_report.json"), "w", encoding="utf-8") as f:
+            json.dump(rep, f, ensure_ascii=False, indent=1, default=float)
+        for nm, v in rep["scenarios"].items():
+            log.info(f"E-SS {nm}：真实隐含弹性 {v['true_implied_beta']:+.3f}；模型 {v['model']['implied_beta']:+.3f}"
+                     f"（反事实 MAE {v['model']['CF_MAE']:.4f}）；插补 P0 {v['plugin_P0']['implied_beta']:+.3f}"
+                     f"（{v['plugin_P0']['CF_MAE']:.4f}）")
+    if ess is None and not a.no_consistency and cfg.data.H >= 6 and int(tc.eval_stride) == 1:
         q = list(np.round(quantiles, 4))
         spec = PanelSpec(window=int(ac.window_hours), jump_threshold=cfg.causal.jump_threshold,
                          eps=cfg.causal.eps_pile_hours, exclude_holiday_pm1=cfg.causal.exclude_holiday_pm1)

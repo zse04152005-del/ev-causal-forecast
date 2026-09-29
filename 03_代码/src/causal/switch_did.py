@@ -115,6 +115,7 @@ def build_panel(Y: np.ndarray, lp: np.ndarray, pricing: np.ndarray, groups: np.n
         "zone": zi, "t": ti, "J": J[ti, zi], "x": x[ti, zi], "tou": tou[zi], "group": groups[zi],
         "ctx": ctx, "hour": hour, "day": day,
         "novel": np.abs(x[ti, zi] - x_lag[ti, zi]) > spec.jump_threshold,   # 与前一天同一时刻的跳变不同
+        "Apre": pre[ti, zi] * W, "Apost": post[ti, zi] * W,                 # 窗口计数（PPML 用，与 5 分钟面板同名）
     })
     for k in range(K):
         df[f"S{k + 1}"] = S[ti, zi, k]
