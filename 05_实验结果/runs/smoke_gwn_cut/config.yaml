@@ -83,6 +83,80 @@ model:
     heads: 2
     layers: 1
     ff_dim: 64
+baseline:
+  name: stgcn
+  price_input: none
+  use_cov: true
+  loss: pinball
+  D: 64
+  dropout: 0.1
+  lstm:
+    hidden: 16
+    layers: 2
+  gcn:
+    hidden: 32
+    layers: 1
+  gcnlstm:
+    gcn_out: 32
+    gcn_layers: 1
+    lstm_hidden: 32
+    lstm_layers: 1
+  stgcn:
+    Kt: 3
+    Ks: 3
+    blocks:
+    - - 64
+      - 16
+      - 64
+    - - 64
+      - 16
+      - 64
+  astgcn:
+    K: 3
+    chev_filter: 64
+    time_filter: 64
+    blocks: 2
+  agcrn:
+    hidden: 64
+    layers: 2
+    embed_dim: 10
+    cheb_k: 2
+  pag:
+    kcnn: 2
+    k: 6
+    heads: 4
+    beta: 0.5
+    dropout: 0.5
+    price_scale: 1.0
+    pretrain: paper
+    laws:
+    - -1.48
+    - -0.228
+    pretrain_epochs: 100
+    outer_lr: 0.005
+    gamma_den: 1000
+    lr: 0.001
+    weight_decay: 1.0e-05
+    released_code_quirks: false
+  piast:
+    kcnn: 2
+    mlp_hidden: 64
+    heads: 4
+    dropout: 0.2
+    prior: -0.45
+    prior_weights:
+    - 1.0
+    - 0.1
+    clamp:
+    - -1.0
+    - 0.0
+    epochs:
+    - 60
+    - 40
+    - 100
+    lr: 0.001
+    price_scale: 1.5
+    released_code_quirks: false
 anchor:
   mode: cut
   file: 03_代码/configs/anchor/placeholder.json
@@ -96,7 +170,7 @@ anchor:
   allow_placeholder: true
 train:
   seed: 0
-  device: cpu
+  device: cuda
   batch_size: 8
   epochs: 2
   patience: 5
@@ -118,4 +192,4 @@ causal:
   flat_hours: 3
   exclude_holiday_pm1: true
   eps_pile_hours: 0.5
-  design: C
+  design: D
