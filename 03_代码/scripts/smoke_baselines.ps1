@@ -5,7 +5,13 @@ $root = Split-Path -Parent (Get-Location)
 $logDir = Join-Path $root "05_实验结果\云端小实验"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 $log = Join-Path $logDir ("smoke_baselines_" + (Get-Date -Format "yyyyMMdd_HHmmss") + ".log")
+# 编码：让 PowerShell 按 UTF-8 解读 Python 的输出（否则中文变乱码），日志写成 UTF-8（Tee-Object 在 5.1 版写 UTF-16，Git 会当成二进制）
+$utf8 = New-Object System.Text.UTF8Encoding $false
+[Console]::OutputEncoding = $utf8
+$OutputEncoding = $utf8
 $env:PYTHONIOENCODING = "utf-8"
+$env:PYTHONUTF8 = "1"
+$writer = New-Object System.IO.StreamWriter($log, $false, $utf8)
 $smoke = @("--config", "configs/experiment/smoke.yaml", "train.device=cuda", "baseline.D=16", "baseline.stgcn.blocks=[[16,8,16],[16,8,16]]",
            "baseline.astgcn.chev_filter=16", "baseline.astgcn.time_filter=16", "baseline.agcrn.hidden=16")
 & {
@@ -28,5 +34,7 @@ $smoke = @("--config", "configs/experiment/smoke.yaml", "train.device=cuda", "ba
   "== 极小训练：PIAST（发布代码模式，先验 −1.48，不截断 λ）"
   python scripts/train_baseline.py @smoke baseline.name=piast data.target=occupancy "baseline.piast.epochs=[1,1,1]" baseline.piast.released_code_quirks=true baseline.piast.prior=-1.48 baseline.piast.clamp=null train.run_name=smoke_baseline_piast_quirks
   "== 结束"
-} *>&1 | Tee-Object -FilePath $log
+# Python 写到 stderr 的警告在 5.1 版会被包成红色的 NativeCommandError（并不是报错）；这里统一转成普通文本
+} *>&1 | ForEach-Object { $line = "$_"; Write-Host $line; $writer.WriteLine($line); $writer.Flush() }
+$writer.Close()
 Write-Host "日志已保存：$log"

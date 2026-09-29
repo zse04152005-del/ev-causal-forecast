@@ -55,6 +55,9 @@ class CPASTGNN(nn.Module):
                 raise ValueError(f"滞后权重长度 {len(lag_w)} 与 model.price_lags + 1 = {self.price_lags + 1} 不一致")
         # 口径对齐（设计文档 6.5）：锚定值是切换后 anchor_window 小时的平均响应；有滞后核时长期弹性 = 锚定值 / 窗口因子
         self.wf = window_factor(lag_w, anchor_window)
+        wf_emp = (anchors.meta or {}).get("window_factor")
+        if lag_w is not None and wf_emp:                  # 锚定文件给出经验窗口因子（5 分钟半合成验证）时以它为准
+            self.wf = float(wf_emp)
         price_anchors = anchors
         if lag_w is not None:
             price_anchors = dataclasses.replace(anchors, beta=np.asarray(anchors.beta, dtype=np.float64) / self.wf)

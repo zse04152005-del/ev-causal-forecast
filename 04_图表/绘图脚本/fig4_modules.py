@@ -133,46 +133,48 @@ def panel_a(c: Canvas, lead: float = 0.0):
         prev = top
     zy = prev + 1.45                                                   # 最上面一个 1×1 的中心
 
-    # ---- 分位数头
-    hx0, hy0, hx1, hy1 = 63.0, 0.8, 97.4, 49.0
-    c.box(hx0, hy0, hx1 - hx0, hy1 - hy0, fc=B["fill"], ec=B["stroke"], lw=LW["box"], r=1.2, z=1)
-    T(hx0 + 2.2, 3.6, "Quantile head", ha="left", weight="bold", size=FS["label"], fit=(hx0 + 1.5, hx1 - 1))
-    bx0, bw = 76.4, 9.2
-    ax_ = 92.1                                                         # ⊕ 与竖直链的横坐标
-    rows = [(zy, None), (zy + 4.8, r"$\mathbf{c}_{t+h},\mathbf{w}_{t+h}$"), (zy + 9.6, r"$h$")]
+    # ---- 分位数头（v1.3：向下放大到 y≈56，框、间距、分位数小图都加大）
+    hx0, hy0, hx1, hy1 = 63.0, 0.8, 97.6, 56.3
+    c.box(hx0, hy0, hx1 - hx0, hy1 - hy0, fc=B["fill"], ec=B["stroke"], lw=LW["box"], r=1.3, z=1)
+    T(hx0 + 2.2, 3.7, "Quantile head", ha="left", weight="bold", size=FS["label"], fit=(hx0 + 1.5, hx1 - 1))
+    bx0, bw, bh = 75.6, 10.4, 3.4
+    ax_ = 92.0                                                         # ⊕ 与竖直链的横坐标
+    rows = [(zy, None), (zy + 5.6, r"$\mathbf{c}_{t+h},\mathbf{w}_{t+h}$"), (zy + 11.2, r"$h$")]
     ay_ = rows[1][0]
     for k, (yy, lab) in enumerate(rows):
         pal = G if k == 1 else B
-        tbox(c, bx0, yy - 1.45, bw, 2.9, "Embed" if k == 2 else "Linear", fc="white", ec=pal["stroke"])
+        tbox(c, bx0, yy - bh / 2, bw, bh, "Embed" if k == 2 else "Linear", fc="white", ec=pal["stroke"])
         if lab:
             T(bx0 - 1.0, yy + 0.1, lab, ha="right", size=FS["body"], color=G["stroke"] if k == 1 else INK,
               fit=(hx0 + 0.6, bx0))
         dx, dy = ax_ - (bx0 + bw), ay_ - yy
         L = math.hypot(dx, dy)
-        c.line([(bx0 + bw, yy), (ax_ - dx / L * 1.45, ay_ - dy / L * 1.45)], head=(0.9, 0.65),
+        c.line([(bx0 + bw, yy), (ax_ - dx / L * 1.6, ay_ - dy / L * 1.6)], head=(1.0, 0.72),
                color=G["stroke"] if k == 1 else INK)
     c.line([(ox + 4.2, zy), (bx0, zy)], color=B["stroke"], head=(1.0, 0.75))
-    T(70.0, zy - 1.6, r"$\mathbf{z}_i$", size=FS["body"], color=B["stroke"])
-    c.op(ax_, ay_, "+", r=1.45)
-    prev = ay_ + 1.45
+    T(69.0, zy - 1.9, r"$\mathbf{z}_i$", size=FS["body"], color=B["stroke"])
+    c.op(ax_, ay_, "+", r=1.6)
+    prev = ay_ + 1.6
+    gap, ch = 1.9, 3.4
     for k, (lab, pal) in enumerate((("ReLU", N), ("Linear", B), ("ReLU", N), ("Linear", B))):
-        top = rows[2][0] + 2.6 if k == 0 else prev + 1.5            # 第一个框放在第三行输入之下，避免斜线穿过
-        tbox(c, ax_ - 4.7, top, 9.4, 2.9, lab, fc="white" if pal is B else pal["mid"], ec=pal["stroke"])
-        c.line([(ax_, prev), (ax_, top)], head=(0.85, 0.62))
-        prev = top + 2.9
-    sy0 = prev + 1.5
-    tbox(c, 74.0, sy0, 23.0, 3.0, "softplus, cumsum", fc=B["mid"], ec=B["stroke"])
-    c.line([(ax_, prev), (ax_, sy0)], head=(0.85, 0.62))
+        top = rows[2][0] + 3.3 if k == 0 else prev + gap            # 第一个框放在第三行输入之下，避免斜线穿过
+        tbox(c, ax_ - 5.0, top, 10.0, ch, lab, fc="white" if pal is B else pal["mid"], ec=pal["stroke"])
+        c.line([(ax_, prev), (ax_, top)], head=(0.95, 0.68))
+        prev = top + ch
+    sy0 = prev + gap
+    tbox(c, 72.4, sy0, 24.6, 3.8, "softplus, cumsum", fc=B["mid"], ec=B["stroke"])
+    c.line([(ax_, prev), (ax_, sy0)], head=(0.95, 0.68))
     # 非交叉分位数小图：7 段 softplus 增量累加
-    qx, qy0 = 65.2, sy0 + 3.6
+    qx = 64.6
     inc = [0.9, 0.8, 1.1, 1.4, 1.1, 0.9, 0.8]
     cum = np.cumsum(inc)
+    base = hy1 - 1.4
     for m, v in enumerate(cum):
-        hgt = v * 0.72
-        c.rect(qx + m * 1.5, qy0 + 6.3 - hgt, 1.1, hgt, fc=B["strong"] if m == 3 else B["mid"], ec=B["stroke"],
+        hgt = v * 0.68
+        c.rect(qx + m * 1.5, base - hgt, 1.1, hgt, fc=B["strong"] if m == 3 else B["mid"], ec=B["stroke"],
                lw=LW["hair"], z=3)
-    T(76.8, sy0 + 8.0, r"$b^{(0.05)}\leq\cdots\leq b^{(0.95)}$", ha="left", size=FS["body"], fit=(76.2, hx1 - 0.4))
-    c.line([(85.5, sy0 + 3.0), (85.5, sy0 + 5.9)], head=(0.85, 0.62))
+    T(76.0, base - 2.0, r"$b^{(0.05)}\leq\cdots\leq b^{(0.95)}$", ha="left", size=FS["body"], fit=(75.4, hx1 - 0.4))
+    c.line([(85.0, sy0 + 3.8), (85.0, base - 4.4)], head=(0.9, 0.65))
 
     # ---- 输入嵌入（底部）
     ey = 55.6
@@ -195,16 +197,50 @@ def panel_a(c: Canvas, lead: float = 0.0):
     T(xc, 67.9, r"static & POI $\mathbf{s}_i$", size=FS["body"], color=G["stroke"])
     c.line([(xc, 65.9), (xc, 64.1)], color=G["stroke"], head=(0.8, 0.6))
 
-    # ---- 图结构说明（右下）
-    lx, ly = 51.6, 52.6
-    T(lx, ly, r"Graph supports $A_s$ (2-hop diffusion)", ha="left", weight="bold", size=FS["body"],
-      fit=(lx, PW_L - 0.3))
-    items = [("adjacency (symmetrised)", N), ("Gaussian distance kernel", N), ("POI cosine similarity (top 10)", N),
-             (r"adaptive $\tilde A=\mathrm{softmax}(\mathrm{ReLU}(E_1E_2^{\top}))$", B)]
-    for k, (lab, pal) in enumerate(items):
-        yy = ly + 3.7 + 3.5 * k
-        c.ax.add_patch(Circle((lx + 1.0, yy), 0.55, fc=pal["stroke"], ec="none", zorder=4))
-        T(lx + 2.4, yy + 0.05, lab, ha="left", size=FS["body"], fit=(lx, PW_L - 0.3))
+    # ---- 图结构支撑（右下）：四种图的小图标图例（v1.3，取代原来的四行文字）
+    lx, ly = 49.6, 59.3
+    T(lx, ly, r"Graph supports $A_s$ (2-hop)", ha="left", weight="bold", size=FS["body"], fit=(lx, PW_L - 0.3))
+    ty, ts = 61.1, 4.8                                                 # 图标方块的上沿与边长
+    pitch, cx0 = 12.2, 55.2
+
+    def node(x, y, col, fc=None, r=0.45):
+        c.ax.add_patch(Circle((x, y), r, fc=fc or col, ec=col, lw=LW["hair"], zorder=5))
+
+    labels = ["adjacency", "distance", "POI sim.", "adaptive"]
+    for k, lab in enumerate(labels):
+        cx, cy = cx0 + k * pitch, ty + ts / 2
+        adaptive = k == 3
+        c.box(cx - ts / 2, ty, ts, ts, fc=B["fill"] if adaptive else "white", ec=B["stroke"] if adaptive else N["stroke"],
+              lw=LW["thin"], r=0.6, z=3)
+        if k == 0:                                                     # 对称邻接：实线图
+            p = [(-1.5, -1.3), (0.4, -1.6), (1.6, -0.1), (-0.5, 0.6), (0.9, 1.6), (-1.5, 1.4)]
+            for i, j in ((0, 1), (1, 2), (0, 3), (1, 3), (2, 4), (3, 4), (3, 5)):
+                c.line([(cx + p[i][0], cy + p[i][1]), (cx + p[j][0], cy + p[j][1])], color=N["stroke"],
+                       lw=LW["hair"], arrow=False, z=4)
+            for q in p:
+                node(cx + q[0], cy + q[1], INK2)
+        elif k == 1:                                                   # 高斯距离核：边越远越细，虚线圈表示带宽
+            c.ax.add_patch(Circle((cx, cy), 1.75, fc="none", ec=N["stroke"], lw=LW["hair"], ls=(0, (1.0, 1.0)), zorder=4))
+            for (dx, dy), w in (((1.5, -1.0), LW["box"]), ((-1.6, 0.9), LW["thin"]), ((0.6, 1.9), LW["hair"] * 0.6)):
+                c.line([(cx, cy), (cx + dx, cy + dy)], color=N["stroke"], lw=w, arrow=False, z=4)
+                node(cx + dx, cy + dy, INK2)
+            node(cx, cy, INK2, r=0.55)
+        elif k == 2:                                                   # POI 余弦相似：绿色节点 + 虚线边
+            p = [(-1.5, -1.1), (1.3, -1.4), (1.5, 1.2), (-1.0, 1.4), (0.0, 0.0)]
+            for i, j in ((0, 4), (1, 4), (2, 4), (3, 4), (0, 3)):
+                c.line([(cx + p[i][0], cy + p[i][1]), (cx + p[j][0], cy + p[j][1])], color=G["stroke"], lw=LW["hair"],
+                       ls=(0, (1.0, 0.8)), arrow=False, z=4)
+            for q, fcol in zip(p, (G["strong"], G["stroke"], G["strong"], G["stroke"], G["stroke"])):
+                node(cx + q[0], cy + q[1], G["stroke"], fc=fcol, r=0.5)
+        else:                                                          # 自适应：由 E1E2ᵀ 学出的稠密权重矩阵
+            n_, cs = 4, 1.05
+            M = np.array([[.9, .3, .1, .2], [.3, .8, .4, .1], [.1, .4, .9, .3], [.2, .1, .3, .7]])
+            for i in range(n_):
+                for j in range(n_):
+                    v = M[i, j]
+                    col = tuple((1 - v) * np.array(matplotlib.colors.to_rgb(B["mid"])) + v * np.array(matplotlib.colors.to_rgb(B["stroke"])))
+                    c.rect(cx - n_ * cs / 2 + j * cs, cy - n_ * cs / 2 + i * cs, cs, cs, fc=col, ec="white", lw=0.2, z=4)
+        T(cx, ty + ts + 2.0, lab, size=FS["body"], color=B["stroke"] if adaptive else INK2, fit=(cx - pitch / 2 + 0.2, cx + pitch / 2 - 0.2))
 
 
 # ============================================================ (b) 价格响应与截断反馈锚定

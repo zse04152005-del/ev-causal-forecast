@@ -5,7 +5,13 @@ $root = Split-Path -Parent (Get-Location)
 $logDir = Join-Path $root "05_实验结果\云端小实验"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 $log = Join-Path $logDir ("smoke_test_" + (Get-Date -Format "yyyyMMdd_HHmmss") + ".log")
+# 编码：让 PowerShell 按 UTF-8 解读 Python 的输出（否则中文变乱码），日志写成 UTF-8（Tee-Object 在 5.1 版写 UTF-16，Git 会当成二进制）
+$utf8 = New-Object System.Text.UTF8Encoding $false
+[Console]::OutputEncoding = $utf8
+$OutputEncoding = $utf8
 $env:PYTHONIOENCODING = "utf-8"
+$env:PYTHONUTF8 = "1"
+$writer = New-Object System.IO.StreamWriter($log, $false, $utf8)
 & {
   "== 环境"
   python --version
@@ -17,5 +23,7 @@ $env:PYTHONIOENCODING = "utf-8"
   "== 极小训练 2：STAEformer + 软锚定"
   python scripts/train.py --config configs/experiment/smoke.yaml model.backbone=staeformer anchor.mode=soft train.device=cuda train.run_name=smoke_staeformer_soft
   "== 结束"
-} *>&1 | Tee-Object -FilePath $log
+# Python 写到 stderr 的警告在 5.1 版会被包成红色的 NativeCommandError（并不是报错）；这里统一转成普通文本
+} *>&1 | ForEach-Object { $line = "$_"; Write-Host $line; $writer.WriteLine($line); $writer.Flush() }
+$writer.Close()
 Write-Host "日志已保存：$log"

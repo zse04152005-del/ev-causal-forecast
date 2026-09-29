@@ -42,12 +42,18 @@ powershell -ExecutionPolicy Bypass -File scripts\smoke_baselines.ps1
 | 核对数据与 Mac 上逐字节相同 | `python scripts/verify_data.py` | 否 |
 | 检查数据、打印摘要 | `python scripts/prepare_data.py` | 否 |
 | 用训练期切换事件估计锚定值 | `python scripts/estimate_anchors.py` → `configs/anchor/hourly_train.json` | 否 |
+| 5 分钟站点级因果估计（规格表、事件研究、安慰剂、格子锚定） | `python scripts/estimate_causal_5min.py --stages all`（数据在 `02_数据/interim/fiveMin/`）→ `configs/anchor/fivemin_train*.json`、`fivemin_main.json`（主实验锚定）、`05_实验结果/因果估计/5min/` | 否 |
+| 5 分钟半合成验证（设计 C、D 在已知真值下的偏误、存量稀释、反推到达弹性） | `python scripts/semisynthetic_5min.py --means 30,60 --seeds 3 --tag m30_60`，再 `python scripts/summarize_semisynth_5min.py` | 否 |
+| C 与 D 之差的自助法检验 | `python scripts/boot_cd_diff.py --reps 100` | 否 |
+| 逐小时面板 PPML 与 DML（补充估计） | `python scripts/estimate_panel_supp.py` | 否 |
+| 按官方协议复现 UrbanEV 论文表 3 的 LO 与 FCNN（数据版本核对） | `python scripts/repro_urbanev_table3.py --d1 <UrbanEV/data> --out 05_实验结果/基线/urbanev_repro` | 否 |
 | numpy 基线 | `python scripts/run_baseline.py model.name=naive_seasonal`（或 `naive_last`、`profile`） | 否 |
 | 训练 CPA-STGNN | `python scripts/train.py [覆盖项]` | 是 |
 | 深度基线（9 个） | `python scripts/train_baseline.py baseline.name=stgcn`（见第 4 节） | 是 |
 | 比较多次运行（DM、Wilcoxon） | `python scripts/evaluate.py --runs 运行1 运行2 ...` | 否 |
 | 半合成识别预实验（E-SS） | `python scripts/pilot_semisynthetic.py` | 否 |
 | 全部单元测试 | `python -m unittest discover -s tests -t .` | 部分 |
+| **最终实验批量运行（Windows）** | `powershell -ExecutionPolicy Bypass -File scripts\run_final.ps1 -Phase pilot,tune`，详见 `WINDOWS_RUNBOOK.md` | 是 |
 | 基线冒烟测试 | `bash scripts/smoke_baselines.sh`（Windows：`scripts\smoke_baselines.ps1`） | 是 |
 
 覆盖项写法：`model.D=64 anchor.mode=soft train.seed=3 data.target=occupancy`。
@@ -97,19 +103,20 @@ PIAST 的物理约束需要对 LSTM 二阶求导，在 Mac 上会自动改用 CP
 ## 5. 目录
 
 ```
-configs/            default.yaml；experiment/（smoke、final_main）；anchor/（placeholder、hourly_train）
+configs/            default.yaml；experiment/（smoke、final_main）；anchor/（placeholder、hourly_train、fivemin_train、fivemin_train_pooled、fivemin_main = 主实验用）
 assets/             zone_static.csv：小区静态特征与功能区（固定保存，跨机器一致）
 src/data/           读取、日历（假日与调休）、质量掩码、价格特征、图、分区与 POI、切分、标准化、窗口
-src/causal/         switch_did（设计 A–D、暴露映射、事件研究）、anchors（锚定文件、合并规则、口径对齐）
+src/causal/         switch_did（小时数据上的设计 A–D、暴露映射、事件研究）、switch_5min（站点级 5 分钟：价格过渡、干净窗口、PPML、聚类、事件研究）、
+                    panel_models（面板 PPML、DML）、anchors（锚定文件、合并规则、口径对齐）
 src/models/         backbones（Graph WaveNet、STAEformer）、heads（分位数头、价格响应/溢出/转移）、cpastgnn、losses、naive、
                     baselines（9 个深度基线）、pseudo_samples（PAG 伪样本）、point_intervals、torch_utils
 src/conformal/      aci（带掩码的自适应保形校准）
 src/eval/           metrics、stats（DM、Wilcoxon）、counterfactual（切换点一致性、插补基线 P0）、semisynthetic（E-SS）、runner、
                     price_readout（价格响应读出）
 src/simulate/       scenarios（S1–S5、利用率→负荷、参数抽样）
-scripts/            prepare_data、estimate_anchors、run_baseline、train、evaluate、pilot_semisynthetic、
+scripts/            prepare_data、estimate_anchors、estimate_causal_5min、boot_cd_diff、estimate_panel_supp、run_baseline、train、evaluate、pilot_semisynthetic、
                     train_baseline、smoke_test、smoke_baselines、audit/
-tests/              test_data、test_causal、test_eval（numpy）；test_models、test_baselines（PyTorch 为主）
+tests/              test_data、test_causal、test_causal_5min、test_eval（numpy）；test_models、test_baselines（PyTorch 为主）
 ```
 
 ## 6. 每次运行的输出（`05_实验结果/runs/<运行名>/`）
@@ -121,4 +128,4 @@ tests/              test_data、test_causal、test_eval（numpy）；test_models
 - 云端：数据、因果、评价共 29 个测试通过（含与数据核查冻结掩码逐点一致、半合成数据上设计 D 在内生时刻表下仍能还原弹性）
 - Mac（torch 2.14.0，Apple Silicon）：41 个测试全部通过，含 `tests/test_models.py` 的 12 个 PyTorch 测试（形状、分位数不交叉、价格盲、反事实替换、推论 1 比例关系、符号与单调约束、消融开关、滞后核与口径对齐、带滞后核的反事实替换、训练能降低损失、掩码损失、真实批次前向）；3 个极小训练全部跑通。日志：`05_实验结果/云端小实验/smoke_test_20260927_190735.log`
 - 深度基线（2026-09-28，Mac）：`tests/test_baselines.py` 16 个测试全部通过；`scripts/smoke_baselines.sh` 的 13 个极小训练全部跑通
-- Windows + RTX 4060：待运行 `scripts\smoke_test.ps1`、`scripts\smoke_baselines.ps1`
+- Windows + RTX 4060（2026-09-29，torch 2.11.0+cu128）：57 个测试通过（1 个跳过：Windows 上没有 `02_数据/processed/audit/frozen_mask.csv`），2 个极小训练在 CUDA 上跑通，结果与 Mac CPU 相同到小数点后 6 位；FCNN 全量训练完成（`05_实验结果/runs/full_fcnn/`）。`smoke_test.ps1`、`smoke_baselines.ps1` 已改为 UTF-8 输出与日志（此前日志为 UTF-16、终端中文乱码、警告显示为红色 NativeCommandError）；`smoke_baselines.ps1` 已在 Windows 上运行（28 个测试通过，13 个极小训练跑通）

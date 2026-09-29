@@ -37,8 +37,8 @@ def anchor_loss(model, anchors: AnchorSet, tou_mask: np.ndarray, groups: np.ndar
     n = 0
     if model.price is not None:
         bt = model.price.beta_table()                                        # [N, C]
-        tou = torch.as_tensor(tou_mask, device=dev)
-        g = torch.as_tensor(groups, device=dev)
+        tou = torch.as_tensor(np.array(tou_mask), device=dev)                # 复制一份：原数组只读时 torch 会警告
+        g = torch.as_tensor(np.array(groups), device=dev)
         for gi in range(anchors.beta.shape[0]):
             m = tou & (g == gi)
             if int(m.sum()) == 0:

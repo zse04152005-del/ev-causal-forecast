@@ -33,3 +33,6 @@ Thumbs.db
 
 # 代码检查缓存
 .ruff_cache/
+
+# 逐点预测（每个约 24 MB；最终实验一百多次运行会超出 GitHub 容量，改用 U 盘或网盘拷到 Mac）
+05_实验结果/runs/**/predictions_test.npz

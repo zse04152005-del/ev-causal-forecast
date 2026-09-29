@@ -1,0 +1,7 @@
+# 附录敏感性实验（2026-09-29 决策）：带滞后核的价格响应。主结果仍用 final_main.yaml 的静态锚定 −0.21
+# 滞后核 = 平均会话 60 分钟的逐小时存量调整路径；长期弹性 = −0.21 ÷ 0.593（5 分钟半合成验证的窗口因子）≈ −0.36
+_base_: final_main.yaml
+model:
+  price_lags: 2
+anchor:
+  file: 03_代码/configs/anchor/fivemin_main_lag.json

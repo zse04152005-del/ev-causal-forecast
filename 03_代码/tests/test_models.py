@@ -148,6 +148,20 @@ class TestCPASTGNN(unittest.TestCase):
         expect = model.price.beta_table().T[b["ctx_fut"]] * b["dl_fut"]
         np.testing.assert_allclose(eta_lag.detach().numpy(), expect.detach().numpy(), rtol=1e-6)
 
+    def test_empirical_window_factor(self):
+        """锚定文件给出 window_factor（5 分钟半合成验证）时，长期弹性 = 锚定值 ÷ 该值，而不是按滞后核计算。"""
+        import dataclasses
+        torch.manual_seed(0)
+        m, g = mcfg(price_lags=2)
+        a = dataclasses.replace(anchors(), lag_weights=np.array([0.5, 0.4, 0.1]), meta={"window_factor": 0.5})
+        rng = np.random.default_rng(0)
+        x = rng.random((N, N))
+        model = CPASTGNN(m, N=N, L=L, H=H, K=K, cov_hist_dim=12, cov_fut_dim=12, static=rng.normal(size=(N, 8)),
+                         supports=[x / x.sum(1, keepdims=True)], groups=np.array([0, 0, 0, 1, 1, 1]), anchors=a,
+                         anchor_mode="cut", graph_cfg=g, init_quantiles=np.linspace(0.05, 0.6, Q))
+        self.assertAlmostEqual(model.wf, 0.5)
+        np.testing.assert_allclose(model.price.beta_table().numpy(), -1.0, rtol=1e-6)
+
     def test_override_with_lags_keeps_past_prices(self):
         model = build(price_lags=2)                                      # 均匀权重，长期 β = −0.75
         b = batch(5, lags=2)

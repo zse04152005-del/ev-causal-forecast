@@ -100,11 +100,21 @@ class TestAnchors(unittest.TestCase):
         self.assertAlmostEqual(a.beta[0, 1], -0.45)
 
     def test_repo_anchor_files_load(self):
-        for fn in ("placeholder.json", "hourly_train.json"):
+        for fn in ("placeholder.json", "hourly_train.json", "fivemin_train.json", "fivemin_train_pooled.json", "fivemin_main.json",
+                   "fivemin_main_lag.json"):
             p = os.path.join(CODE_DIR, "configs", "anchor", fn)
             if os.path.exists(p):
                 a = load_anchors(p, G=3)
                 self.assertTrue(np.isfinite(a.beta).all())
+
+    def test_lag_anchor_file(self):
+        p = os.path.join(CODE_DIR, "configs", "anchor", "fivemin_main_lag.json")
+        if os.path.exists(p):
+            a = load_anchors(p, G=3)
+            self.assertEqual(len(a.lag_weights), 3)
+            self.assertAlmostEqual(float(a.lag_weights.sum()), 1.0, places=3)
+            self.assertTrue(0 < a.meta["window_factor"] < 1)
+            self.assertTrue((a.delta == 0).all())
 
     def test_window_factor_and_projection(self):
         self.assertEqual(window_factor(None), 1.0)

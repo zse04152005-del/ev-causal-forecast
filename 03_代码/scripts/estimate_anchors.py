@@ -44,7 +44,7 @@ for d in "ABCD":
           f"小区 {r['n_event_zones']}  FE 后剩余价格变动 {r['resid_var_share_x0']:.3f}  {ex}")
 
 est = estimate_cells(panel, P.G, 4, design=cc.design)
-own = merge_levels(est, P.G, 4, cfg.anchor.min_zones, cfg.anchor.max_se)
+own = merge_levels(est, P.G, 4, cfg.anchor.min_zones, cfg.anchor.max_se, require_negative=True)   # 2026-09-29：正号格子并入上一层级
 print("\n格子锚定（功能区 × 情境）：")
 for e in own:
     print(f"  G{e['group']} {e['context']:<14} β = {e['beta']:+.3f} (se {e['se']:.3f})  来自 {e['level']:<7} "

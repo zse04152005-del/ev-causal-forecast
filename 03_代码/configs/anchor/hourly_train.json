@@ -1,5 +1,5 @@
 {
- "version": "2026-09-28",
+ "version": "2026-09-29",
  "source": "hourly_train",
  "target": "utilization",
  "price": "total",
@@ -113,11 +113,11 @@
   {
    "group": 2,
    "context": "weekend_night",
-   "beta": 0.022659992550245294,
-   "se": 0.2540165626109697,
-   "n_zones": 21,
-   "n_events": 346,
-   "level": "cell"
+   "beta": -0.2342800481197548,
+   "se": 0.23437386915026356,
+   "n_zones": 50,
+   "n_events": 842,
+   "level": "context"
   }
  ],
  "own_levels": [

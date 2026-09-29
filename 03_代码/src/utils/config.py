@@ -75,6 +75,11 @@ def apply_overrides(cfg: dict, overrides: Iterable[str] | None) -> dict:
             raise ValueError(f"覆盖项缺少 '='：{item}")
         key, raw = item.split("=", 1)
         value = yaml.safe_load(raw)
+        if isinstance(value, str):                     # YAML 1.1 把 "5e-4" 当字符串；命令行里的科学计数法按数字处理
+            try:
+                value = float(value) if any(c in value.lower() for c in "e.") else value
+            except ValueError:
+                pass
         node = cfg
         parts = key.strip().split(".")
         for p in parts[:-1]:

@@ -180,7 +180,7 @@ class TestEncoders(unittest.TestCase):
                 opt.zero_grad()
                 loss.backward()
                 opt.step()
-            self.assertLess(float(loss), 0.8 * first, name)
+            self.assertLess(loss.item(), 0.8 * first, name)
 
     def test_short_input_rejected(self):
         with self.assertRaises(ValueError):

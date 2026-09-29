@@ -8,7 +8,9 @@ JSON 格式：
              "level": "cell"}, ...],             # group / context 可写 "all"
   "cross": [{"ring": "0-2km", "delta": 0.0, "se": 0.05}, ...],
   "shift": {"gamma": 0.0, "se": 1.0},
-  "lag_weights": null
+  "lag_weights": null,
+  "window_factor": null            # 可选：有滞后核时"锚定值 ÷ 长期弹性"的经验比例（例如由 5 分钟半合成验证给出）；
+                                   # 省略则按 lag_weights 与孤立切换的理想路径计算
 }
 """
 from __future__ import annotations
@@ -107,7 +109,7 @@ def load_anchors(path: str, G: int, C: int = 4, K: int = 3) -> AnchorSet:
     return AnchorSet(beta=beta, se=se, delta=delta, delta_se=dse, gamma=float(sh.get("gamma", 0.0)),
                      gamma_se=float(sh.get("se", 1.0)), lag_weights=None if lw is None else np.asarray(lw, float),
                      source=js.get("source", ""), provenance=prov,
-                     meta={k: js.get(k) for k in ("version", "target", "price", "estimand", "design")})
+                     meta={k: js.get(k) for k in ("version", "target", "price", "estimand", "design", "window_factor")})
 
 
 def placeholder_json(beta: float = -0.45, se: float = 0.5, K: int = 3) -> dict:
@@ -122,11 +124,12 @@ def placeholder_json(beta: float = -0.45, se: float = 0.5, K: int = 3) -> dict:
     }
 
 
-def merge_levels(est, G: int, C: int = 4, min_zones: int = 10, max_se: float = 0.5) -> list:
+def merge_levels(est, G: int, C: int = 4, min_zones: int = 10, max_se: float = 0.5, require_negative: bool = False) -> list:
     """把 estimate_cells 的三层结果合并成最终的格子表（设计文档 6.4 合并规则）。返回 own 条目列表。"""
     def ok(r):
-        return r is not None and np.isfinite(r["beta"]) and np.isfinite(r["se"]) and \
+        good = r is not None and np.isfinite(r["beta"]) and np.isfinite(r["se"]) and \
             r["n_zones"] >= min_zones and r["se"] <= max_se
+        return good and (not require_negative or r["beta"] <= 0)      # require_negative：正号弹性与需求定律相反，并入上一层级
     cell = {tuple(r["key"]): r for _, r in est[est.level == "cell"].iterrows()}
     ctx = {int(r["key"]): r for _, r in est[est.level == "context"].iterrows()}
     city = est[est.level == "city"].iloc[0]
