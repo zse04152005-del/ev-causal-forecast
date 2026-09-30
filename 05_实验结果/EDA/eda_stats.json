@@ -1,0 +1,121 @@
+{
+ "n_zones": 275,
+ "n_hours": 4344,
+ "n_tou": 90,
+ "n_fixed": 158,
+ "valid_share": 0.9092926502595011,
+ "train_end": "2023-01-05 23:00:00",
+ "val_end": "2023-01-23 23:00:00",
+ "diurnal": {
+  "weekday_peak_hour": 1,
+  "weekday_peak": 0.25011721879216464,
+  "weekday_trough_hour": 16,
+  "weekday_trough": 0.15174495223032197,
+  "weekend_over_weekday": 1.0659239478709972,
+  "holiday_over_weekday": 0.9299190469752848
+ },
+ "acf": {
+  "lag1": 0.9438955334088103,
+  "lag24": 0.8986476227132385,
+  "lag168": 0.7574037472737901
+ },
+ "spring_festival": {
+  "mean_util": 0.14379455984830145,
+  "two_weeks_before": 0.2016176751089968,
+  "ratio": 0.7132041363465007
+ },
+ "weather": {
+  "rain_hours_share": 0.09940944881889764,
+  "rain_minus_dry_resid": -0.0051919706552928345,
+  "corr_T_resid": 0.1398463707461835,
+  "ols_resid_on_T_T2_rain_RH": {
+   "const": 0.024942955471425225,
+   "T": -0.005252459892222571,
+   "T2": 0.00013321730677085073,
+   "rain": -0.010203385954771143,
+   "RH": 0.00036863858758720455
+  },
+  "resid_sd": 0.023222794514473462,
+  "note": "残差 = 全市小时利用率 − 同一 时刻×日类型 的平均"
+ },
+ "price": {
+  "tou_mean": 1.5849513623978502,
+  "fixed_mean": 1.7198500282060212,
+  "tou_within_day_log_range_median": 0.09057912089234749,
+  "electricity_hourly_range": [
+   0.7238698023517679,
+   1.0476033007812238
+  ],
+  "service_hourly_range": [
+   0.5688357293659083,
+   0.8266616436221075
+  ],
+  "corr_e_s_hourly_tou": -0.8906327256503497
+ },
+ "naive": {
+  "cross_zone_spearman_meanlogprice_meanlogutil": -0.37227188130443195,
+  "note": "log(利用率 + 0.01) 对 log(总价) 的 OLS；按小区聚类；只是相关，不是因果"
+ },
+ "switch_curves": {
+  "up": {
+   "n_events": 1061,
+   "mean_log_price_jump": 0.08183807943241224,
+   "diff_k0_to_k2_mean": -0.5618353662027066
+  },
+  "down": {
+   "n_events": 875,
+   "mean_log_price_jump": -0.09920986065625115,
+   "diff_k0_to_k2_mean": 0.1443383754752873
+  },
+  "note": "对数利用率相对切换前 1 小时的变化；diff = 分时小区 − 同一时刻固定小区平均；干净窗口 ±6 小时"
+ },
+ "moran": [
+  {
+   "weights": "adjacency",
+   "variable": "zone_mean_util_train",
+   "I": 0.06878719254693952,
+   "p_perm": 0.055,
+   "E_I_perm": -0.002384048355580127,
+   "n": 271,
+   "I_q10": NaN,
+   "I_q90": NaN
+  },
+  {
+   "weights": "adjacency",
+   "variable": "hourly_util_train",
+   "I": 0.08253066061772488,
+   "p_perm": NaN,
+   "E_I_perm": NaN,
+   "n": 3048,
+   "I_q10": 0.028599360883028294,
+   "I_q90": 0.138943558471371
+  },
+  {
+   "weights": "distance_5km",
+   "variable": "zone_mean_util_train",
+   "I": 0.07688674511329989,
+   "p_perm": 0.005,
+   "E_I_perm": -0.004476174060011162,
+   "n": 273,
+   "I_q10": NaN,
+   "I_q90": NaN
+  },
+  {
+   "weights": "distance_5km",
+   "variable": "hourly_util_train",
+   "I": 0.06320780950884601,
+   "p_perm": NaN,
+   "E_I_perm": NaN,
+   "n": 3048,
+   "I_q10": 0.021023226541511272,
+   "I_q90": 0.10323608258309738
+  }
+ ],
+ "lisa_counts": {
+  "ns": 256,
+  "LH": 5,
+  "LL": 4,
+  "HH": 4,
+  "HL": 2
+ }
+}

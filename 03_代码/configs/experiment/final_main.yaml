@@ -2,5 +2,11 @@
 _base_: ../default.yaml
 train:
   device: cuda
+  lr: 1.0e-3
 anchor:
   file: 03_代码/configs/anchor/fivemin_main.json    # 阶段 6 决策（2026-09-29）：5 分钟数据设计 D 的全市统一弹性 −0.21（se 0.20），δ = 0，γ 不启用
+model:
+  # 调参（2026-09-30，run_final.ps1 -Phase tune，Graph WaveNet 12 组，种子 0，按验证集 pinball 选）：
+  # D = 32、学习率 1e-3、dropout 0.1 最优（0.01277）；D = 32 的前 5 组相差不到 0.7%，D = 64 全部更差且每轮慢 7–20 倍
+  D: 32
+  dropout: 0.1

@@ -47,6 +47,7 @@ powershell -ExecutionPolicy Bypass -File scripts\smoke_baselines.ps1
 | C 与 D 之差的自助法检验 | `python scripts/boot_cd_diff.py --reps 100` | 否 |
 | 逐小时面板 PPML 与 DML（补充估计） | `python scripts/estimate_panel_supp.py` | 否 |
 | 按官方协议复现 UrbanEV 论文表 3 的 LO 与 FCNN（数据版本核对） | `python scripts/repro_urbanev_table3.py --d1 <UrbanEV/data> --out 05_实验结果/基线/urbanev_repro` | 否 |
+| 探索性分析（阶段 5.2） | `python scripts/eda.py` → `05_实验结果/EDA/`；作图 `python ../04_图表/绘图脚本/fig_eda.py` | 否 |
 | numpy 基线 | `python scripts/run_baseline.py model.name=naive_seasonal`（或 `naive_last`、`profile`） | 否 |
 | 训练 CPA-STGNN | `python scripts/train.py [覆盖项]` | 是 |
 | 深度基线（9 个） | `python scripts/train_baseline.py baseline.name=stgcn`（见第 4 节） | 是 |
