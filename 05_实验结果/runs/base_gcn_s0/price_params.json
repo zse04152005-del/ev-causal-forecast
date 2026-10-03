@@ -1,0 +1,29 @@
+{
+ "baseline": "gcn",
+ "price_input": "none",
+ "readout_keys": [],
+ "switch_consistency_all": {
+  "design": "C",
+  "subset": "all",
+  "beta_obs": -1.1803015852900895,
+  "se_obs": 0.39285709752214865,
+  "beta_model": -0.2781495373534613,
+  "se_model": 0.12731169715683727,
+  "diff": 0.9021520479366283,
+  "z_diff": 2.2963872961103022,
+  "n_events": 2842,
+  "n_obs": 23715
+ },
+ "switch_consistency_novel": {
+  "design": "C",
+  "subset": "novel",
+  "beta_obs": -0.3669450625019017,
+  "se_obs": 0.504786974789279,
+  "beta_model": -0.2508515442350938,
+  "se_model": 0.1844353054916425,
+  "diff": 0.11609351826680786,
+  "z_diff": 0.2299851701111554,
+  "n_events": 917,
+  "n_obs": 1038
+ }
+}

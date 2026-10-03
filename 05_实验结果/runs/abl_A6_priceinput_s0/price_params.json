@@ -1,0 +1,30 @@
+{
+ "anchor_source": "fivemin_main",
+ "anchor_placeholder": false,
+ "mode": "cut",
+ "window_factor": 1.0,
+ "switch_consistency_all": {
+  "design": "C",
+  "subset": "all",
+  "beta_obs": -1.1803015852900895,
+  "se_obs": 0.39285709752214865,
+  "beta_model": -0.49420386390737026,
+  "se_model": 0.21241536457969767,
+  "diff": 0.6860977213827193,
+  "z_diff": 1.7464307650545583,
+  "n_events": 2842,
+  "n_obs": 23715
+ },
+ "switch_consistency_novel": {
+  "design": "C",
+  "subset": "novel",
+  "beta_obs": -0.3669450625019017,
+  "se_obs": 0.504786974789279,
+  "beta_model": -0.28455025172204973,
+  "se_model": 0.2665400993022086,
+  "diff": 0.08239481077985195,
+  "z_diff": 0.16322689549239514,
+  "n_events": 917,
+  "n_obs": 1038
+ }
+}

@@ -1,0 +1,314 @@
+{
+ "version": "ess",
+ "target": "utilization",
+ "price": "total",
+ "estimand": "window_hourly_ppml",
+ "cross": [
+  {
+   "ring": "ring1",
+   "delta": 0.0,
+   "se": 0.2
+  },
+  {
+   "ring": "ring2",
+   "delta": 0.0,
+   "se": 0.2
+  },
+  {
+   "ring": "ring3",
+   "delta": 0.0,
+   "se": 0.2
+  }
+ ],
+ "shift": {
+  "gamma": 0.0,
+  "se": 1.0
+ },
+ "lag_weights": null,
+ "source": "ess_cells",
+ "design": "D",
+ "own": [
+  {
+   "group": 0,
+   "context": "weekday_day",
+   "beta": -0.9762969388292532,
+   "se": 0.0965420615894705,
+   "n_zones": 54,
+   "n_events": 3807,
+   "level": "context"
+  },
+  {
+   "group": 0,
+   "context": "weekday_night",
+   "beta": -1.112996254846284,
+   "se": 0.0869455741358119,
+   "n_zones": 54,
+   "n_events": 3455,
+   "level": "context"
+  },
+  {
+   "group": 0,
+   "context": "weekend_day",
+   "beta": -1.7220759043570955,
+   "se": 0.19316229323285536,
+   "n_zones": 54,
+   "n_events": 1322,
+   "level": "context"
+  },
+  {
+   "group": 0,
+   "context": "weekend_night",
+   "beta": -1.2396137541231913,
+   "se": 0.09974142421838635,
+   "n_zones": 54,
+   "n_events": 1231,
+   "level": "context"
+  },
+  {
+   "group": 1,
+   "context": "weekday_day",
+   "beta": -0.41379618904937215,
+   "se": 0.14054488414795435,
+   "n_zones": 13,
+   "n_events": 910,
+   "level": "cell"
+  },
+  {
+   "group": 1,
+   "context": "weekday_night",
+   "beta": -0.6989489765362187,
+   "se": 0.05946974288564782,
+   "n_zones": 13,
+   "n_events": 798,
+   "level": "cell"
+  },
+  {
+   "group": 1,
+   "context": "weekend_day",
+   "beta": -2.013092704251495,
+   "se": 0.30100019559418345,
+   "n_zones": 13,
+   "n_events": 324,
+   "level": "cell"
+  },
+  {
+   "group": 1,
+   "context": "weekend_night",
+   "beta": -1.1017861631438604,
+   "se": 0.1433499621168369,
+   "n_zones": 13,
+   "n_events": 270,
+   "level": "cell"
+  },
+  {
+   "group": 2,
+   "context": "weekday_day",
+   "beta": -1.3843413125360016,
+   "se": 0.08345481172495724,
+   "n_zones": 32,
+   "n_events": 2321,
+   "level": "cell"
+  },
+  {
+   "group": 2,
+   "context": "weekday_night",
+   "beta": -1.4667023202941016,
+   "se": 0.037826702354576344,
+   "n_zones": 32,
+   "n_events": 2029,
+   "level": "cell"
+  },
+  {
+   "group": 2,
+   "context": "weekend_day",
+   "beta": -1.8109336506415574,
+   "se": 0.21205560169148915,
+   "n_zones": 32,
+   "n_events": 793,
+   "level": "cell"
+  },
+  {
+   "group": 2,
+   "context": "weekend_night",
+   "beta": -1.5038807845616453,
+   "se": 0.08174624272375774,
+   "n_zones": 32,
+   "n_events": 746,
+   "level": "cell"
+  }
+ ],
+ "own_levels": [
+  {
+   "level": "cell",
+   "key": [
+    0,
+    0
+   ],
+   "beta": 0.13530805137004476,
+   "se": 0.15319355730570847,
+   "n_events": 576,
+   "n_zones": 9
+  },
+  {
+   "level": "cell",
+   "key": [
+    0,
+    1
+   ],
+   "beta": -0.08105839161277731,
+   "se": 0.08164839362875569,
+   "n_events": 628,
+   "n_zones": 9
+  },
+  {
+   "level": "cell",
+   "key": [
+    0,
+    2
+   ],
+   "beta": -0.804358338992419,
+   "se": 0.29592823180401695,
+   "n_events": 205,
+   "n_zones": 9
+  },
+  {
+   "level": "cell",
+   "key": [
+    0,
+    3
+   ],
+   "beta": -0.2614915130915307,
+   "se": 0.1458245438110622,
+   "n_events": 215,
+   "n_zones": 9
+  },
+  {
+   "level": "cell",
+   "key": [
+    1,
+    0
+   ],
+   "beta": -0.41379618904937215,
+   "se": 0.14054488414795435,
+   "n_events": 910,
+   "n_zones": 13
+  },
+  {
+   "level": "cell",
+   "key": [
+    1,
+    1
+   ],
+   "beta": -0.6989489765362187,
+   "se": 0.05946974288564782,
+   "n_events": 798,
+   "n_zones": 13
+  },
+  {
+   "level": "cell",
+   "key": [
+    1,
+    2
+   ],
+   "beta": -2.013092704251495,
+   "se": 0.30100019559418345,
+   "n_events": 324,
+   "n_zones": 13
+  },
+  {
+   "level": "cell",
+   "key": [
+    1,
+    3
+   ],
+   "beta": -1.1017861631438604,
+   "se": 0.1433499621168369,
+   "n_events": 270,
+   "n_zones": 13
+  },
+  {
+   "level": "cell",
+   "key": [
+    2,
+    0
+   ],
+   "beta": -1.3843413125360016,
+   "se": 0.08345481172495724,
+   "n_events": 2321,
+   "n_zones": 32
+  },
+  {
+   "level": "cell",
+   "key": [
+    2,
+    1
+   ],
+   "beta": -1.4667023202941016,
+   "se": 0.037826702354576344,
+   "n_events": 2029,
+   "n_zones": 32
+  },
+  {
+   "level": "cell",
+   "key": [
+    2,
+    2
+   ],
+   "beta": -1.8109336506415574,
+   "se": 0.21205560169148915,
+   "n_events": 793,
+   "n_zones": 32
+  },
+  {
+   "level": "cell",
+   "key": [
+    2,
+    3
+   ],
+   "beta": -1.5038807845616453,
+   "se": 0.08174624272375774,
+   "n_events": 746,
+   "n_zones": 32
+  },
+  {
+   "level": "context",
+   "key": 0,
+   "beta": -0.9762969388292532,
+   "se": 0.0965420615894705,
+   "n_events": 3807,
+   "n_zones": 54
+  },
+  {
+   "level": "context",
+   "key": 1,
+   "beta": -1.112996254846284,
+   "se": 0.0869455741358119,
+   "n_events": 3455,
+   "n_zones": 54
+  },
+  {
+   "level": "context",
+   "key": 2,
+   "beta": -1.7220759043570955,
+   "se": 0.19316229323285536,
+   "n_events": 1322,
+   "n_zones": 54
+  },
+  {
+   "level": "context",
+   "key": 3,
+   "beta": -1.2396137541231913,
+   "se": 0.09974142421838635,
+   "n_events": 1231,
+   "n_zones": 54
+  },
+  {
+   "level": "city",
+   "key": "all",
+   "beta": -1.1640346673587627,
+   "se": 0.07876968050105822,
+   "n_events": 9815,
+   "n_zones": 54
+  }
+ ]
+}

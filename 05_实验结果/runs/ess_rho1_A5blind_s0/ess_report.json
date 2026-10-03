@@ -1,0 +1,61 @@
+{
+ "n_zones": 109,
+ "n_treated": 54,
+ "rho": 1.0,
+ "fact_MAE_treated": 0.04527105052608984,
+ "fact_MAE_all": 0.0470580330836745,
+ "scenarios": {
+  "flat": {
+   "true_mean_effect": -0.0022842678647714883,
+   "true_implied_beta": -1.1002964070418388,
+   "plugin_P0": {
+    "CF_MAE": 0.04536304548728346,
+    "effect_MAE": 0.019836271180363095,
+    "implied_beta": -1.2918840066824746,
+    "mean_effect": -0.003636472489264701
+   },
+   "model": {
+    "CF_MAE": 0.04626225575555146,
+    "effect_MAE": 0.06455730917327131,
+    "implied_beta": 0.0,
+    "mean_effect": 0.0
+   }
+  },
+  "spread1.5": {
+   "true_mean_effect": 0.0011657983580549251,
+   "true_implied_beta": -1.1000879190886217,
+   "plugin_P0": {
+    "CF_MAE": 0.045633495485534734,
+    "effect_MAE": 0.009919803361709487,
+    "implied_beta": -1.291741449261753,
+    "mean_effect": 0.0018422600321055384
+   },
+   "model": {
+    "CF_MAE": 0.04626876885271798,
+    "effect_MAE": 0.03227651845616972,
+    "implied_beta": 0.0,
+    "mean_effect": 0.0
+   }
+  }
+ },
+ "anchor_by_group_ctx": {
+  "0": {
+   "weekday_day": -0.9762969388292532,
+   "weekday_night": -1.112996254846284,
+   "weekend_day": -1.7220759043570955,
+   "weekend_night": -1.2396137541231913
+  },
+  "1": {
+   "weekday_day": -0.41379618904937215,
+   "weekday_night": -0.6989489765362187,
+   "weekend_day": -2.013092704251495,
+   "weekend_night": -1.1017861631438604
+  },
+  "2": {
+   "weekday_day": -1.3843413125360016,
+   "weekday_night": -1.4667023202941016,
+   "weekend_day": -1.8109336506415574,
+   "weekend_night": -1.5038807845616453
+  }
+ }
+}

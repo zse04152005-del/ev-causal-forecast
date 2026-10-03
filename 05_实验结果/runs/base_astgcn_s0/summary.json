@@ -1,0 +1,20 @@
+{
+ "target": "utilization",
+ "n_test_origins": 841,
+ "test_valid_share": 0.7570219435736677,
+ "test_MAE": 0.04930202817088043,
+ "test_RMSE": 0.07221746457738076,
+ "test_WAPE": 0.2522917433993796,
+ "test_CRPS_q": 0.028743893713472468,
+ "test_PICP90_raw": 0.8717542860107484,
+ "test_PICP90_aci_mean": 0.900128002441455,
+ "val_MAE": 0.0492006537376903,
+ "model": "astgcn",
+ "price_input": "none",
+ "loss": "pinball",
+ "n_params": 483447,
+ "epochs_run": 30,
+ "best_val_loss": 0.014352316933760823,
+ "seconds": 478.1016654968262,
+ "device": "cuda"
+}

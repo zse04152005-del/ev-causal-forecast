@@ -1,0 +1,25 @@
+{
+ "target": "occupancy",
+ "n_test_origins": 841,
+ "test_valid_share": 0.7570219435736677,
+ "test_MAE": 0.05582286717641825,
+ "test_RMSE": 0.08474351380406009,
+ "test_WAPE": 0.20481749735943572,
+ "test_CRPS_q": 0.03566564362644894,
+ "test_PICP90_raw": 0.9057655941584882,
+ "test_PICP90_aci_mean": 0.8963694931342419,
+ "val_MAE": 0.0577541931851108,
+ "model": "pag",
+ "price_input": "history_price",
+ "loss": "mse",
+ "n_params": 3326,
+ "epochs_run": 100,
+ "best_val_loss": 0.0075531199414852574,
+ "seconds": 742.8142719268799,
+ "device": "cuda",
+ "pag_pretrain": "paper",
+ "pag_laws": [
+  -0.1
+ ],
+ "arc_elasticity_tou_mean": -0.164885122120694
+}

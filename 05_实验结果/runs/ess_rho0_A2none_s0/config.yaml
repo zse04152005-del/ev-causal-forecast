@@ -1,0 +1,223 @@
+paths:
+  root: null
+  data_dir: 02_数据/raw/urbanev_github/data
+  processed_dir: 02_数据/processed/cpa
+  results_dir: 05_实验结果
+  assets_dir: 03_代码/assets
+data:
+  target: utilization
+  price: total
+  L: 24
+  H: 24
+  report_steps:
+  - 1
+  - 3
+  - 6
+  - 9
+  - 12
+  - 24
+  future_weather: oracle
+  split:
+    mode: ratio_days
+    ratios:
+    - 0.7
+    - 0.1
+    - 0.2
+    train_end: null
+    val_end: null
+  quality_mask: true
+  stale_input_hours: 6
+  zones: null
+  tou_strict_share: 0.5
+  rings_km:
+  - - 0
+    - 2
+  - - 2
+    - 4
+  - - 4
+    - 6
+  scaler: global
+  context:
+    day_start: 7
+    night_start: 21
+graph:
+  use_adj: true
+  use_dist: true
+  use_poi: true
+  poi_topk: 10
+  dist_eps: 0.1
+  adaptive: true
+  adaptive_dim: 10
+model:
+  name: cpastgnn
+  backbone: graph_wavenet
+  D: 32
+  dilations:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 1
+  - 2
+  - 4
+  - 8
+  kernel_size: 2
+  diffusion_steps: 2
+  dropout: 0.1
+  head_hidden: 64
+  quantiles:
+  - 0.05
+  - 0.1
+  - 0.25
+  - 0.5
+  - 0.75
+  - 0.9
+  - 0.95
+  use_price: true
+  price_input: false
+  use_spill: true
+  use_shift: false
+  price_lags: 0
+  clip_max: 1.0
+  staeformer:
+    d_model: 24
+    tod_dim: 24
+    dow_dim: 24
+    adaptive_dim: 80
+    heads: 4
+    layers: 3
+    ff_dim: 256
+baseline:
+  name: stgcn
+  price_input: none
+  use_cov: true
+  loss: pinball
+  D: 64
+  dropout: 0.1
+  lstm:
+    hidden: 16
+    layers: 2
+  gcn:
+    hidden: 32
+    layers: 1
+  gcnlstm:
+    gcn_out: 32
+    gcn_layers: 1
+    lstm_hidden: 32
+    lstm_layers: 1
+  stgcn:
+    Kt: 3
+    Ks: 3
+    blocks:
+    - - 64
+      - 16
+      - 64
+    - - 64
+      - 16
+      - 64
+  astgcn:
+    K: 3
+    chev_filter: 64
+    time_filter: 64
+    blocks: 2
+  agcrn:
+    hidden: 64
+    layers: 2
+    embed_dim: 10
+    cheb_k: 2
+  pag:
+    kcnn: 2
+    k: 6
+    heads: 4
+    beta: 0.5
+    dropout: 0.5
+    price_scale: 1.0
+    pretrain: paper
+    laws:
+    - -1.48
+    - -0.228
+    pretrain_epochs: 100
+    outer_lr: 0.005
+    gamma_den: 1000
+    lr: 0.001
+    weight_decay: 1.0e-05
+    released_code_quirks: false
+  piast:
+    kcnn: 2
+    mlp_hidden: 64
+    heads: 4
+    dropout: 0.2
+    prior: -0.45
+    prior_weights:
+    - 1.0
+    - 0.1
+    clamp:
+    - -1.0
+    - 0.0
+    epochs:
+    - 60
+    - 40
+    - 100
+    lr: 0.001
+    price_scale: 1.5
+    released_code_quirks: false
+anchor:
+  mode: none
+  file: 03_代码/configs/anchor/fivemin_main.json
+  min_zones: 10
+  max_se: 0.5
+  lambda_a: 1.0
+  lambda_h: 0.1
+  init_beta: null
+  fixed_beta: null
+  window_hours: 3
+  allow_placeholder: true
+train:
+  seed: 0
+  device: cuda
+  batch_size: 32
+  epochs: 100
+  patience: 15
+  lr: 0.001
+  weight_decay: 0.0001
+  grad_clip: 5.0
+  max_train_batches: null
+  eval_stride: 1
+  run_name: ess_rho0_A2none_s0
+conformal:
+  alpha: 0.1
+  gamma: 0.005
+  window: 168
+  lower_q: 0.05
+  upper_q: 0.95
+causal:
+  outcome: duration
+  jump_threshold: 0.01
+  flat_hours: 3
+  exclude_holiday_pm1: true
+  eps_pile_hours: 0.5
+  design: D
+ess:
+  enabled: true
+  rho: 0
+  betas_by_group:
+  - -0.2
+  - -0.8
+  - -1.5
+  delta:
+  - 0.0
+  - 0.0
+  - 0.0
+  amp: 0.15
+  high_hours: 10
+  frac_treated: 0.5
+  day_shift_prob: 0.2
+  shift_hours: 3
+  flat_day_prob: 0.2
+  max_frozen: 0.2
+  seed: 0
+  anchor: cells
+  design: D
+  scenarios:
+  - flat
+  - spread1.5

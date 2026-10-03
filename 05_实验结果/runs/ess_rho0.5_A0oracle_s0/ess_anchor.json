@@ -1,0 +1,53 @@
+{
+ "version": "ess",
+ "target": "utilization",
+ "price": "total",
+ "estimand": "window_hourly_ppml",
+ "cross": [
+  {
+   "ring": "ring1",
+   "delta": 0.0,
+   "se": 0.2
+  },
+  {
+   "ring": "ring2",
+   "delta": 0.0,
+   "se": 0.2
+  },
+  {
+   "ring": "ring3",
+   "delta": 0.0,
+   "se": 0.2
+  }
+ ],
+ "shift": {
+  "gamma": 0.0,
+  "se": 1.0
+ },
+ "lag_weights": null,
+ "source": "ess_oracle",
+ "design": "oracle",
+ "own": [
+  {
+   "group": 0,
+   "context": "all",
+   "beta": -0.2,
+   "se": 0.05,
+   "level": "oracle"
+  },
+  {
+   "group": 1,
+   "context": "all",
+   "beta": -0.8,
+   "se": 0.05,
+   "level": "oracle"
+  },
+  {
+   "group": 2,
+   "context": "all",
+   "beta": -1.5,
+   "se": 0.05,
+   "level": "oracle"
+  }
+ ]
+}

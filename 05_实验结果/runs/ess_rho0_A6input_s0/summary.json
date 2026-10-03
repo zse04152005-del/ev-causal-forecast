@@ -1,0 +1,22 @@
+{
+ "target": "utilization",
+ "n_test_origins": 841,
+ "test_valid_share": 0.8976180606311839,
+ "test_MAE": 0.04722464220429337,
+ "test_RMSE": 0.07024298216827546,
+ "test_WAPE": 0.24792375971916575,
+ "test_CRPS_q": 0.02760812050911181,
+ "test_PICP90_raw": 0.811758093183648,
+ "test_PICP90_aci_mean": 0.9033682155455899,
+ "val_MAE": 0.0473971738264251,
+ "model": "cpastgnn",
+ "backbone": "graph_wavenet",
+ "anchor_mode": "cut",
+ "anchor_source": "ess_cells",
+ "anchor_placeholder": false,
+ "n_params": 195307,
+ "epochs_run": 31,
+ "best_val_pinball": 0.013972536677774238,
+ "seconds": 284.0881404876709,
+ "device": "cuda"
+}
