@@ -56,7 +56,7 @@ powershell -ExecutionPolicy Bypass -File scripts\smoke_baselines.ps1
 | E-SS 完整流程（合成数据上识别 → 训练 → 反事实评价） | `python scripts/train.py --config configs/experiment/ess.yaml ess.rho=0.5 ess.anchor=cells`，汇总 `python scripts/summarize_ess.py` | 是 |
 | 汇总一批运行（调参选型、结果总表） | `python scripts/summarize_runs.py --prefix tune_ --sort best_val_pinball` | 否 |
 | 全部单元测试 | `python -m unittest discover -s tests -t .` | 部分 |
-| **最终实验批量运行（Windows）** | `powershell -ExecutionPolicy Bypass -File scripts\run_final.ps1 -Phase pilot,tune`，详见 `WINDOWS_RUNBOOK.md` | 是 |
+| **最终实验批量运行（Windows）** | `powershell -ExecutionPolicy Bypass -File scripts\run_final.ps1 -Phase pilot,tune`，详见 `WINDOWS_RUNBOOK.md`；第二轮（主设置只用自适应图）用 `scripts\run_final_v2.ps1` | 是 |
 | 基线冒烟测试 | `bash scripts/smoke_baselines.sh`（Windows：`scripts\smoke_baselines.ps1`） | 是 |
 
 覆盖项写法：`model.D=64 anchor.mode=soft train.seed=3 data.target=occupancy`。

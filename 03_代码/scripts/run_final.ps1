@@ -59,7 +59,7 @@ foreach ($ph in $Phase.Split(",")) {
       foreach ($s in 0..4) {
         foreach ($b in "fcnn", "lstm", "gcn", "gcnlstm", "stgcn", "astgcn", "agcrn") { Base "base_${b}_s$s" @("baseline.name=$b", "train.seed=$s") }
         Main "base_gwn_blind_s$s" @("train.seed=$s", "model.use_price=false")
-        Main "base_staeformer_blind_s$s" @("train.seed=$s", "model.use_price=false", "model.backbone=staeformer")
+        Main "base_staeformer_blind_s$s" @("train.seed=$s", "model.use_price=false", "model.backbone=staeformer", "train.batch_size=8")   # 批 32 在 8 GB 显存上溢出
         foreach ($b in "stgcn", "agcrn") { Base "base_${b}_price_s$s" @("baseline.name=$b", "baseline.price_input=hist_fut", "train.seed=$s") }
       }
     }
@@ -70,7 +70,7 @@ foreach ($ph in $Phase.Split(",")) {
         foreach ($b in "-0.45", "-0.76", "-1.48") { Main "abl_A3_prior${b}_s$s" @("train.seed=$s", "anchor.fixed_beta=$b") }
         Main "abl_A5_noprice_s$s" @("train.seed=$s", "model.use_price=false")
         Main "abl_A6_priceinput_s$s" @("train.seed=$s", "model.price_input=true", "model.use_price=false")
-        Main "abl_A10_staeformer_s$s" @("train.seed=$s", "model.backbone=staeformer")
+        Main "abl_A10_staeformer_s$s" @("train.seed=$s", "model.backbone=staeformer", "train.batch_size=8")
         Main "abl_A11_predefined_s$s" @("train.seed=$s", "graph.adaptive=false")
         Main "abl_A11_adaptive_s$s" @("train.seed=$s", "graph.use_adj=false", "graph.use_dist=false", "graph.use_poi=false")
         foreach ($la in "0.01", "0.1", "1", "10") { Main "abl_A13_soft${la}_s$s" @("train.seed=$s", "anchor.mode=soft", "anchor.lambda_a=$la") }

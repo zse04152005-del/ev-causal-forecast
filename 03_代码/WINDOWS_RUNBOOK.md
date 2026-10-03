@@ -39,6 +39,27 @@ powershell -ExecutionPolicy Bypass -File scripts\run_final.ps1 -Phase pilot,tune
 
 **用时参考**：pilot 每轮约 26 秒（275 个小区，RTX 4060），早停一般在 50–80 轮，单次约 25–35 分钟；pilot + tune 约 6 小时。全部阶段合计约 200 次运行，粗估 80 小时左右（主模型类约 100 次 × 30 分钟，基线较快，PIAST 较慢）：不间断跑约 3–4 天，只在夜间跑约 1–2 周。
 
+## 2b. 第二轮（2026-10-04 决策后）：`scripts\run_final_v2.ps1`
+
+主设置改为"只用自适应图"（`final_main.yaml`），所有依赖主设置的运行重跑，运行名带前缀 `v2_`，与第一轮并存。
+
+```bat
+powershell -ExecutionPolicy Bypass -File scripts\run_final_v2.ps1
+```
+
+| 阶段 | 内容 | 次数 | 估计用时 |
+|---|---|---|---|
+| `main` | v2 主设置 A0，5 个种子 | 5 | 1 小时 |
+| `ablations` | 价格盲 5 个种子；A1 A2 A3 A6 A13 A14 各 3 个种子 | 38 | 8 小时 |
+| `eid` | 可识别性（同第一轮的网格） | 21 | 5 小时 |
+| `sens` | 滞后核 | 3 | 0.6 小时 |
+| `ess` | {strong, weak} × ρ {0, 0.5, 1} × 7 种模型 × 3 个种子 + 2 次真值锚定 | 128 | 8.5 小时 |
+| `stae` | STAEformer 骨干（批大小 8）：价格盲 5 + A10 3 | 8 | 未知（第一轮因显存溢出没有跑成） |
+
+- 不带参数就按上面的顺序全部跑；也可以 `-Phase main,ess` 只跑一部分
+- 第一轮里不依赖主设置的结果继续使用：`base_*` 深度基线、`eps_*`、`main_A0_*`（作为"预定义图 + 自适应图"消融）、`abl_A11_predefined_*`
+- **不要再跑第一轮的 `run_final.ps1 -Phase baselines,ablations`**：STAEformer 已挪到第二轮的 `stae` 阶段
+
 ## 3. 结果回传
 
 ```bat
