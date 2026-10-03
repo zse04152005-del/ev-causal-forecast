@@ -147,7 +147,12 @@ def main():
         for ep in range(n_ep):
             model.train()
             t0, tot, nb = time.time(), 0.0, 0
-            for b in W_tr.iterate(int(tc.batch_size), shuffle=True, rng=rng, max_batches=tc.get("max_train_batches")):
+            t_log = t0
+            mb = tc.get("max_train_batches")
+            if is_piast and w_prior is not None and bc.piast.get("physics_batches"):   # 物理约束阶段很慢：每轮只取部分批次
+                mb = int(bc.piast.physics_batches)
+            n_batches = math.ceil(len(W_tr) / int(tc.batch_size)) if mb is None else min(int(mb), math.ceil(len(W_tr) / int(tc.batch_size)))
+            for b in W_tr.iterate(int(tc.batch_size), shuffle=True, rng=rng, max_batches=mb):
                 tb = to_tensors(b, device)
                 if is_piast and w_prior is not None:
                     y, con1 = model.physics(tb)
@@ -166,6 +171,9 @@ def main():
                     model.clamp_lambda(lo, hi)
                 tot += loss.item()
                 nb += 1
+                if time.time() - t_log > 120:                                   # 慢模型：每 2 分钟报告一次进度，避免看起来像卡住
+                    t_log = time.time()
+                    log.info(f"  {pname} 第 {ep + 1} 轮进度 {nb}/{n_batches} 批，已用 {t_log - t0:.0f}s")
             vl = val_loss(model, W_va, int(tc.batch_size), device, quantiles)
             row = {"phase": pname, "epoch": len(hist) + 1, "train_loss": tot / max(nb, 1), "val_loss": vl,
                    "seconds": time.time() - t0}

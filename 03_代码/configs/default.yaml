@@ -102,6 +102,7 @@ baseline:                             # 深度基线（scripts/train_baseline.py
     prior_weights: [1.0, 0.1]         # 阶段 1、2 中 L3 的权重（原代码 1 与 0.1）
     clamp: [-1.0, 0.0]                # 原代码每步把 λ 截断到 [−1, 0]；null = 不截断（E-PS 对照）
     epochs: [60, 40, 100]             # 三阶段轮数（原代码 300 / 200 / 500，按 5 分钟数据、批 1024；第三阶段按验证 MSE 早停）
+    physics_batches: null             # 阶段 1、2（二阶求导，很慢）每轮最多用多少批；null = 全部
     lr: 1.0e-3                        # 原代码 Adam 默认学习率，不加权重衰减
     price_scale: 1.5                  # 价格水平 = 总价 / 1.5（原代码）
     released_code_quirks: false       # true = 复现发布代码的三处实现问题（见 piast.py 文件头）

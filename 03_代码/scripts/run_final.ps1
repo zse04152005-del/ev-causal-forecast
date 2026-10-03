@@ -85,8 +85,15 @@ foreach ($ph in $Phase.Split(",")) {
       foreach ($p in "-0.1", "-0.45", "-0.76", "-1.48", "-3.0") {
         Base "eps_pag_paper${p}" @("baseline.name=pag", "data.target=occupancy", "baseline.pag.laws=[$p]")
         Base "eps_pag_released${p}" @("baseline.name=pag", "data.target=occupancy", "baseline.pag.laws=[$p]", "baseline.pag.pretrain=none", "baseline.pag.released_code_quirks=true")
-        Base "eps_piast_clamp${p}" @("baseline.name=piast", "data.target=occupancy", "baseline.piast.prior=$p")
-        Base "eps_piast_noclamp${p}" @("baseline.name=piast", "data.target=occupancy", "baseline.piast.prior=$p", "baseline.piast.clamp=null")
+      }
+      # PIAST 放在最后：物理约束阶段要对 24 个步长逐样本二阶求导，全量 275 个小区一轮超过半小时；
+      # 实测（2026-10-02 至 10-04）：全量时阶段 1 每轮 1–10 小时，一次运行要 20 天以上，不可行。
+      # E-PS 只看读出的弹性是否跟着先验走，所以缩小规模：前 80 个小区（其中 25 个分时小区；计算量约为全量的 1/12），
+      # 阶段 1、2 各 10 轮、每轮 20 批，阶段 3 最多 60 轮（早停）
+      $piastFast = @("baseline.name=piast", "data.target=occupancy", "data.zones=80", "baseline.piast.epochs=[10,10,60]", "baseline.piast.physics_batches=20")
+      foreach ($p in "-0.1", "-0.45", "-0.76", "-1.48", "-3.0") {
+        Base "eps_piast_clamp${p}" ($piastFast + @("baseline.piast.prior=$p"))
+        Base "eps_piast_noclamp${p}" ($piastFast + @("baseline.piast.prior=$p", "baseline.piast.clamp=null"))
       }
     }
     "sens" { foreach ($s in 0..2) { Run "sens_lag_s$s" "scripts/train.py" @("--config", "configs/experiment/sens_lag.yaml", "train.seed=$s") } }
