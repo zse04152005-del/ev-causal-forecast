@@ -1,0 +1,5 @@
+# E-SS 半合成反事实基准（设计文档 11.3；大纲 7.2）：继承主实验设置，在 109 个固定电价小区上合成分时电价与已知弹性
+# 用法：python scripts/train.py --config configs/experiment/ess.yaml ess.rho=0.5 ess.anchor=cells anchor.mode=cut
+_base_: final_main.yaml
+ess:
+  enabled: true

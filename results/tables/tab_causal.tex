@@ -1,0 +1,27 @@
+\begin{table}
+\tblcaption{tab:causal}{Own-price elasticity estimated from price-switch events (standard errors in parentheses).}
+{\tblfont
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccr@{}}
+\toprule
+ & Design C & Design D & Events \\
+\midrule
+$W=30$ min & $-0.38$ (0.10) & $-0.07$ (0.11) & 69{,}203 \\
+$W=60$ min & $-0.62$ (0.15) & $-0.05$ (0.13) & 67{,}272 \\
+$W=120$ min & $-0.63$ (0.17) & $-0.16$ (0.23) & 56{,}374 \\
+$W=180$ min & $-0.50$ (0.23) & $-0.25$ (0.22) & 14{,}000 \\
+\addlinespace[2pt]
+Exposure terms (anchor) & $-0.76$ (0.26) & $-0.21$ (0.20) & 14{,}000 \\
+Log-ratio OLS & $-0.34$ (0.28) & $-0.30$ (0.22) & 14{,}000 \\
+Without first 10 min & $-0.29$ (0.24) & $-1.30$ (0.43) & 6{,}254 \\
+Outcome: occupancy & $-0.29$ (0.19) & $-0.09$ (0.17) & 14{,}000 \\
+Outcome: energy & $-0.54$ (0.23) & $0.16$ (0.18) & 14{,}000 \\
+\addlinespace[2pt]
+Placebo, range & $-0.07$ to $0.23$ & $-0.03$ to $0.01$ & \\
+Placebo, significant & 2 of 6 & 0 of 6 & \\
+\addlinespace[2pt]
+Hourly panel, PPML & \multicolumn{2}{c}{$-0.26$ (0.25)} & \\
+Hourly panel, DML & \multicolumn{2}{c}{$-0.22$ (0.23)} & \\
+\bottomrule
+\end{tabular*}\par}
+\tblnote{$W$: half-window. Design C: date-by-slot fixed effects; design D: also station-by-slot fixed effects.}
+\end{table}

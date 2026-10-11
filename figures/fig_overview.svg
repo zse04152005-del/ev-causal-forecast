@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fig. 3  Overview of CPA-STGNN (v3, hand-authored vector drawing; 10 user units = 1 mm; 190 mm wide).
+     Fonts: Arial for labels, STIX Two Text (or Times New Roman) for mathematics. All text is live text and can be
+     edited in Inkscape / Illustrator / Affinity. Smallest text is 6.2 pt at the printed width.
+     v3: panel b redrawn as a single row of pictograms with key nouns only; graph icon and "trainable" marks removed. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 915" width="190mm" height="91.5mm" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYToxYjA1OGU5Zi05MDdhLTQxYmYtODgwYi02ODk3YzUyYzU1ODcAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaP5lgJmODIfPlIbGLQwvtB0AAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDoyMDdkNjkzMy01YmIzLTQzN2UtYjMwZi02ZDZmZjZkMmU0ZGRscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNop1bjjLYeac2Bab0uyq9wxgAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggK6w3dyDotN3nOcXPPGqtQ9qKYWsWA9GYgRN39G6K24akZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaNtdtjSJEX4P/Zj8FqgeSxkAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIB+PBX8BInaZU2QgKGLfiAF2mlSxTrP9QclkeOPtLSfIZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQJ6Zmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjFiMDU4ZTlmLTkwN2EtNDFiZi04ODBiLTY4OTdjNTJjNTU4Ny9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjJjMmQ4NmE5LWU0ZDAtNDZiYS1hMjFlLTU0MTgyMjJiY2IwNnJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCArrDd3IOi03ec5xc88aq1D2ophaxYD0ZiBE3f0borbhqJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggnElP+YmlLhBmiUe5jqnblvGwIKJaD0GNTEliS1LKAtuiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFgguwy+YQsomBCbp5tKHlPWyihTll9a0khGaDMiLYETH8R0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQB0efLrqIE9SMl156OsMUNIkgNRkZ7otcwTmzcnM/+fylS9ffb3i1feRPNvGrRLSGO7xYWkC7dytqO4SmHnQU7Y=</c2pa:manifest></metadata>
+  <defs>
+    <style>
+      text { font-family: Arial, 'Liberation Sans', Helvetica, sans-serif; font-size: 25px; fill: #1c1c1c; text-rendering: geometricPrecision; }
+      .h  { font-size: 29px; font-weight: 700; fill: #1F3A6B; }
+      .l  { font-size: 24px; fill: #3a3a3a; }
+      .s  { font-size: 22px; fill: #555555; }
+      .b  { font-weight: 700; }
+      .m  { font-family: 'STIX Two Text', 'STIXGeneral', 'Times New Roman', serif; font-style: italic; font-size: 29px; }
+      .mr { font-family: 'STIX Two Text', 'STIXGeneral', 'Times New Roman', serif; font-style: normal; }
+      .sub { font-size: 20px; }
+      .panel { fill: none; stroke: #1F3A6B; stroke-width: 2.6; stroke-dasharray: 13 8; }
+      .flow { fill: none; stroke-width: 3; }
+      .blk  { stroke-width: 2.2; }
+      .card { fill: #ffffff; stroke-width: 2.2; }
+      .axis { fill: none; stroke: #2b2b2b; stroke-width: 2.2; }
+    </style>
+    <marker id="a-ink" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="12" refX="14" refY="6" orient="auto"><path d="M0,0 L15,6 L0,12 Z" fill="#2b2b2b"/></marker>
+    <marker id="a-axis" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto"><path d="M0,0 L11,4.5 L0,9 Z" fill="#2b2b2b"/></marker>
+    <marker id="a-blue" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="12" refX="14" refY="6" orient="auto"><path d="M0,0 L15,6 L0,12 Z" fill="#2F6DB5"/></marker>
+    <marker id="a-orange" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="12" refX="14" refY="6" orient="auto"><path d="M0,0 L15,6 L0,12 Z" fill="#D9822B"/></marker>
+    <marker id="a-green" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="12" refX="14" refY="6" orient="auto"><path d="M0,0 L15,6 L0,12 Z" fill="#4C9A52"/></marker>
+    <marker id="a-purple" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto"><path d="M0,0 L20,8 L0,16 Z" fill="#6B3FA0"/></marker>
+    <marker id="a-purple-s" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="12" refX="14" refY="6" orient="auto"><path d="M0,0 L15,6 L0,12 Z" fill="#6B3FA0"/></marker>
+    <marker id="a-red" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="12" refX="14" refY="6" orient="auto"><path d="M0,0 L15,6 L0,12 Z" fill="#C0392B"/></marker>
+    <marker id="a-gray" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto"><path d="M0,0 L13,5 L0,10 Z" fill="#8a8a8a"/></marker>
+
+    <!-- isometric token cube: fill comes from "color" on the <use> element -->
+    <symbol id="cube" overflow="visible">
+      <rect x="0" y="0" width="27" height="27" fill="currentColor"/>
+      <path d="M0,0 L8,-8 L35,-8 L27,0 Z" fill="currentColor"/>
+      <path d="M0,0 L8,-8 L35,-8 L27,0 Z" fill="#ffffff" opacity="0.42"/>
+      <path d="M27,0 L35,-8 L35,19 L27,27 Z" fill="currentColor"/>
+      <path d="M27,0 L35,-8 L35,19 L27,27 Z" fill="#000000" opacity="0.22"/>
+      <path d="M0,0 H27 V27 H0 Z M0,0 L8,-8 L35,-8 L35,19 L27,27 M27,0 L35,-8" fill="none" stroke="#ffffff" stroke-width="1.2"/>
+    </symbol>
+    <symbol id="lock" overflow="visible">
+      <path d="M-6,-2 V-8 A6,6 0 0 1 6,-8 V-2" fill="none" stroke="#6B3FA0" stroke-width="3.2"/>
+      <rect x="-10" y="-2" width="20" height="15" rx="3" fill="#6B3FA0"/>
+      <circle cx="0" cy="5" r="2.4" fill="#ffffff"/>
+    </symbol>
+  </defs>
+
+  <rect x="0" y="0" width="1900" height="915" fill="#ffffff"/>
+
+  <!-- ====================================================== panel frames -->
+  <rect class="panel" x="20" y="20" width="1230" height="530" rx="6"/>
+  <rect class="panel" x="20" y="585" width="1230" height="310" rx="6"/>
+  <rect class="panel" x="1290" y="20" width="590" height="875" rx="6"/>
+  <text class="h" x="45" y="63"><tspan font-size="33">a.</tspan>  Price-blind spatio-temporal forecaster</text>
+  <text class="h" x="45" y="628"><tspan font-size="33">b.</tspan>  Causally anchored price response</text>
+  <text class="h" x="1315" y="63"><tspan font-size="33">c.</tspan>  Forecast and calibration</text>
+
+  <!-- ====================================================== (a) inputs -->
+  <!-- covariates card -->
+  <rect class="card" x="60" y="95" width="200" height="132" rx="12" fill="#EEF7EC" stroke="#4C9A52"/>
+  <g transform="translate(84,110)">   <!-- calendar -->
+    <path d="M0,10 a5,5 0 0 1 5,-5 h26 a5,5 0 0 1 5,5 v24 a5,5 0 0 1 -5,5 h-26 a5,5 0 0 1 -5,-5 Z" fill="#ffffff" stroke="#4C9A52" stroke-width="2.2"/>
+    <path d="M0,15 v-5 a5,5 0 0 1 5,-5 h26 a5,5 0 0 1 5,5 v5 Z" fill="#4C9A52"/>
+    <path d="M10,0 v9 M26,0 v9" stroke="#2f6b34" stroke-width="3" stroke-linecap="round"/>
+    <g fill="#4C9A52" opacity="0.75"><rect x="6" y="20" width="5" height="5"/><rect x="15.5" y="20" width="5" height="5"/><rect x="25" y="20" width="5" height="5"/><rect x="6" y="29" width="5" height="5"/><rect x="15.5" y="29" width="5" height="5"/></g>
+  </g>
+  <g transform="translate(140,110)">  <!-- weather -->
+    <circle cx="12" cy="13" r="9" fill="#F2B233"/>
+    <path d="M10,39 a8,8 0 0 1 1,-16 a11,11 0 0 1 21,-1 a8.5,8.5 0 0 1 2,17 Z" fill="#ffffff" stroke="#4C9A52" stroke-width="2.2" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(222,132)">  <!-- zone attributes -->
+    <path d="M0,-18 A12,12 0 0 1 12,-6 C12,2 4,9 0,17 C-4,9 -12,2 -12,-6 A12,12 0 0 1 0,-18 Z" fill="#4C9A52"/>
+    <circle cx="0" cy="-6" r="4.4" fill="#ffffff"/>
+  </g>
+  <text class="s" x="160" y="186" text-anchor="middle">Calendar, weather,</text>
+  <text class="s" x="160" y="212" text-anchor="middle">zone attributes</text>
+
+  <!-- utilisation history: stacked cards, one per zone -->
+  <text class="l" x="60" y="263">Utilisation history</text>
+  <rect class="card" x="80" y="278" width="180" height="212" rx="12" stroke="#9db7d6"/>
+  <rect class="card" x="70" y="286" width="180" height="212" rx="12" stroke="#6f93bf"/>
+  <rect class="card" x="60" y="294" width="180" height="212" rx="12" stroke="#2F6DB5"/>
+  <g fill="#2F6DB5"><circle cx="205" cy="328" r="15"/><circle cx="205" cy="376" r="15"/><circle cx="205" cy="472" r="15"/></g>
+  <text class="m" x="78" y="337">y<tspan class="sub" dy="7">t−L+1</tspan></text>
+  <text class="m" x="78" y="385">y<tspan class="sub" dy="7">t−L+2</tspan></text>
+  <g fill="#2F6DB5"><circle cx="205" cy="411" r="2.8"/><circle cx="205" cy="424" r="2.8"/><circle cx="205" cy="437" r="2.8"/></g>
+  <text class="m" x="78" y="481">y<tspan class="sub" dy="7">t</tspan></text>
+  <path d="M246,516 L272,492" fill="none" stroke="#2b2b2b" stroke-width="2.4" marker-end="url(#a-ink)"/>
+  <text class="s" x="268" y="527">zone</text>
+
+  <!-- concatenation and entry into the encoder -->
+  <path class="flow" d="M264,160 H326 V467" stroke="#4C9A52" marker-end="url(#a-green)"/>
+  <path class="flow" d="M264,477 H316" stroke="#2F6DB5"/>
+  <circle cx="326" cy="477" r="10" fill="#ffffff" stroke="#2b2b2b" stroke-width="2.6"/>
+  <path class="flow" d="M336,477 H428" stroke="#2b2b2b" marker-end="url(#a-ink)"/>
+
+  <!-- ====================================================== (a) encoder block stack -->
+  <rect x="406" y="160" width="286" height="274" rx="12" fill="#FAFAFA" stroke="#8a8a8a" stroke-width="2"/>
+  <text class="b" x="392" y="302" text-anchor="end" font-size="30">8 ×</text>
+
+  <rect class="blk" x="430" y="452" width="226" height="50" rx="8" fill="#F9D9DC" stroke="#C97B84"/>
+  <text x="543" y="486" text-anchor="middle">Embedding</text>
+
+  <rect class="blk" x="430" y="352" width="226" height="50" rx="8" fill="#FBE2C8" stroke="#D29A5B"/>
+  <text x="543" y="386" text-anchor="middle">Gated TCN</text>
+
+  <rect class="blk" x="430" y="282" width="226" height="50" rx="8" fill="#D3E6F7" stroke="#6C9BCB"/>
+  <text x="543" y="316" text-anchor="middle">Graph conv</text>
+
+  <rect class="blk" x="430" y="180" width="226" height="50" rx="8" fill="#F6F1C4" stroke="#B9AE55"/>
+  <text x="543" y="214" text-anchor="middle">BatchNorm</text>
+
+  <path class="flow" d="M543,452 V404" stroke="#2b2b2b" marker-end="url(#a-ink)"/>
+  <path class="flow" d="M543,352 V334" stroke="#2b2b2b" marker-end="url(#a-ink)"/>
+  <path class="flow" d="M543,282 V268" stroke="#2b2b2b"/>
+  <circle cx="543" cy="256" r="12" fill="#ffffff" stroke="#2b2b2b" stroke-width="2.6"/>
+  <path d="M535,256 H551 M543,248 V264" stroke="#2b2b2b" stroke-width="2.6"/>
+  <path class="flow" d="M543,244 V232" stroke="#2b2b2b" marker-end="url(#a-ink)"/>
+  <!-- residual connection -->
+  <path class="flow" d="M543,421 H419 V256 H529" stroke="#2b2b2b" marker-end="url(#a-ink)"/>
+  <!-- skip connections, summed over layers, leave the stack -->
+  <path class="flow" d="M656,377 H674 V171 H754" stroke="#2F6DB5" marker-end="url(#a-blue)"/>
+  <text class="s" x="731" y="204" text-anchor="middle">Σ skip</text>
+
+  <text class="l" x="549" y="536" text-anchor="middle">Graph WaveNet encoder</text>
+
+  <!-- ====================================================== (a) zone representations (token cubes) -->
+  <text class="l" x="838" y="94" text-anchor="middle">Zone representations</text>
+  <g color="#1F4E8C"><use href="#cube" x="768" y="113"/><use href="#cube" x="802" y="113"/><use href="#cube" x="836" y="113"/><use href="#cube" x="870" y="113"/></g>
+  <g color="#3E7CC2"><use href="#cube" x="768" y="157"/><use href="#cube" x="802" y="157"/><use href="#cube" x="836" y="157"/><use href="#cube" x="870" y="157"/></g>
+  <g color="#86B4E3"><use href="#cube" x="768" y="201"/><use href="#cube" x="802" y="201"/><use href="#cube" x="836" y="201"/><use href="#cube" x="870" y="201"/></g>
+  <text class="m" x="918" y="136">z<tspan class="sub mr" dy="7">1</tspan></text>
+  <text class="m" x="918" y="180">z<tspan class="sub mr" dy="7">2</tspan></text>
+  <text class="m" x="918" y="224">z<tspan class="sub" dy="7">N</tspan></text>
+
+  <path class="flow" d="M838,236 V298" stroke="#2F6DB5" marker-end="url(#a-blue)"/>
+
+  <!-- quantile head -->
+  <rect class="blk" x="745" y="300" width="186" height="62" rx="8" fill="#DDD8F0" stroke="#8377BF"/>
+  <text x="838" y="340" text-anchor="middle">Quantile head</text>
+  <rect class="card" x="745" y="424" width="186" height="78" rx="12" fill="#EEF7EC" stroke="#4C9A52"/>
+  <text class="s" x="838" y="457" text-anchor="middle">Future calendar</text>
+  <text class="s" x="838" y="484" text-anchor="middle">and weather</text>
+  <path class="flow" d="M838,424 V364" stroke="#4C9A52" marker-end="url(#a-green)"/>
+  <path class="flow" d="M931,331 H1012" stroke="#2F6DB5" marker-end="url(#a-blue)"/>
+
+  <!-- baseline quantile fan -->
+  <text class="l" x="1118" y="250" text-anchor="middle">Baseline quantiles</text>
+  <path d="M1025,294 C1065,244 1100,344 1140,314 C1180,284 1185,264 1210,284 L1210,356 C1185,336 1180,356 1140,386 C1100,416 1065,316 1025,366 Z" fill="#D3E6F7"/>
+  <path d="M1025,310 C1065,260 1100,360 1140,330 C1180,300 1185,280 1210,300 L1210,340 C1185,320 1180,340 1140,370 C1100,400 1065,300 1025,350 Z" fill="#9CC3EA"/>
+  <path d="M1025,330 C1065,280 1100,380 1140,350 C1180,320 1185,300 1210,320" fill="none" stroke="#1F4E8C" stroke-width="3.2"/>
+  <text class="s" x="1118" y="432" text-anchor="middle">positive, non-crossing</text>
+
+  <path class="flow" d="M1218,331 H1366" stroke="#2F6DB5" marker-end="url(#a-blue)"/>
+  <text class="m" x="1330" y="314" text-anchor="middle" fill="#1F4E8C">b<tspan class="sub mr" dy="-12">(</tspan><tspan class="sub">q</tspan><tspan class="sub mr">)</tspan></text>
+
+  <!-- ====================================================== (b) one row: estimate the elasticity, then apply it to the tariff -->
+  <!-- price-switch events: the price steps up, demand drops -->
+  <path class="axis" d="M82,826 V718" marker-end="url(#a-axis)"/>
+  <path class="axis" d="M82,826 H268" marker-end="url(#a-axis)"/>
+  <path d="M176,728 V826" stroke="#9a9a9a" stroke-width="2" stroke-dasharray="6 6"/>
+  <path d="M96,762 H176 V730 H256" fill="none" stroke="#D9822B" stroke-width="3.4" stroke-linejoin="round"/>
+  <g fill="#2F6DB5"><circle cx="104" cy="786" r="4.8"/><circle cx="122" cy="782" r="4.8"/><circle cx="140" cy="788" r="4.8"/><circle cx="158" cy="783" r="4.8"/>
+    <circle cx="194" cy="804" r="4.8"/><circle cx="212" cy="801" r="4.8"/><circle cx="230" cy="806" r="4.8"/><circle cx="248" cy="802" r="4.8"/></g>
+  <text class="l" x="172" y="864" text-anchor="middle">Switch events</text>
+
+  <path class="flow" d="M278,771 H346" stroke="#6B3FA0" marker-end="url(#a-purple-s)"/>
+
+  <!-- PPML: the fitted slope is the elasticity -->
+  <path class="axis" d="M362,826 V718" marker-end="url(#a-axis)"/>
+  <path class="axis" d="M362,826 H538" marker-end="url(#a-axis)"/>
+  <g fill="#8FA3BF"><circle cx="384" cy="751" r="4.4"/><circle cx="398" cy="734" r="4.4"/><circle cx="414" cy="762" r="4.4"/><circle cx="430" cy="748" r="4.4"/><circle cx="446" cy="777" r="4.4"/>
+    <circle cx="462" cy="761" r="4.4"/><circle cx="478" cy="790" r="4.4"/><circle cx="494" cy="777" r="4.4"/><circle cx="510" cy="805" r="4.4"/><circle cx="522" cy="789" r="4.4"/></g>
+  <path d="M374,736 L530,808" fill="none" stroke="#6B3FA0" stroke-width="3.4" stroke-linecap="round"/>
+  <text class="l" x="450" y="864" text-anchor="middle">PPML</text>
+
+  <path class="flow" d="M548,771 H581" stroke="#6B3FA0" marker-end="url(#a-purple-s)"/>
+
+  <!-- the estimate, fixed -->
+  <rect class="blk" x="584" y="747" width="78" height="48" rx="24" fill="#EFE7F8" stroke="#6B3FA0"/>
+  <text id="p1" class="m" x="600" y="781" style="font-size:30px" fill="#4B2A78">β</text>
+  <path d="M605.5,761.5 L610.9,755.5 L616.4,761.5" fill="none" stroke="#4B2A78" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <use href="#lock" x="641" y="771"/>
+
+  <!-- the anchor: the estimate enters the price response as a constant (no gradient flows back) -->
+  <path d="M623,747 C636,652 1089,610 1089,706" fill="none" stroke="#6B3FA0" stroke-width="4.2" stroke-dasharray="15 9"/>
+  <path d="M1089,704 V724" fill="none" stroke="#6B3FA0" stroke-width="4.2" marker-end="url(#a-purple)"/>
+
+  <!-- tariff: actual (solid) and counterfactual (dashed) -->
+  <path class="axis" d="M712,826 V718" marker-end="url(#a-axis)"/>
+  <path class="axis" d="M712,826 H898" marker-end="url(#a-axis)"/>
+  <path d="M726,790 H800 V760 H866 V790 H886" fill="none" stroke="#D9822B" stroke-width="2.6" stroke-dasharray="8 5" stroke-linejoin="round"/>
+  <path d="M726,802 H770 V740 H834 V802 H886" fill="none" stroke="#D9822B" stroke-width="3.4" stroke-linejoin="round"/>
+  <text class="l" x="806" y="864" text-anchor="middle">Tariff</text>
+
+  <path class="flow" d="M906,771 H970" stroke="#D9822B" marker-end="url(#a-orange)"/>
+  <text id="dl" class="m mr" x="941" y="756" text-anchor="middle" fill="#B4661A" style="font-style:normal">Δℓ</text>
+
+  <!-- price response -->
+  <rect class="blk" x="972" y="726" width="243" height="90" rx="12" fill="#FCEBD9" stroke="#D9822B"/>
+  <text id="r1" class="m mr" x="999" y="784" style="font-style:normal;font-size:38px">exp(</text>
+  <text id="r2" class="m" x="1075" y="784" style="font-size:38px;font-weight:700" fill="#6B3FA0">β</text>
+  <path d="M1082,759 L1089,751.5 L1096,759" fill="none" stroke="#6B3FA0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text id="r3" class="m" x="1103" y="784" style="font-size:38px"><tspan class="mr">· Δℓ )</tspan></text>
+  <text class="l" x="1093" y="864" text-anchor="middle">Price response</text>
+
+  <path class="flow" d="M1215,771 H1270 V412 H1390 V355" stroke="#D9822B" marker-end="url(#a-orange)"/>
+  <text class="m" x="1318" y="444" fill="#B4661A">e<tspan class="sub" dy="-12">η</tspan></text>
+
+  <!-- ====================================================== (c) combination, loss, calibration -->
+  <circle cx="1390" cy="331" r="22" fill="#ffffff" stroke="#2b2b2b" stroke-width="2.8"/>
+  <path d="M1379,320 L1401,342 M1401,320 L1379,342" stroke="#2b2b2b" stroke-width="2.8"/>
+  <path class="flow" d="M1412,331 H1453" stroke="#2b2b2b" marker-end="url(#a-ink)"/>
+  <rect class="blk" x="1455" y="300" width="142" height="62" rx="8" fill="#FBE3E0" stroke="#C0392B"/>
+  <text class="m mr" x="1526" y="341" text-anchor="middle" style="font-style:normal;font-size:30px">min{1, ·}</text>
+  <path class="flow" d="M1597,331 H1720" stroke="#C0392B"/>
+  <text class="m" x="1660" y="316" text-anchor="middle" fill="#C0392B">ŷ<tspan class="sub mr" dy="-12">(</tspan><tspan class="sub">q</tspan><tspan class="sub mr">)</tspan></text>
+  <circle cx="1720" cy="331" r="6" fill="#C0392B"/>
+
+  <!-- pinball loss -->
+  <path class="flow" d="M1720,331 V180" stroke="#C0392B" marker-end="url(#a-red)"/>
+  <rect class="card" x="1590" y="96" width="260" height="82" rx="12" stroke="#C0392B"/>
+  <path d="M1610,118 L1640,160 L1672,138" fill="none" stroke="#C0392B" stroke-width="3.6" stroke-linejoin="round"/>
+  <path d="M1606,160 H1676" stroke="#9a9a9a" stroke-width="2"/>
+  <text x="1764" y="146" text-anchor="middle">Pinball loss</text>
+  <path d="M1590,137 H1262" fill="none" stroke="#8a8a8a" stroke-width="2.6" stroke-dasharray="3 7" stroke-linecap="round" marker-end="url(#a-gray)"/>
+  <text class="s" x="1432" y="123" text-anchor="middle">gradient to (a) only</text>
+
+  <!-- adaptive conformal inference -->
+  <path class="flow" d="M1720,331 V428" stroke="#C0392B" marker-end="url(#a-red)"/>
+  <rect class="blk" x="1575" y="430" width="275" height="92" rx="12" fill="#E6E6E6" stroke="#8a8a8a"/>
+  <text x="1712" y="469" text-anchor="middle">Adaptive conformal</text>
+  <text x="1712" y="501" text-anchor="middle">inference</text>
+  <path class="flow" d="M1712,522 V574" stroke="#C0392B" marker-end="url(#a-red)"/>
+
+  <!-- calibrated forecast -->
+  <text class="l" x="1338" y="568">Calibrated forecast</text>
+  <path d="M1560,696.6 C1600,652.6 1640,604.6 1690,608.6 C1740,612.6 1780,652.6 1830,632.6 L1830,712.6 C1780,724.6 1740,684.6 1690,672.6 C1640,660.6 1600,676.6 1560,696.6 Z" fill="#F7C9C3"/>
+  <path d="M1350,712.6 C1390,664.6 1420,656.6 1450,688.6 C1480,720.6 1520,728.6 1560,696.6" fill="none" stroke="#6f6f6f" stroke-width="3.2"/>
+  <path d="M1560,696.6 C1600,664.6 1640,632.6 1690,640.6 C1740,648.6 1780,688.6 1830,672.6" fill="none" stroke="#C0392B" stroke-width="3.2"/>
+  <path d="M1560,592 V775" stroke="#9a9a9a" stroke-width="2" stroke-dasharray="6 6"/>
+  <path d="M1340,775 H1846" fill="none" stroke="#2b2b2b" stroke-width="2.4" marker-end="url(#a-ink)"/>
+  <text class="s" x="1352" y="648">history</text>
+  <text class="s" x="1838" y="751" text-anchor="end" fill="#A93226">90% interval</text>
+  <text class="m" x="1560" y="804" text-anchor="middle" style="font-size:26px">t</text>
+  <text class="m" x="1822" y="804" text-anchor="middle" style="font-size:26px">t <tspan class="mr">+</tspan> H</text>
+
+  <!-- legend -->
+  <path d="M1315,820 H1855" stroke="#c9c9c9" stroke-width="1.6"/>
+  <use href="#lock" x="1332" y="841"/>
+  <text class="s" x="1354" y="850">cut feedback: fixed estimate, no gradient</text>
+  <path d="M1318,869 H1346" fill="none" stroke="#D9822B" stroke-width="2.6" stroke-dasharray="8 5"/>
+  <text class="s" x="1354" y="877">counterfactual tariff</text>
+</svg>

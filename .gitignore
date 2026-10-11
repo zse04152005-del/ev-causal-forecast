@@ -1,0 +1,25 @@
+# Data (not redistributed; see README)
+data/
+
+# Outputs of training runs and of the plotting scripts
+results/runs/
+results/logs/
+figures/modules/
+figures/results/
+figures/scripts/out/
+*.pt
+*.pth
+*.ckpt
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+*.egg-info/
+.ruff_cache/
+
+# System files
+.DS_Store
+Thumbs.db

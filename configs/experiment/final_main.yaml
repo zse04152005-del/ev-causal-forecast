@@ -1,0 +1,19 @@
+# 主实验（Windows 4060）：完整 275 个小区，截断反馈，5 个种子用命令行覆盖 train.seed
+_base_: ../default.yaml
+train:
+  device: cuda
+  lr: 1.0e-3
+anchor:
+  file: configs/anchor/fivemin_main.json    # 阶段 6 决策（2026-09-29）：5 分钟数据设计 D 的全市统一弹性 −0.21（se 0.20），δ = 0，γ 不启用
+model:
+  # 调参（2026-09-30，run_final.ps1 -Phase tune，Graph WaveNet 12 组，种子 0，按验证集 pinball 选）：
+  # D = 32、学习率 1e-3、dropout 0.1 最优（0.01277）；D = 32 的前 5 组相差不到 0.7%，D = 64 全部更差且每轮慢 7–20 倍
+  D: 32
+  dropout: 0.1
+graph:
+  # 第二轮主设置（2026-10-04 决策）：只用自适应图。第一轮消融 A11 中，只用自适应图的验证集 pinball 为 0.01272（3 个种子），
+  # 好于"预定义图 + 自适应图"的 0.01297 和"只用预定义图"的 0.01311；按验证集选择。第一轮结果（运行名不带 v2_）保留作对照
+  use_adj: false
+  use_dist: false
+  use_poi: false
+  adaptive: true

@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper below."
+title: "Causally anchored price-aware forecasting of urban electric vehicle charging demand: code and results"
+authors:
+  - family-names: Zhang
+    given-names: Shien
+repository-code: "https://github.com/zse04152005-del/ev-causal-forecast"
+license: MIT
+version: "1.0.0"
+date-released: "2026-10-11"
+preferred-citation:
+  type: article
+  title: "Causally anchored price-aware forecasting of urban electric vehicle charging demand"
+  authors:
+    - family-names: Zhang
+      given-names: Shien
+  journal: "Applied Energy"
+  year: 2026
+  notes: "Manuscript submitted; details will be updated on publication."

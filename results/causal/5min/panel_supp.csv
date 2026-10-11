@@ -1,0 +1,4 @@
+method,sample,beta,se,n,n_clusters,r2_price_on_X
+"PPML (zone×how, date×hour FE)",TOU zones,-0.26286974374635136,0.24774269221318707,229503,90,
+"PPML (zone×how, date×hour FE)",TOU + fixed,-0.30873693773389843,0.24312169173996592,610978,248,
+"DML (gradient boosting, 5-fold by zone)",TOU zones,-0.21715879786725867,0.2267525023517269,229503,90,0.25215565366984916
