@@ -1,5 +1,5 @@
 # Data (not redistributed; see README)
-data/
+/data/
 
 # Outputs of training runs and of the plotting scripts
 results/runs/
