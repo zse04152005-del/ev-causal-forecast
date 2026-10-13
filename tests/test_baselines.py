@@ -17,7 +17,7 @@ if HAS_TORCH:
     from src.models.baselines.pag import fomaml_pretrain, pseudo_batch
 
 N, L, H, Q, B = 6, 24, 4, 7, 3
-ENCODERS = ("fcnn", "lstm", "gcn", "gcnlstm", "stgcn", "astgcn", "agcrn")
+ENCODERS = ("fcnn", "lstm", "gcn", "gcnlstm", "stgcn", "astgcn", "agcrn", "stid", "dlinear")
 
 
 def ring_adj(n=N):

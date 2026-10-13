@@ -70,7 +70,7 @@ def build_baseline(cfg, P, n_cov_fut: int, init_quantiles=None, seed: int | None
         enc = STIDEncoder(L, C, D, N, embed=int(sub.get("embed", 32)), layers=int(sub.get("layers", 3)),
                           dropout=float(bc.dropout), n_cov=12 if bool(bc.use_cov) else 0)
     elif name == "dlinear":
-        enc = DLinearEncoder(L, C, D, kernel=int(sub.get("kernel", 7)))
+        enc = DLinearEncoder(L, C, D, kernel=int(sub.get("kernel", 7)), n_cov=12 if bool(bc.use_cov) else 0)
     else:  # agcrn
         enc = AGCRNEncoder(L, C, D, N, hidden=int(sub.get("hidden", 64)), layers=int(sub.get("layers", 2)),
                            embed_dim=int(sub.get("embed_dim", 10)), cheb_k=int(sub.get("cheb_k", 2)))

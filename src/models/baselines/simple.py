@@ -7,7 +7,9 @@ the calendar covariates of the last step (hour and weekday as sin/cos, holiday a
 the same information. Default sizes follow the original (embedding 32, 3 MLP layers with residual connections).
 
 DLinear (Zeng et al., AAAI 2023): the demand history of each zone is split into a moving-average trend and a remainder,
-and each part is mapped linearly from L inputs to the representation; weights are shared across zones.
+and each part is mapped linearly from L inputs to the representation; weights are shared across zones. The other
+series channels (the "unchanged" flag and, for price-aware variants, the price) enter through one further linear map
+from their L x c values, so that the price-aware variants do use the price (the DLinear analogue of exogenous inputs).
 In the original the linear maps produce the H forecasts directly; here they produce the D-dimensional representation
 that the common quantile head turns into forecasts, as for every other encoder.
 
@@ -51,15 +53,21 @@ class STIDEncoder(nn.Module):
 
 
 class DLinearEncoder(nn.Module):
-    def __init__(self, L: int, C: int, D: int, kernel: int = 7):
+    def __init__(self, L: int, C: int, D: int, kernel: int = 7, n_cov: int = 12):
         super().__init__()
         self.kernel = kernel
+        self.n_exo = C - n_cov - 1                                 # flag (and price if given)
         self.trend = nn.Linear(L, D)
         self.season = nn.Linear(L, D)
+        self.exo = nn.Linear(L * self.n_exo, D, bias=False) if self.n_exo > 0 else None
 
     def forward(self, X: torch.Tensor) -> torch.Tensor:
         x = X[..., 0].permute(0, 2, 1)                                             # [B, N, L] standardised demand
         pad = (self.kernel - 1) // 2
         xp = torch.cat([x[..., :1].expand(-1, -1, pad), x, x[..., -1:].expand(-1, -1, self.kernel - 1 - pad)], dim=-1)
         trend = F.avg_pool1d(xp.reshape(-1, 1, xp.shape[-1]), self.kernel, stride=1).reshape(x.shape)
-        return self.trend(trend) + self.season(x - trend)
+        z = self.trend(trend) + self.season(x - trend)
+        if self.exo is not None:
+            B, L, N, _ = X.shape
+            z = z + self.exo(X[..., 1: 1 + self.n_exo].permute(0, 2, 1, 3).reshape(B, N, -1))
+        return z
