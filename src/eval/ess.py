@@ -88,7 +88,9 @@ def setup_ess(P: Prepared, cfg, out_dir: str) -> ESSRun:
                            amp=float(e.amp), high_hours=int(e.high_hours), frac_treated=float(e.frac_treated),
                            day_shift_prob=float(e.day_shift_prob), shift_hours=int(e.shift_hours),
                            flat_day_prob=float(e.flat_day_prob), max_frozen=float(e.max_frozen), seed=int(e.seed),
-                           clip=None if clip is None else float(clip))
+                           clip=None if clip is None else float(clip),
+                           beta_true=None if e.get("beta_true") is None else float(e.beta_true),
+                           endo=float(e.get("endo", 0.0)))
     Q = to_prepared(P, S)
     js, est = ess_anchor_json(Q, S, cfg)
     path = os.path.join(out_dir, "ess_anchor.json")
@@ -103,7 +105,8 @@ def _slope(r: np.ndarray, d: np.ndarray) -> float:
 
 
 def evaluate_ess(E: ESSRun, origins: np.ndarray, H: int, yq_fact: np.ndarray, cf_preds: dict, quantiles,
-                 model_beta_nc: np.ndarray | None, anchor_beta_gc: np.ndarray, clip: float | None = 1.0) -> dict:
+                 model_beta_nc: np.ndarray | None, anchor_beta_gc: np.ndarray, clip: float | None = 1.0,
+                 anchor_se_gc: np.ndarray | None = None, level: float = 0.90) -> dict:
     """yq_fact [n, H, N, Q]；cf_preds：情景名 → 模型在该价格路径下的预测 [n, H, N, Q]（None = 模型不能替换价格）；
     model_beta_nc [N, C]：模型内的（长期）弹性；anchor_beta_gc [G, C]：锚定值（插补基线 P0 用）。"""
     S, Q = E.S, E.Q
@@ -140,6 +143,29 @@ def evaluate_ess(E: ESSRun, origins: np.ndarray, H: int, yq_fact: np.ndarray, cf
                       "effect_MAE": float(np.abs(r - true_r)[m_eff].mean()),
                       "implied_beta": _slope(r[m_eff], d[m_eff]),
                       "mean_effect": float(r[m_eff].mean())}
+        # 事后分析用的矩：任意弹性 b 的乘性效应 b·d 相对真实效应的均方误差 = (b²·Sdd − 2b·Sdr + Srr) / n
+        dd, rr = d[m_eff], true_r[m_eff]
+        out["moments"] = {"n": int(m_eff.sum()), "Sdd": float((dd * dd).sum()), "Sdr": float((dd * rr).sum()),
+                          "Srr": float((rr * rr).sum())}
+        # 定理 T3 的反事实区间：事实分位数区间 [q_lo, q_hi] × 弹性置信区间端点的价格因子（插补 P0）
+        if anchor_se_gc is not None:
+            qs = np.asarray(quantiles)
+            ilo, ihi = int(np.argmin(np.abs(qs - (1 - level) / 2))), int(np.argmin(np.abs(qs - (1 + level) / 2)))
+            from statistics import NormalDist
+            z = NormalDist().inv_cdf(0.5 + level / 2)
+            se_nc = np.asarray(anchor_se_gc)[Q.groups]
+            b_lo = (beta_anchor_nc - z * se_nc).T[ctx]                          # [n, H, N]
+            b_hi = (beta_anchor_nc + z * se_nc).T[ctx]
+            f1, f2 = np.exp(b_lo * d), np.exp(b_hi * d)
+            lo = yq_fact[..., ilo] * np.minimum(f1, f2)
+            hi = yq_fact[..., ihi] * np.maximum(f1, f2)
+            if clip is not None:
+                lo, hi = np.minimum(lo, clip), np.minimum(hi, clip)
+            cov = (y_cf >= lo) & (y_cf <= hi)
+            fact_cov = (y_fact >= yq_fact[..., ilo]) & (y_fact <= yq_fact[..., ihi])
+            out["T3_interval"] = {"level_each": level, "coverage_cf": float(cov[m_tr].mean()),
+                                  "coverage_fact": float(fact_cov[m_tr].mean()),
+                                  "mean_width_cf": float((hi - lo)[m_tr].mean())}
         rep["scenarios"][nm] = out
     if model_beta_nc is not None:
         bz = np.asarray(model_beta_nc).mean(axis=1)                          # 各小区平均（跨情境）

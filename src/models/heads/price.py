@@ -5,6 +5,8 @@
 - soft ：软锚定。β = −softplus(θ_g,κ + ξ_i,κ)，另加锚定损失（对照 A13）
 - free ：只保留符号约束 β ≤ 0，不加锚定损失（E-ID 实验、消融 A1）
 - none ：连符号约束都没有（消融 A2）
+- proj ：符号约束 β ≤ 0 用投影实现（每步优化后把 β 截到 ≤ 0），不经过 softplus，梯度不会在 0 附近消失；
+         第二轮审稿后的半合成基准 v3 用它代替 free（free 在 β 接近 0 时 softplus 的梯度趋于 0，学习会停住）
 """
 from __future__ import annotations
 
@@ -16,7 +18,7 @@ import torch.nn.functional as F
 from ...causal.anchors import AnchorSet, project_monotone_nonneg
 from .quantile import inv_softplus
 
-MODES = ("cut", "soft", "free", "none")
+MODES = ("cut", "soft", "free", "none", "proj")
 
 
 class PriceResponse(nn.Module):
@@ -57,6 +59,13 @@ class PriceResponse(nn.Module):
         if self.mode in ("soft", "free"):
             return -F.softplus(self.theta[self.groups] + self.xi)
         return self.theta[self.groups] + self.xi
+
+    @torch.no_grad()
+    def project_(self) -> None:
+        """proj 模式：每步优化后投影到 β ≤ 0（只改 ξ，使 θ_g + ξ_i,κ ≤ 0）。其他模式不做任何事。"""
+        if self.mode == "proj":
+            b = self.theta[self.groups] + self.xi
+            self.xi.sub_(torch.clamp(b, min=0.0))
 
     def forward(self, dl: torch.Tensor, ctx: torch.Tensor) -> torch.Tensor:
         """dl [B, H, N]（有滞后核时为 [B, H+M, N]）；ctx [B, H] → η_own [B, H, N]。"""

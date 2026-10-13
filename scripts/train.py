@@ -131,6 +131,8 @@ def main():
             if tc.get("grad_clip"):
                 torch.nn.utils.clip_grad_norm_(model.parameters(), float(tc.grad_clip))
             opt.step()
+            if getattr(model, "price", None) is not None:
+                model.price.project_()                                    # proj 模式的符号投影；其他模式无操作
             tot += loss.item()
             nb += 1
         vl = val_loss(model, W_va, int(tc.batch_size), device, quantiles)
@@ -181,7 +183,7 @@ def main():
                                 price_override_fn=price_override_from_path(P, lp_alt, H, lags, device))
               for nm, lp_alt in ess.scenarios.items()}
         rep = evaluate_ess(ess, W_te.origins, H, yq_te, cf, quantiles, pp.get("beta"), anchors.beta,
-                           clip=None if mc.get("clip_max") is None else float(mc.clip_max))
+                           clip=None if mc.get("clip_max") is None else float(mc.clip_max), anchor_se_gc=anchors.se)
         with open(os.path.join(out_dir, "ess_report.json"), "w", encoding="utf-8") as f:
             json.dump(rep, f, ensure_ascii=False, indent=1, default=float)
         for nm, v in rep["scenarios"].items():

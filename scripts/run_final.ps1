@@ -16,7 +16,7 @@
 param([string]$Phase = "pilot")
 $ErrorActionPreference = "Continue"
 Set-Location (Split-Path -Parent $PSScriptRoot)
-$root = Split-Path -Parent (Get-Location)
+$root = (Get-Location).Path                      # 仓库根目录（results\ 在这里）
 $runs = Join-Path $root "results\runs"
 $logDir = Join-Path $root "results\logs"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null

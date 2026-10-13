@@ -3,7 +3,11 @@
 以冻结比例低的**固定电价小区**的真实序列为"无价格效应"的基线（它们的价格从未变过），
 给其中一半小区合成分时电价时刻表，再按已知弹性合成需求：
     y* = y · exp(β_i Δℓ* + Σ_k δ_k S*^(k))
-- ρ（内生性强度）：高价时段与该小区自身需求高峰的重合程度（0 = 随机，1 = 恰好在高峰）
+- ρ（内生性强度，−1…1）：高价时段与该小区自身需求高峰的重合程度（0 = 随机，1 = 恰好在高峰，
+  −1 = 恰好在低谷，即"需求高时电价低"，深圳分时电价属于这一侧）
+- beta_true：给定时所有小区的真实弹性相同（同质）；否则按功能区取 betas_by_group
+- endo（0…1）：时刻表平移方向的内生性。平移的日子里，以概率 endo 让平移方向跟随当天需求曲线的时间偏移
+  （需求比平常晚就往后移），其余随机；endo > 0 时日程偏离与需求冲击相关，设计 D 与预测损失都会受混杂
 - day_shift_prob / shift_hours：每天以该概率把时刻表整体平移 ±shift_hours 小时
 - flat_day_prob：每天以该概率不执行分时电价（全天取平均价）
   后两项破坏假设 A，使"同一小区、同一时刻、不同日子"的变动可用于识别（设计 B/D）
@@ -46,7 +50,10 @@ class SemiSynth:
 def make_semisynthetic(P: Prepared, rho: float = 0.5, betas_by_group=(-0.2, -0.8, -1.5), delta=(0.0, 0.0, 0.0),
                        amp: float = 0.15, high_hours: int = 10, frac_treated: float = 0.5,
                        day_shift_prob: float = 0.0, shift_hours: int = 3, flat_day_prob: float = 0.0,
-                       max_frozen: float = 0.2, seed: int = 0, clip: float | None = 1.0) -> SemiSynth:
+                       max_frozen: float = 0.2, seed: int = 0, clip: float | None = 1.0,
+                       beta_true: float | None = None, endo: float = 0.0) -> SemiSynth:
+    if not -1.0 <= rho <= 1.0:
+        raise ValueError(f"rho 应在 [-1, 1]：{rho}")
     rng = np.random.default_rng(seed)
     pool = np.flatnonzero((P.pricing == PRICING_CODES["fixed"]) & (P.frozen.mean(axis=0) < max_frozen))
     n, T = len(pool), P.T
@@ -63,17 +70,31 @@ def make_semisynthetic(P: Prepared, rho: float = 0.5, betas_by_group=(-0.2, -0.8
         prof = np.array([y0[: tr + 1][(hour[: tr + 1] == h) & v0[: tr + 1, j], j].mean() for h in range(24)])
         prof = np.nan_to_num(prof, nan=np.nanmean(prof))
         rank = np.argsort(np.argsort(prof)) / 23.0                     # 0 = 最低，1 = 最高
-        score = rho * rank + (1 - rho) * rng.random(24)
+        score = rho * rank + (1 - abs(rho)) * rng.random(24)          # rho < 0：高价放在需求低的时段
         high = np.zeros(24)
         high[np.argsort(-score)[:high_hours]] = 1.0
-        shifts = np.where(rng.random(n_days) < day_shift_prob, rng.choice([-shift_hours, shift_hours], n_days), 0)
+        shift_on = rng.random(n_days) < day_shift_prob                   # 抽样顺序与 v2 相同，endo = 0 时结果逐位不变
+        direction = rng.choice([-shift_hours, shift_hours], n_days)
+        if endo > 0:
+            # 当天需求曲线的时间重心（环形均值）相对该小区平常的偏移；平移方向以概率 endo 跟随它
+            ang = 2 * np.pi * hour / 24.0
+            w = np.where(v0[:, j], y0[:, j], 0.0)
+            cs = np.bincount(day, weights=w * np.cos(ang), minlength=n_days)
+            sn = np.bincount(day, weights=w * np.sin(ang), minlength=n_days)
+            phase = np.angle(cs + 1j * sn)
+            ref_phase = np.angle(cs[: (tr + 1) // 24].sum() + 1j * sn[: (tr + 1) // 24].sum())
+            later = np.angle(np.exp(1j * (phase - ref_phase))) > 0          # 当天需求比平常晚
+            follow = rng.random(n_days) < endo
+            direction = np.where(follow, np.where(later, shift_hours, -shift_hours), direction)
+        shifts = np.where(shift_on, direction, 0)
         sched = np.stack([np.roll(high, s) for s in shifts])            # [days, 24]
         sched[rng.random(n_days) < flat_day_prob] = high_hours / 24.0    # 不执行分时电价的日子
         lp[:, j] += amp * (sched[day, hour] - high_hours / 24.0)
     ref = lp[: tr + 1].mean(axis=0)
     dl = lp - ref[None, :]
     groups = P.groups[pool]
-    beta = np.array([betas_by_group[g] for g in groups], dtype=np.float64)
+    beta = (np.full(len(groups), float(beta_true)) if beta_true is not None
+            else np.array([betas_by_group[g] for g in groups], dtype=np.float64))
     members = ring_members(P.dist_km[np.ix_(pool, pool)], [[0, 2], [2, 4], [4, 6]][: len(delta)])
     eta = beta[None, :] * dl + (ring_exposure(dl, members) * np.asarray(delta)).sum(-1)
     y = y0 * np.exp(eta)

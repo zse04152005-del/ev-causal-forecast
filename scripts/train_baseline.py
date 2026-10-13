@@ -106,6 +106,7 @@ def main():
     rng = np.random.default_rng(int(tc.seed))
     clip = None if cfg.data.target == "volume" else cfg.model.get("clip_max")
     pre_hist = []
+    pre_readout = None
 
     if is_piast:
         pc = bc.piast
@@ -130,6 +131,18 @@ def main():
                                        device, rng, P.adj, clip, int(tc.batch_size), outer_lr=float(gc.outer_lr),
                                        inner_lr=float(gc.lr), weight_decay=float(gc.weight_decay),
                                        gamma_den=float(gc.gamma_den), max_batches=tc.get("max_train_batches"), log=log)
+            if keys:                                                    # 第二轮审稿：预训练后、微调前的隐含弹性，检查先验是否确实注入
+                tou0 = P.tou_mask()
+                up0 = torch.as_tensor(np.where(tou0, math.log1p(READOUT_PCT), 0.0), dtype=torch.float32, device=device)
+                kk = "y" if point else "y_q"
+                b0 = predict_array(model, W_va, int(tc.batch_size), device, key=kk)
+                u0 = predict_array(model, W_va, int(tc.batch_size), device, key=kk,
+                                   price_override_fn=lambda tb: {k: tb[k] + up0 for k in keys})
+                if not point:
+                    iq = int(np.argmin(np.abs(np.asarray(quantiles) - 0.5)))
+                    b0, u0 = b0[..., iq], u0[..., iq]
+                pre_readout = arc_elasticity(b0, u0, READOUT_PCT, tou0)
+                log.info(f"PAG 预训练后、微调前（验证期）：弧弹性均值 {pre_readout['mean']:+.3f}，注入先验 {list(gc.laws)}")
         elif gc.pretrain == "none":
             log.info("PAG：不做预训练（发布代码实际行为 / 论文中的 PAG-）")
         else:
@@ -242,7 +255,9 @@ def main():
                  f"{(lam[tou].mean() if tou.any() else float('nan')):+.3f}（注入先验 {prior}）")
     if is_pag:
         report.update({"pretrain": bc.pag.pretrain, "laws": [float(v) for v in bc.pag.laws],
-                       "released_code_quirks": bool(bc.pag.released_code_quirks), "pretrain_query_loss": pre_hist})
+                       "released_code_quirks": bool(bc.pag.released_code_quirks), "pretrain_query_loss": pre_hist,
+                       "pre_finetune_arc_elasticity_tou": None if pre_readout is None
+                       else {k: v for k, v in pre_readout.items() if k != "by_zone"}})
     if not a.no_consistency and cfg.data.H >= 6 and int(tc.eval_stride) == 1:
         spec = PanelSpec(window=int(cfg.anchor.window_hours), jump_threshold=cfg.causal.jump_threshold,
                          eps=cfg.causal.eps_pile_hours, exclude_holiday_pm1=cfg.causal.exclude_holiday_pm1)

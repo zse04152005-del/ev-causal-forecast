@@ -63,8 +63,9 @@ class CPASTGNN(nn.Module):
             price_anchors = dataclasses.replace(anchors, beta=np.asarray(anchors.beta, dtype=np.float64) / self.wf)
         self.price = PriceResponse(groups, price_anchors, anchor_mode, init_beta=init_beta, lag_weights=lag_w) \
             if self.use_price else None
-        self.spill = Spillover(anchors, anchor_mode) if (self.use_price and mcfg.use_spill) else None
-        self.shift = Shift(anchors, anchor_mode) if (self.use_price and mcfg.use_shift) else None
+        other_mode = "none" if anchor_mode == "proj" else anchor_mode       # proj 只作用于自价格弹性
+        self.spill = Spillover(anchors, other_mode) if (self.use_price and mcfg.use_spill) else None
+        self.shift = Shift(anchors, other_mode) if (self.use_price and mcfg.use_shift) else None
 
     def eta(self, pf: dict) -> torch.Tensor:
         dl = pf["dl_fut"]

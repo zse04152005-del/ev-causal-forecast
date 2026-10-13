@@ -8,6 +8,8 @@
 | agcrn | Bai et al. 2020 | 自适应图 |
 | pag | Qu et al. 2024（ST-EVCDP 发布代码移植 + 论文版元学习预训练） | 邻接掩码 + GAT |
 | piast | Kuang et al. 2024（官方代码移植） | 邻接掩码 + GAT |
+| stid | Shao et al. 2022（第二轮审稿后补充） | 无（节点身份嵌入） |
+| dlinear | Zeng et al. 2023（第二轮审稿后补充） | 无 |
 
 Graph WaveNet 与 STAEformer 已作为 CPA-STGNN 的骨干实现：`scripts/train.py model.use_price=false` 即为它们的价格盲版本。
 """
@@ -17,11 +19,12 @@ from .agcrn import AGCRNEncoder
 from .astgcn import ASTGCNEncoder
 from .common import BaselineModel, n_input_channels
 from .pag import PAG, fomaml_pretrain
+from .simple import DLinearEncoder, STIDEncoder
 from .piast import PIAST
 from .stgcn import STGCNEncoder
 from .urbanev import FCNNEncoder, GCNEncoder, GCNLSTMEncoder, LSTMEncoder
 
-NAMES = ("fcnn", "lstm", "gcn", "gcnlstm", "stgcn", "astgcn", "agcrn", "pag", "piast")
+NAMES = ("fcnn", "lstm", "gcn", "gcnlstm", "stgcn", "astgcn", "agcrn", "pag", "piast", "stid", "dlinear")
 
 
 def build_baseline(cfg, P, n_cov_fut: int, init_quantiles=None, seed: int | None = None):
@@ -63,6 +66,11 @@ def build_baseline(cfg, P, n_cov_fut: int, init_quantiles=None, seed: int | None
     elif name == "astgcn":
         enc = ASTGCNEncoder(L, C, D, N, adj, K=int(sub.get("K", 3)), chev_filter=int(sub.get("chev_filter", 64)),
                             time_filter=int(sub.get("time_filter", 64)), blocks=int(sub.get("blocks", 2)))
+    elif name == "stid":
+        enc = STIDEncoder(L, C, D, N, embed=int(sub.get("embed", 32)), layers=int(sub.get("layers", 3)),
+                          dropout=float(bc.dropout), n_cov=12 if bool(bc.use_cov) else 0)
+    elif name == "dlinear":
+        enc = DLinearEncoder(L, C, D, kernel=int(sub.get("kernel", 7)))
     else:  # agcrn
         enc = AGCRNEncoder(L, C, D, N, hidden=int(sub.get("hidden", 64)), layers=int(sub.get("layers", 2)),
                            embed_dim=int(sub.get("embed_dim", 10)), cheb_k=int(sub.get("cheb_k", 2)))

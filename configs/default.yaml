@@ -64,9 +64,10 @@ model:
     heads: 4
     layers: 3
     ff_dim: 256
+    dropout: 0.1                      # 注意力与前馈的 dropout（第二轮调参的对象）
 
 baseline:                             # 深度基线（scripts/train_baseline.py；统一协议见 src/models/baselines/common.py）
-  name: stgcn                         # fcnn | lstm | gcn | gcnlstm（UrbanEV 官方）| stgcn | astgcn | agcrn | pag | piast
+  name: stgcn                         # fcnn | lstm | gcn | gcnlstm（UrbanEV 官方）| stgcn | astgcn | agcrn | pag | piast | stid | dlinear
   price_input: none                   # none 价格盲 | hist 历史价格作输入（UrbanEV 因子实验口径）| hist_fut 再加未来价格（对照 P3）
   use_cov: true                       # 历史日历与天气作为节点输入（与 CPA-STGNN 相同）
   loss: pinball                       # pinball 统一分位数头 | mse 点预测 + 验证期残差分位数（pag、piast 固定为 mse）
@@ -78,6 +79,8 @@ baseline:                             # 深度基线（scripts/train_baseline.py
   stgcn: {Kt: 3, Ks: 3, blocks: [[64, 16, 64], [64, 16, 64]]}       # 原文设置
   astgcn: {K: 3, chev_filter: 64, time_filter: 64, blocks: 2}       # 原文设置（UrbanEV 官方：K 1、滤波器 32、1 个块）
   agcrn: {hidden: 64, layers: 2, embed_dim: 10, cheb_k: 2}          # 官方 PEMS 设置
+  stid: {embed: 32, layers: 3}                                      # Shao et al. 2022 原文设置（第二轮补充）；dropout 用 baseline.dropout
+  dlinear: {kernel: 7}                                              # 移动平均窗口（L = 24 时取 7）
   pag:
     kcnn: 2
     k: 6                              # TPA 滤波器数（发布代码）
@@ -147,9 +150,17 @@ causal:
   eps_pile_hours: 0.5                 # 对数窗口均值的平滑常数（桩·小时）
   design: D                           # D9（已确认）：主设计 D = 仅分时小区、日期×时刻 + 小区×时刻固定效应；C 作效率对照
 
+gbdt:                                 # 梯度提升树基线（scripts/run_baseline.py model.name=gbdt；src/models/gbdt.py）
+  origin_stride: 6
+  max_iter: 400
+  learning_rate: 0.05
+  max_leaf_nodes: 63
+  min_samples_leaf: 200
 ess:                                  # E-SS 半合成反事实基准（设计文档 11.3；src/eval/ess.py）；enabled=true 时 train.py 改在合成数据上训练与评价
   enabled: false
-  rho: 0.5                            # 内生性：高价时段与小区自身需求高峰的重合程度（0 随机，1 恰在高峰）
+  rho: 0.5                            # 内生性：高价时段与小区自身需求高峰的重合程度（−1 恰在低谷，0 随机，1 恰在高峰）
+  beta_true: null                     # 给定时所有小区同一个真实弹性（基准 v3）；null = 按功能区取 betas_by_group
+  endo: 0.0                           # 时刻表平移方向跟随当天需求时间偏移的概率（内生偏离，基准 v3）
   betas_by_group: [-0.2, -0.8, -1.5]  # 真实弹性（按功能区）
   delta: [0.0, 0.0, 0.0]              # 真实溢出（主模型 δ = 0，这里也取 0）
   amp: 0.15                           # 合成分时的对数价差幅度
