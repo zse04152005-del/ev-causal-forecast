@@ -4,7 +4,8 @@
 - 事实预测：主模型（v2_main_A0，5 个种子的分位数取平均）的日前预测（第 24 步）中位数，测试期，只看严格分时小区
 - 情景：flat 取消分时（每天取该小区当天平均价）；spread2 峰谷价差放大到 2 倍；evening 18:00–22:00 加价 20%
 - 需求口径：预测的充电时长 = 利用率 × 桩数（桩·小时）
-- 弹性：锚定值 β̂ = −0.213（se 0.202），不确定性用截断正态（β ≤ 0）抽样；另算 −0.45、−0.76、−1.58 作对照
+- 弹性：锚定值 β̂ = −0.213；论文所用不确定性为按小区整群自助法 se 0.313（--se 0.3131），默认读锚定文件里的聚类 se 0.202；截断正态（β ≤ 0）抽样；另算 −0.45、−0.76、−1.58 作对照
+- 稳态弹性（定理 T4，平均充电时长 60 分钟）：--beta -0.3119 --se 0.4582，输出放 results/scenarios/steady_state_mu60
   （−0.45：PIAST 原代码的参考弹性；−0.76：Kuang et al. 2024 SCS；−1.58：本文数据上的混合 OLS 斜率）
 
 用法（在仓库根目录下）：
@@ -29,6 +30,8 @@ ap.add_argument("--out", required=True)
 ap.add_argument("--group", default="v2_main_A0")
 ap.add_argument("--seeds", type=int, default=5)
 ap.add_argument("--draws", type=int, default=4000)
+ap.add_argument("--beta", type=float, default=None, help="override the anchor (e.g. the steady-state elasticity)")
+ap.add_argument("--se", type=float, default=None, help="override its standard error (e.g. the zone-bootstrap s.e.)")
 ap.add_argument("overrides", nargs="*")
 a = ap.parse_args()
 cfg = load_config(_bootstrap.DEFAULT_CFG, a.overrides)
@@ -36,6 +39,10 @@ P = prepare(cfg)
 HERE = os.path.dirname(os.path.abspath(__file__))
 anc = json.load(open(os.path.join(HERE, "..", "configs", "anchor", "fivemin_main.json"), encoding="utf-8"))["own"][0]
 B, SE = float(anc["beta"]), float(anc["se"])
+if a.beta is not None:
+    B = a.beta
+if a.se is not None:
+    SE = a.se
 ALT = {"prior_0.45": -0.45, "kuang_0.76": -0.76, "naive_1.58": -1.58}
 
 # ---- 事实预测：第 24 步中位数，种子平均

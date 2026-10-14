@@ -1,7 +1,8 @@
 """生成论文表 1（数据描述统计）与表 2（因果估计与稳健性）的 LaTeX 与 CSV。
 
 表 1：由逐小时小区级数据直接计算（src.data.dataset.prepare，口径与训练、评价完全相同）
-表 2：读取 results/causal/5min/ 下的 spec_curve.csv、placebo.csv、panel_supp.csv、boot_cd_diff_summary.json
+表 2：读取 results/causal/5min/ 下的 spec_curve.csv、placebo.csv、panel_supp.csv、boot_cd_diff_summary.json，
+      以及 results/causal/round2/summary.json（第二轮自助法与随机化推断，scripts/causal_round2.py）
       （由 scripts/estimate_causal_5min.py、boot_cd_diff.py、estimate_panel_supp.py 生成）
 
 用法（在仓库根目录下）：
@@ -124,6 +125,17 @@ for name, kw in SPEC:
     L.append(f"{name} & {cell(c)} & {cell(d)} & {ev} \\\\")
     flat.append({"spec": name, "beta_C": c.beta, "se_C": c.se, "beta_D": d.beta, "se_D": d.se, "events": int(d.n_events),
                  "n_C": int(c.n), "n_D": int(d.n)})
+# 第二轮：锚定值的小区整群自助法（200 次）与随机化推断（站点 × 时段内跨天置换，200 次），见 scripts/causal_round2.py
+r2f = os.path.join(res, "causal", "round2", "summary.json")
+if os.path.exists(r2f):
+    r2 = json.load(open(r2f, encoding="utf-8"))
+    bD, rD = r2["bootstrap"]["D_exp"], r2["randomisation"]["D_exp"]
+    i = next(j for j, x in enumerate(L) if x.startswith("Exposure terms (anchor)")) + 1
+    L[i:i] = [f"\\quad zone bootstrap & & ${r2['D_exp']['beta']:.2f}$ ({bD['se']:.2f}) & \\\\",
+              f"\\quad 95\\% bootstrap interval & & $[{bD['q025']:.2f},\\,{bD['q975']:.2f}]$ & \\\\",
+              f"\\quad randomisation $p$ & & {rD['p_two_sided_plus1']:.3f} & \\\\"]
+    flat.append({"spec": "anchor_round2", "beta_D": r2["D_exp"]["beta"], "se_D": bD["se"], "boot_q025": bD["q025"],
+                 "boot_q975": bD["q975"], "boot_reps": bD["reps"], "ri_p": rD["p_two_sided_plus1"], "ri_reps": rD["reps"]})
 # 安慰剂：切换时刻平移后的"假切换"（60 分钟窗口）
 for des in ("C", "D"):
     q = pl[pl.design == des]

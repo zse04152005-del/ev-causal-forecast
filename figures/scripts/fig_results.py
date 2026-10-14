@@ -35,7 +35,7 @@ CMP = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT or HERE, "results"
 OUT = sys.argv[2] if len(sys.argv) > 2 else (os.path.join(ROOT, "figures", "results") if ROOT else os.path.join(HERE, "out"))
 os.makedirs(OUT, exist_ok=True)
 MM = 1 / 25.4
-ANCHOR, ANCHOR_SE = -0.213, 0.20          # 设计 D 全市合并估计（阶段 6）
+ANCHOR, ANCHOR_SE = -0.213, 0.313         # 设计 D 全市合并估计；s.e. 为按小区整群自助法（第二轮，results/causal/round2）
 C_OURS = PAL["causal"]["stroke"]          # 因果锚定（本文）
 C_FREE = PAL["cov"]["stroke"]             # 只约束符号的自由学习
 C_DATA = PAL["price"]["stroke"]           # 纯数据驱动 / PAG
@@ -412,11 +412,13 @@ if os.path.exists(os.path.join(SCN, "scenario_profiles.csv")):
         stepline(ax, (d.cf / d.fact - 1).values * 100, color=col, lw=1.2, ls=ls, zorder=3)
     ax.set_xlim(0, 24)
     ax.set_xticks([0, 6, 12, 18, 24])
-    ax.set_ylim(-10.5, 4.5)
+    ext = [((sp.cf_lo / sp.fact - 1) * 100).min(), ((sp.cf_hi / sp.fact - 1) * 100).max()]
+    y_lo, y_hi = min(-10.5, np.floor(ext[0]) - 0.5), max(4.5, np.ceil(ext[1]) + 0.5)   # bands are never clipped
+    ax.set_ylim(y_lo, y_hi)
     ax.set_xlabel("Hour of day", fontsize=FS["label"], color=INK)
     ax.set_ylabel("Change in predicted charging (%)", fontsize=FS["label"], color=INK)
     ax.grid(axis="y", color=RULE, lw=0.3, alpha=0.5)
-    ax.text(0.5, -10.0, "bands: 90% interval,\nuncertainty of the elasticity", fontsize=FS["small"], color=INK2,
+    ax.text(0.5, y_lo + 0.5, "bands: 90% interval,\nuncertainty of the elasticity", fontsize=FS["small"], color=INK2,
             ha="left", va="bottom", linespacing=1.0)
     panel_label(ax, "(b)", "Predicted response", dx=-0.14, gap=0.12)
 

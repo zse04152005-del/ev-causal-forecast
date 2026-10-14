@@ -1,0 +1,26 @@
+{
+ "events_total": 14000,
+ "zones": [
+  {
+   "zone": 690,
+   "corr_count_beta": -0.43213274186920203,
+   "events": 148,
+   "beta_without": -0.10588113751999101,
+   "se_without": 0.16066302417912154
+  },
+  {
+   "zone": 777,
+   "corr_count_beta": -0.25712462204449077,
+   "events": 2,
+   "beta_without": -0.17039879727162124,
+   "se_without": 0.1931663736998654
+  },
+  {
+   "zone": 682,
+   "corr_count_beta": -0.16818575140457703,
+   "events": 151,
+   "beta_without": -0.1722706059102376,
+   "se_without": 0.19035561210718271
+  }
+ ]
+}
