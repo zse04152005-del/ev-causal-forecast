@@ -4,6 +4,7 @@
 #   python scripts\select_round2.py                                                            # 选出每个基线的最优超参数
 #   powershell -ExecutionPolicy Bypass -File scripts\run_round2_baselines.ps1 -Phase seeds   # 10 个种子，约 16 小时
 #   powershell -ExecutionPolicy Bypass -File scripts\run_round2_baselines.ps1 -Phase pag     # PAG 预训练检查 5 次 + 利用率口径 5 个种子，约 2 小时
+#   powershell -ExecutionPolicy Bypass -File scripts\run_round2_baselines.ps1 -Phase t2      # 定理 T2 组合：符号约束弹性从 0 学起，10 个种子，约 2 小时
 #   powershell -ExecutionPolicy Bypass -File scripts\run_round2_baselines.ps1 -Phase gbdt    # 梯度提升树（只用 CPU，也可以在 Mac 上跑）
 # 调参：每个深度基线 12 组（D {32, 64} × 学习率 {5e-4, 1e-3, 2e-3} × dropout {0.1, 0.3}，种子 0，按验证集 pinball 选），
 #       与 CPA-STGNN 第一轮的调参预算相同；STAEformer 4 组（学习率 {5e-4, 1e-3} × dropout {0.1, 0.3}，批大小 8）。
@@ -79,10 +80,14 @@ foreach ($ph in $Phase.Split(",")) {
       # PAG 用利用率作目标、同协议训练，进表 2（5 个种子）
       foreach ($s in 0..4) { Base "r2_pag_util_s$s" @("baseline.name=pag", "train.seed=$s") }
     }
+    "t2" {
+      # 定理 T2 组合所需的"学习弹性"：符号约束（投影）、从 0 起步，与主模型同配置、同种子（与半合成基准的 Bproj0 相同）
+      foreach ($s in 0..9) { Main "r2_proj0_s$s" @("anchor.mode=proj", "anchor.init_beta=0.0", "train.seed=$s") }
+    }
     "gbdt" {
       foreach ($s in 0..9) { RunScript "scripts/run_baseline.py" "r2_gbdt_s$s" @("model.name=gbdt", "train.seed=$s") }
     }
-    default { Log "未知阶段：$ph（可选 smoke, tune, seeds, pag, gbdt）" }
+    default { Log "未知阶段：$ph（可选 smoke, tune, seeds, pag, t2, gbdt）" }
   }
   Log "阶段 $ph 结束"
   $script:writer.Close(); $script:writer = $null

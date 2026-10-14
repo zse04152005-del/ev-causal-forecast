@@ -11,7 +11,8 @@ standard error, re-estimated on the synthetic training period with design D). Tr
 Post-hoc arms (no training; computed from the anchor and the learned elasticity of the same cell and seed):
     Zero      the price-blind effect, beta = 0
     Shrink    kappa * anchor with kappa = max(0, 1 - s^2 / anchor^2)        (Theorem T2 e, plug-in)
-    T2combo   w * anchor + (1 - w) * learned (Bproj0), w = e_L / (e_L + s^2) with e_L = max((learned - anchor)^2 - s^2, 0)
+    T2combo   w * anchor + (1 - w) * learned (Bproj0), w = e_L / (e_L + s^2) with e_L = max((learned - anchor)^2 - s^2, 0);
+              the anchor enters truncated at 0 as in the cut model, and the combination is truncated at 0 (sign restriction)
               (Theorem T2 b with b_A = 0; (learned - anchor)^2 - s^2 is unbiased for b_L^2 + v_L when the anchor is unbiased)
 Metrics per cell (setting x true beta x rho [x endo]) over seeds:
     bias and RMSE of the elasticity, share with the wrong sign (beta > 0),
@@ -104,9 +105,10 @@ def main():
         extra.append(dict(common, arm="Shrink", implied=kappa * b_a))
         if not learn.empty:
             b_l = learn.iloc[0].implied
-            e_l = max((b_l - b_a) ** 2 - s * s, 0.0)
+            b_at = min(b_a, 0.0)                                   # the anchor as the model uses it (sign-restricted)
+            e_l = max((b_l - b_at) ** 2 - s * s, 0.0)
             w = e_l / (e_l + s * s) if (e_l + s * s) > 0 else 1.0
-            extra.append(dict(common, arm="T2combo", implied=w * b_a + (1 - w) * b_l, weight_anchor=w))
+            extra.append(dict(common, arm="T2combo", implied=min(w * b_at + (1 - w) * b_l, 0.0), weight_anchor=w))
     df = pd.concat([df, pd.DataFrame(extra)], ignore_index=True)
     df["error"] = df.implied - df.true_implied
     df["wrong_sign"] = (df.implied > 0).astype(float)
