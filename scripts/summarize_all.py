@@ -1,7 +1,8 @@
 """汇总全部运行（两轮）→ results/comparisons/：groups_mean.csv（各组跨种子均值与标准差）、all_runs_flat.csv、
 eps_summary.csv（先验敏感性）、eid_summary.csv（可识别性）。E-SS 另见 summarize_ess.py。
 
-用法：python scripts/summarize_all.py [--runs-dir results/runs]
+用法：python scripts/summarize_all.py [--runs-dir results/runs [另一个 runs 目录 …]]
+多个目录时按名字合并，同名运行以后面的目录为准（例如第一轮在 Mac 的 runs、第二轮在 ev-causal-results/runs）。
 """
 import argparse
 import glob
@@ -17,11 +18,11 @@ from src.utils.config import load_config
 from src.utils.paths import ensure_dir, project_root, resolve
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--runs-dir", default=None)
+ap.add_argument("--runs-dir", nargs="+", default=None)
 a = ap.parse_args()
 cfg = load_config(_bootstrap.DEFAULT_CFG)
 res = resolve(cfg.paths.results_dir, project_root(cfg.paths.get("root")))
-runs = a.runs_dir or os.path.join(res, "runs")
+runs = a.runs_dir or [os.path.join(res, "runs")]
 out = ensure_dir(os.path.join(res, "comparisons"))
 
 
@@ -30,10 +31,14 @@ def jload(p):
 
 
 rows = []
-for d in sorted(glob.glob(os.path.join(runs, "*"))):
-    name = os.path.basename(d)
+dirs = {}
+for rd in runs:                                              # later directories override earlier ones with the same run name
+    for d in glob.glob(os.path.join(rd, "*")):
+        dirs[os.path.basename(d)] = d
+for name in sorted(dirs):
+    d = dirs[name]
     s = jload(os.path.join(d, "summary.json"))
-    if not s or name.startswith(("smoke", "tune")) or "ess_" in name:
+    if not s or re.search(r"(^|_)(smoke|tune)_", name) or "ess_" in name:
         continue
     m = pd.read_csv(os.path.join(d, "metrics_test.csv")).set_index("step")
     m.index = m.index.astype(str)

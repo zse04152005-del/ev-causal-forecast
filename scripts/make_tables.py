@@ -27,14 +27,17 @@ dm = dm[dm.metric == "mae"].set_index("vs")
 ROWS = [("Reference methods", [("baseline_naive_last_utilization", "Last value", "--"),
                                ("baseline_naive_seasonal_utilization", "Seasonal naive", "--"),
                                ("baseline_profile_utilization", "Historical profile", "--")]),
-        ("Networks without a graph", [("base_fcnn", "FCNN", "--"), ("base_lstm", "LSTM", "--")]),
-        ("Spatio-temporal graph networks", [("base_gcn", "GCN", "--"), ("base_gcnlstm", "GCN-LSTM", "--"),
-                                            ("base_stgcn", "STGCN", "--"), ("base_astgcn", "ASTGCN", "--"),
-                                            ("base_agcrn", "AGCRN", "--"), ("base_gwn_blind", "Graph WaveNet", "--"),
-                                            ("v2_staeformer_blind", "STAEformer", "--")]),
-        ("Price as an ordinary input", [("base_stgcn_price", "STGCN + price", "input"),
-                                        ("base_agcrn_price", "AGCRN + price", "input")]),
+        ("Models without a graph", [("r2_fcnn", "FCNN", "--"), ("r2_lstm", "LSTM", "--"), ("r2_stid", "STID", "--"),
+                                    ("r2_dlinear", "DLinear", "--"), ("r2_gbdt", "Gradient boosting", "--")]),
+        ("Spatio-temporal graph networks", [("r2_gcn", "GCN", "--"), ("r2_gcnlstm", "GCN-LSTM", "--"),
+                                            ("r2_stgcn", "STGCN", "--"), ("r2_astgcn", "ASTGCN", "--"),
+                                            ("r2_agcrn", "AGCRN", "--"), ("v2_gwn_blind", "Graph WaveNet", "--"),
+                                            ("r2_staeformer", "STAEformer", "--")]),
+        ("Models with prices", [("base_stgcn_price", "STGCN + price", "input"),
+                                ("base_agcrn_price", "AGCRN + price", "input"),
+                                ("r2_pag_util", "PAG", "prior")]),
         ("Proposed", [(a.ref, "\\model{}", "anchored")])]
+ROWS = [(h, [r for r in rs if r[0] in g.index]) for h, rs in ROWS]          # groups not yet run (e.g. r2_gbdt) are left out
 COLS = [("MAE", True), ("RMSE", True), ("CRPS", True), ("MAE_1", False), ("MAE_6", False), ("MAE_24", False)]
 keys = [k for _, rs in ROWS for k, _, _ in rs]
 rank = {c: np.argsort(np.argsort(g.loc[keys, c].values)) for c, _ in COLS}       # 0 = 最好

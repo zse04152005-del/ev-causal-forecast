@@ -21,6 +21,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--runs", required=True)
 ap.add_argument("--out", required=True)
 ap.add_argument("--seeds", type=int, default=5)
+ap.add_argument("--sub", type=int, default=0, help="also write <group>@<sub> keys averaged over the first <sub> seeds found")
 ap.add_argument("groups", nargs="+")
 a = ap.parse_args()
 P = prepare(load_config(_bootstrap.DEFAULT_CFG))
@@ -47,6 +48,11 @@ for g in a.groups:
         out[g + "|mae_o"], out[g + "|mae_z"] = np.mean(Lo, 0), np.mean(Lz, 0)
         out[g + "|crps_o"], out[g + "|crps_z"] = np.mean(Co, 0), np.mean(Cz, 0)
         out[g + "|seed_mae"] = np.array([l.mean() for l in Lo])
+        if a.sub and len(Lo) > a.sub:                              # reference averaged over the same number of seeds as a group
+            k = f"{g}@{a.sub}"
+            out[k + "|mae_o"], out[k + "|mae_z"] = np.mean(Lo[:a.sub], 0), np.mean(Lz[:a.sub], 0)
+            out[k + "|crps_o"], out[k + "|crps_z"] = np.mean(Co[:a.sub], 0), np.mean(Cz[:a.sub], 0)
+            out[k + "|seed_mae"] = np.array([l.mean() for l in Lo[:a.sub]])
         print(g, len(Lo), round(float(np.mean(Lo)), 5), round(float(np.mean(Co)), 5), flush=True)
     else:
         print(g, "没有找到 predictions_test.npz", flush=True)

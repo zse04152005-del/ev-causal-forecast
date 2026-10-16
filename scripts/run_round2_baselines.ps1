@@ -5,6 +5,7 @@
 #   powershell -ExecutionPolicy Bypass -File scripts\run_round2_baselines.ps1 -Phase seeds   # 10 个种子，约 16 小时
 #   powershell -ExecutionPolicy Bypass -File scripts\run_round2_baselines.ps1 -Phase pag     # PAG 预训练检查 5 次 + 利用率口径 5 个种子，约 2 小时
 #   powershell -ExecutionPolicy Bypass -File scripts\run_round2_baselines.ps1 -Phase t2      # 定理 T2 组合：符号约束弹性从 0 学起，10 个种子，约 2 小时
+#   powershell -ExecutionPolicy Bypass -File scripts\run_round2_baselines.ps1 -Phase dm -OldRuns "<旧项目目录>\05_实验结果\runs"   # DM 检验的损失序列（gbdt 之后跑）
 #   powershell -ExecutionPolicy Bypass -File scripts\run_round2_baselines.ps1 -Phase gbdt    # 梯度提升树（只用 CPU，也可以在 Mac 上跑）
 # 调参：每个深度基线 12 组（D {32, 64} × 学习率 {5e-4, 1e-3, 2e-3} × dropout {0.1, 0.3}，种子 0，按验证集 pinball 选），
 #       与 CPA-STGNN 第一轮的调参预算相同；STAEformer 4 组（学习率 {5e-4, 1e-3} × dropout {0.1, 0.3}，批大小 8）。
@@ -12,7 +13,7 @@
 # 种子：所有模型 0–9；CPA-STGNN 与 Graph WaveNet 已有 0–4（v2_main_A0、v2_gwn_blind），只补 5–9。
 # 无图消融：CPA-STGNN 去掉自适应图（graph.adaptive=false），只剩时间卷积，10 个种子。
 # 断点续跑：运行目录里已有 summary.json 就跳过。
-param([string]$Phase = "smoke")
+param([string]$Phase = "smoke", [string]$OldRuns = "")
 $ErrorActionPreference = "Continue"
 Set-Location (Split-Path -Parent $PSScriptRoot)
 $root = (Get-Location).Path
@@ -84,10 +85,26 @@ foreach ($ph in $Phase.Split(",")) {
       # 定理 T2 组合所需的"学习弹性"：符号约束（投影）、从 0 起步，与主模型同配置、同种子（与半合成基准的 Bproj0 相同）
       foreach ($s in 0..9) { Main "r2_proj0_s$s" @("anchor.mode=proj", "anchor.init_beta=0.0", "train.seed=$s") }
     }
+    "dm" {
+      # 显著性检验用的损失序列（DM 检验）。第一轮的 5 个种子当初复制时去掉了 predictions_test.npz，先从旧目录补回来：
+      #   -OldRuns "<旧项目目录>\05_实验结果\runs"
+      if ($OldRuns -ne "") {
+        foreach ($g in "v2_main_A0", "v2_gwn_blind", "base_stgcn_price", "base_agcrn_price") { foreach ($s in 0..4) {
+          $src = Join-Path $OldRuns "${g}_s$s"; $dst = Join-Path $runs "${g}_s$s"
+          if (Test-Path (Join-Path $src "predictions_test.npz")) { robocopy $src $dst predictions_test.npz /NJH /NJS /NFL /NDL | Out-Null; Log "已复制 ${g}_s$s" }
+          else { Log "旧目录里没有 ${g}_s$s\predictions_test.npz" }
+        } }
+      }
+      $groups = @("v2_main_A0", "v2_gwn_blind", "r2_proj0", "r2_nograph", "r2_staeformer", "r2_pag_util", "r2_gbdt",
+                  "base_stgcn_price", "base_agcrn_price") + ($baselines | ForEach-Object { "r2_$_" })
+      $out = Join-Path $root "results\comparisons\dm\loss_r2.npz"
+      Log "python scripts/loss_series.py --runs $runs --seeds 10 --sub 5 --out $out $($groups -join ' ')"
+      & python scripts/loss_series.py --runs $runs --seeds 10 --sub 5 --out $out @groups 2>&1 | ForEach-Object { Log $_ }
+    }
     "gbdt" {
       foreach ($s in 0..9) { RunScript "scripts/run_baseline.py" "r2_gbdt_s$s" @("model.name=gbdt", "train.seed=$s") }
     }
-    default { Log "未知阶段：$ph（可选 smoke, tune, seeds, pag, t2, gbdt）" }
+    default { Log "未知阶段：$ph（可选 smoke, tune, seeds, pag, t2, gbdt, dm）" }
   }
   Log "阶段 $ph 结束"
   $script:writer.Close(); $script:writer = $null
