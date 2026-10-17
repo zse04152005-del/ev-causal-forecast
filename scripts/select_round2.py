@@ -43,7 +43,11 @@ def main():
         if not m or not os.path.exists(p):
             continue
         s = json.load(open(p, encoding="utf-8"))
-        rows.append({"model": m.group("model"), "hp": m.group("hp"), "val_pinball": s.get("best_val_pinball"),
+        # CPA-STGNN runs store best_val_pinball, the baseline runs best_val_loss (also the pinball loss)
+        val = s.get("best_val_pinball", s.get("best_val_loss"))
+        if val is None:
+            raise SystemExit(f"{d}: summary.json has no validation loss")
+        rows.append({"model": m.group("model"), "hp": m.group("hp"), "val_pinball": val,
                      "test_MAE": s.get("test_MAE"), "overrides": " ".join(parse_hp(m.group("model"), m.group("hp")))})
     if not rows:
         raise SystemExit("没有找到 r2_tune_* 的运行结果")

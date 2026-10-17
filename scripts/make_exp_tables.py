@@ -43,7 +43,7 @@ ROWS = [
     ("row", "Price as input", "v2_abl_A6_priceinput", 3, "implicit"),
     ("row", "Trainable, no constraint", "v2_abl_A2_none", 3, "learned"),
     ("row", "Trainable, sign constraint", "v2_abl_A1_free", 3, "learned"),
-    ("row", "Learned from zero, sign constraint", "r2_proj0", 10, "learned"),
+    ("row", "From zero, sign constraint", "r2_proj0", 10, "learned"),
     ("row", "Soft anchor", "v2_abl_A13_soft1", 3, "learned"),
     ("row", "Fixed at $-0.45$", "v2_abl_A3_prior-0.45", 3, "$-0.45$, fixed"),
     ("row", "Fixed at $-0.76$", "v2_abl_A3_prior-0.76", 3, "$-0.76$, fixed"),

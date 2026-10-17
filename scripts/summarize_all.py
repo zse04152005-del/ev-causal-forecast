@@ -1,5 +1,5 @@
 """汇总全部运行（两轮）→ results/comparisons/：groups_mean.csv（各组跨种子均值与标准差）、all_runs_flat.csv、
-eps_summary.csv（先验敏感性）、eid_summary.csv（可识别性）。E-SS 另见 summarize_ess.py。
+eps_summary.csv（先验敏感性）、eid_summary.csv（可识别性）。半合成基准见 summarize_ess_v3.py。
 
 用法：python scripts/summarize_all.py [--runs-dir results/runs [另一个 runs 目录 …]]
 多个目录时按名字合并，同名运行以后面的目录为准（例如第一轮在 Mac 的 runs、第二轮在 ev-causal-results/runs）。

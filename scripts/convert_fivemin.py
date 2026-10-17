@@ -1,6 +1,6 @@
 """Convert the five-minute UrbanEV files into the arrays used by the causal analysis.
 
-The causal analysis (scripts/estimate_causal_5min.py, semisynthetic_5min.py, boot_cd_diff.py) reads
+The causal analysis (scripts/estimate_causal_5min.py, semisynthetic_5min.py, causal_round2.py) reads
 data/interim/fiveMin/, which this script writes from the two UrbanEV archives:
 
   --station-zip  UrbanEVDataset.zip with the folder 20220901-20230228_station-processed/

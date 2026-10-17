@@ -85,7 +85,8 @@ for gi, (head, rs) in enumerate(ROWS):
                      "dm_p_holm": dm.dm_p_holm.get(k, np.nan), "wilcoxon_p_holm": dm.wilcoxon_p_holm.get(k, np.nan),
                      "share_zones_ref_better": dm.share_zones_better.get(k, np.nan)})
 L += ["\\bottomrule", "\\end{tabular*}\\par}",
-      "\\tblnote{Bold: best; underlined: second best. $^{\\ast}$ Significantly less accurate than \\model{} "
+      "\\tblnote{Means over ten seeds (five for the models with prices; one PAG run stopped after 18 epochs). "
+      "Bold: best; underlined: second best. $^{\\ast}$/$^{\\circ}$ Significantly less/more accurate than \\model{} "
       "(Diebold--Mariano test, Holm-adjusted $p<0.05$).}",
       "\\end{table}"]
 open(os.path.join(out, "tab_main_results.tex"), "w", encoding="utf-8").write("\n".join(L) + "\n")

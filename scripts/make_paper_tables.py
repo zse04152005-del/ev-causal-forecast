@@ -1,9 +1,9 @@
 """生成论文表 1（数据描述统计）与表 2（因果估计与稳健性）的 LaTeX 与 CSV。
 
 表 1：由逐小时小区级数据直接计算（src.data.dataset.prepare，口径与训练、评价完全相同）
-表 2：读取 results/causal/5min/ 下的 spec_curve.csv、placebo.csv、panel_supp.csv、boot_cd_diff_summary.json，
+表 2：读取 results/causal/5min/ 下的 spec_curve.csv、placebo.csv、panel_supp.csv，
       以及 results/causal/round2/summary.json（第二轮自助法与随机化推断，scripts/causal_round2.py）
-      （由 scripts/estimate_causal_5min.py、boot_cd_diff.py、estimate_panel_supp.py 生成）
+      （由 scripts/estimate_causal_5min.py、estimate_panel_supp.py 生成）
 
 用法（在仓库根目录下）：
     python scripts/make_paper_tables.py [--out results/tables] [--causal-dir <目录>] [paths.data_dir=<数据目录>]
@@ -90,7 +90,6 @@ print(pd.DataFrame(rowsB).T.to_string())
 sc = pd.read_csv(os.path.join(cdir, "spec_curve.csv"))
 pl = pd.read_csv(os.path.join(cdir, "placebo.csv"))
 ps = pd.read_csv(os.path.join(cdir, "panel_supp.csv"))
-bt = json.load(open(os.path.join(cdir, "boot_cd_diff_summary.json"), encoding="utf-8"))
 
 
 def pick(design, W, est="PPML", donut=0, outcome="duration", exposures=False):
@@ -155,9 +154,7 @@ L += ["\\addlinespace[2pt]",
       f"Hourly panel, PPML & \\multicolumn{{2}}{{c}}{{{cell(r1)}}} & \\\\",
       f"Hourly panel, DML & \\multicolumn{{2}}{{c}}{{{cell(r2)}}} & \\\\"]
 flat += [{"spec": "panel_ppml", "beta_D": r1.beta, "se_D": r1.se, "n_D": int(r1.n)},
-         {"spec": "panel_dml", "beta_D": r2.beta, "se_D": r2.se, "n_D": int(r2.n)},
-         {"spec": "bootstrap_180", "se_C": bt["boot_se_C"], "se_D": bt["boot_se_D"], "diff_D_minus_C": bt["diff_D_minus_C"],
-          "diff_ci_lo": bt["diff_ci95"][0], "diff_ci_hi": bt["diff_ci95"][1]}]
+         {"spec": "panel_dml", "beta_D": r2.beta, "se_D": r2.se, "n_D": int(r2.n)}]
 L += ["\\bottomrule", "\\end{tabular*}\\par}",
       "\\tblnote{$W$: half-window. Design C: date-by-slot fixed effects; design D: also station-by-slot fixed effects.}",
       "\\end{table}"]

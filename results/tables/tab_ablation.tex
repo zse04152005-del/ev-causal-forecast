@@ -5,19 +5,21 @@
 \toprule
 Variant & $\beta$ & MAE & CRPS & $\Delta$MAE (\%) \\
 \midrule
-\model{} (reference) & $-0.21$ & 4.37 & 2.54 &  \\
+\model{} (reference) & $-0.21$ & 4.36 & 2.53 &  \\
 \addlinespace[2pt]
 \multicolumn{5}{@{}l}{\textit{Treatment of the price response}} \\
-\hspace{0.6em}Price-blind & -- & 4.36 & 2.53 & $-$0.4$^{\circ}$ \\
+\hspace{0.6em}Price-blind & -- & 4.35 & 2.52 & $-$0.2$^{\circ}$ \\
 \hspace{0.6em}Price as input & implicit & 4.38 & 2.54 & $+$0.9$^{\ast}$ \\
-\hspace{0.6em}Trainable, no constraint & $-$0.15$^{\dagger}$ & 4.31 & 2.50 & $-$0.6$^{\circ}$ \\
-\hspace{0.6em}Trainable, sign constraint & $-$0.19$^{\dagger}$ & 4.33 & 2.51 & $-$0.2 \\
+\hspace{0.6em}Trainable, no constraint & $-$0.24$^{\dagger}$ & 4.31 & 2.50 & $-$0.6$^{\circ}$ \\
+\hspace{0.6em}Trainable, sign constraint & $-$0.21$^{\dagger}$ & 4.33 & 2.51 & $-$0.2 \\
+\hspace{0.6em}From zero, sign constraint & $-$0.34$^{\dagger}$ & 4.36 & 2.53 & $-$0.1 \\
 \hspace{0.6em}Soft anchor & $-$0.21$^{\dagger}$ & 4.33 & 2.51 & $-$0.1 \\
 \hspace{0.6em}Fixed at $-0.45$ & $-0.45$ & 4.30 & 2.50 & $-$0.8$^{\circ}$ \\
 \hspace{0.6em}Fixed at $-0.76$ & $-0.76$ & 4.33 & 2.51 & $-$0.2$^{\circ}$ \\
 \hspace{0.6em}Fixed at $-1.48$ & $-1.48$ & 4.36 & 2.53 & $+$0.5 \\
 \addlinespace[2pt]
 \multicolumn{5}{@{}l}{\textit{Graph and backbone}} \\
+\hspace{0.6em}No graph & $-0.21$ & 4.34 & 2.51 & $-$0.4 \\
 \hspace{0.6em}Predefined + adaptive & $-0.21$ & 4.45 & 2.59 & $+$1.9$^{\ast}$ \\
 \hspace{0.6em}Predefined only & $-0.21$ & 4.52 & 2.63 & $+$4.2$^{\ast}$ \\
 \hspace{0.6em}STAEformer & $-0.21$ & 4.63 & 2.68 & $+$6.7$^{\ast}$ \\

@@ -1,8 +1,10 @@
-"""阶段 9.3 结果图（可识别性 E-ID、半合成基准 E-SS、先验敏感性 E-PS）。
+"""Result figures of the paper: Fig. 5 (context), Fig. 6 (accuracy by horizon), Fig. 7 (validation of the price response)
+and Fig. 9 (scenarios). Fig. 8 (benchmark) is drawn by fig_ess_v3.py, Fig. S1 by fig_event_direction.py.
 
-输入：results/comparisons/ 下的 eid_summary.csv、all_runs_flat.csv、ess_summary.csv、eps_summary.csv、groups_mean.csv
-      （由 scripts/summarize_all.py、summarize_ess.py 生成）
-输出：Fig_R_identifiability、Fig_R_ess、Fig_R_prior_sensitivity 的 pdf / png（600 dpi）/ svg，宽 190 mm
+Inputs: results/comparisons/ (all_runs_flat, groups_mean, eid_summary, eps_summary, metrics_by_step, conformal_by_step,
+        dm_wilcoxon; scripts/summarize_all.py, collect_by_step.py, significance_tests.py), results/scenarios/,
+        results/EDA/, results/causal/5min/ and the UrbanEV shapefile for the map.
+Outputs: Fig_R_context, Fig_R_horizon, Fig_R_validation, Fig_R_scenario as pdf / png (600 dpi) / svg, 190 mm wide
 
 运行：python fig_results.py [comparisons 目录] [输出目录]
 """
@@ -88,188 +90,19 @@ def save(fig, name):
 runs = pd.read_csv(os.path.join(CMP, "all_runs_flat.csv"))
 runs["seed"] = runs.run.str.extract(r"_s(\d+)$").astype(float)
 
-# ================================================================= 图 1：可识别性（E-ID）
+# ================================================================= data for Fig. 7 (loss profile and injected priors)
 eid = pd.read_csv(os.path.join(CMP, "eid_summary.csv"))
 prof = eid[(eid["round"] == "v2") & (eid.kind == "profile")].sort_values("beta_set")
-seed_sd = runs[runs.group == "v2_main_A0"].val.std(ddof=1)
-fig, axs = plt.subplots(1, 2, figsize=(190 * MM, 74 * MM),
-                        gridspec_kw={"wspace": 0.30, "left": 0.085, "right": 0.985, "top": 0.87, "bottom": 0.17,
-                                     "width_ratios": [1.25, 1]})
-ax = axs[0]
-clean(ax)
-x, y = -prof.beta_set.values, prof.val.values * 100
-ymin = y.min()
-ax.axhspan(ymin, ymin + 2 * seed_sd * 100, color=PAL["gray"]["fill"], lw=0, zorder=0)
-ax.text(0.185, ymin + 1.45 * seed_sd * 100, "within 2 s.d. of\nseed-to-seed variation", fontsize=FS["small"],
-        color=INK2, va="center", ha="left")
-ax.axvline(-ANCHOR, color=C_OURS, lw=1.0, ls=(0, (4, 2)), zorder=1)
-ax.text(-ANCHOR * 0.94, 1.318, "causal estimate\n−0.21", fontsize=FS["small"], color=C_OURS, va="top", ha="left")
-for v, lab in ((0.45, "−0.45"), (0.76, "−0.76"), (1.48, "−1.48")):
-    ax.plot([v], [1.2515], marker="v", ms=3.6, color=C_GRAY, ls="none", clip_on=False, zorder=3)
-    ax.text(v, 1.2535, lab, fontsize=FS["small"], color=INK2, ha="center", va="bottom")
-ax.plot([1.55], [1.3052], marker="v", ms=3.6, color=C_GRAY, ls="none", zorder=3)
-ax.text(1.42, 1.305, "priors used in earlier work", fontsize=FS["small"], color=INK2, ha="left", va="center")
-ax.plot(x, y, color=INK, lw=1.2, marker="o", ms=4.2, mfc="white", mec=INK, mew=1.0, zorder=4)
-neg_log_axis(ax, "x", [3, 2, 1.2, 0.8, 0.4, 0.2, 0.1, 0.05], 0.04, 3.6)
-ax.set_ylim(1.25, 1.32)
-ax.set_xlabel(r"Elasticity fixed during training, $\beta$", fontsize=FS["label"], color=INK)
-ax.set_ylabel(r"Validation pinball loss ($\times 10^{-2}$)", fontsize=FS["label"], color=INK)
-ax.grid(axis="y", color=RULE, lw=0.3, alpha=0.5)
-panel_label(ax, "(a)", "Forecast loss is flat in the elasticity")
-
-ax = axs[1]
-clean(ax)
-fr = runs[runs.group.str.match(r"v2_eid_init")].copy()
-fr["init"] = fr.group.str.extract(r"init(-[\d.]+)").astype(float)
-lim = (0.035, 3.0)
-ax.plot(lim, lim, color=RULE, lw=0.8, zorder=1)
-ax.axhline(-ANCHOR, color=C_OURS, lw=1.0, ls=(0, (4, 2)), zorder=1)
-ax.text(0.038, -ANCHOR * 1.07, "causal estimate −0.21", fontsize=FS["small"], color=C_OURS, va="top", ha="right")
-ax.plot(-fr.init, -fr.beta_model, ls="none", marker="o", ms=3.2, mfc="white", mec=C_FREE, mew=0.8, zorder=3)
-m = fr.groupby("init").agg(b=("beta_model", "mean"), v=("val", "mean")).reset_index()
-ax.plot(-m.init, -m.b, ls="none", marker="D", ms=4.6, color=C_FREE, zorder=4)
-for r in m.itertuples():
-    ax.annotate(f"−{-r.b:.2f}", (-r.init, -r.b), xytext=(7, 0) if r.init <= -1 else (-6, 6), textcoords="offset points",
-                fontsize=FS["small"], color=INK, va="center", ha="left" if r.init <= -1 else "right")
-neg_log_axis(ax, "x", [2, 1, 0.3, 0.05], *lim)
-neg_log_axis(ax, "y", [2, 1, 0.5, 0.2, 0.1, 0.05], *lim)
-ax.set_xlabel(r"Initial value of $\beta$ (sign-constrained, not anchored)", fontsize=FS["label"], color=INK)
-ax.set_ylabel(r"Learned $\beta$", fontsize=FS["label"], color=INK)
-ax.text(0.75, 0.86, "no movement", fontsize=FS["small"], color=INK2, rotation=diag_angle(ax, lim), rotation_mode="anchor",
-        ha="center", va="top")
-ax.plot([], [], ls="none", marker="o", ms=3.2, mfc="white", mec=C_FREE, mew=0.8, label="one seed")
-ax.plot([], [], ls="none", marker="D", ms=4.6, color=C_FREE, label="mean of 3 seeds")
-ax.legend(loc="lower right", fontsize=FS["small"], frameon=False, handletextpad=0.3, borderaxespad=0.2)
-ax.text(0.03, 0.99, f"validation loss {m.v.min() * 100:.3f}–{m.v.max() * 100:.3f}\n" + r"($\times 10^{-2}$) at all four end points",
-        transform=ax.transAxes, fontsize=FS["small"], color=INK2, va="top", ha="left")
-panel_label(ax, "(b)", "Learned value follows its starting point", dx=-0.02)
-save(fig, "Fig_R_identifiability")
-
-# ================================================================= 图 2：半合成基准六格（E-SS）
-ess = pd.read_csv(os.path.join(CMP, "ess_summary.csv"))
-ess = ess[(ess["round"] == "v2") & (ess.scenario == "flat") & (ess.predictor == "model")]
-VAR = [("A0oracle", "Anchored at the true value (upper bound)", C_OURS, "s"),
-       ("A0pooled", "Anchored, pooled estimate", C_OURS, "o"),
-       ("A0cells", "Anchored, cell-level estimates", C_OURS, "o"),
-       ("A1free", "Sign-constrained, starts at anchor", C_FREE, "o"),
-       ("A1free0", "Sign-constrained, starts at −0.05", C_FREE, "o"),
-       ("A2none0", "Unconstrained price head", C_DATA, "o"),
-       ("A6input", "Price as ordinary input", C_DATA, "o"),
-       ("A5blind", "Price-blind", C_GRAY, "o")]
-SETS = [("strong", "Rich price variation"), ("weak", "Scarce price variation")]
-RHOS = [0.0, 0.5, 1.0]
-fig, axs = plt.subplots(2, 3, figsize=(190 * MM, 118 * MM), sharex=True, sharey=True,
-                        gridspec_kw={"wspace": 0.07, "hspace": 0.20, "left": 0.262, "right": 0.992, "top": 0.865,
-                                     "bottom": 0.10})
-XL = (-1.62, 1.22)
-XM = 0.86                                   # 效应误差数字列的位置
-for i, (st, st_name) in enumerate(SETS):
-    for j, rho in enumerate(RHOS):
-        ax = axs[i, j]
-        clean(ax)
-        ax.spines["left"].set_visible(False)
-        ax.tick_params(axis="y", length=0)
-        d = ess[(ess.setting == st) & (ess.rho == rho)]
-        truth = d.true_implied_beta.mean()
-        ax.axvline(truth, color=INK, lw=0.9, zorder=1)
-        ax.axvline(0, color=RULE, lw=0.6, ls=(0, (1.5, 1.5)), zorder=1)
-        ax.axvspan(0, 0.62, color=PAL["output"]["fill"], lw=0, zorder=0)
-        ax.axvspan(0.62, XL[1], color="white", lw=0, zorder=0.5)
-        for k, (v, lab, col, mk) in enumerate(VAR):
-            q = d[d.variant == v]
-            if k % 2 == 0:
-                ax.axhspan(k - 0.5, k + 0.5, xmax=(0.62 - XL[0]) / (XL[1] - XL[0]), color="#F7F7F7", lw=0, zorder=0.2)
-            if not len(q):
-                ax.text(XM, k, "n/a", fontsize=FS["small"], color=RULE, ha="center", va="center")
-                continue
-            b = q.implied_beta.values
-            ax.plot([truth, b.mean()], [k, k], color=col, lw=0.8, alpha=0.55, zorder=2, solid_capstyle="butt")
-            if len(b) > 1:
-                ax.plot(b, np.full(len(b), k), ls="none", marker="o", ms=2.6, mfc="white", mec=col, mew=0.6, zorder=3)
-            ax.plot([b.mean()], [k], ls="none", marker="D" if mk == "o" else "s", ms=4.4, color=col, mec="white",
-                    mew=0.5, zorder=4)
-            ax.text(XM, k, f"{q.effect_MAE.mean() * 100:.2f}", fontsize=FS["small"], color=INK, ha="center", va="center")
-        ax.set_ylim(len(VAR) - 0.5, -0.5)
-        ax.set_xlim(*XL)
-        ax.set_xticks([-1.5, -1.0, -0.5, 0, 0.5])
-        ax.set_xticklabels(["−1.5", "−1.0", "−0.5", "0", "0.5"])
-        ax.set_yticks(range(len(VAR)))
-        ax.set_yticklabels([v[1] for v in VAR], fontsize=FS["small"], color=INK)
-        if i == 0:
-            ax.set_title({0.0: r"$\rho = 0$  (schedule unrelated to demand)", 0.5: r"$\rho = 0.5$",
-                          1.0: r"$\rho = 1$  (high price at peak demand)"}[rho], fontsize=FS["label"], color=INK, pad=21)
-            ax.text(XM, -0.78, "effect\nerror", fontsize=FS["small"], color=INK2, ha="center", va="bottom", linespacing=0.95)
-            ax.text(truth, -0.62, "true", fontsize=FS["small"], color=INK, ha="center", va="bottom")
-        if i == 1 and j == 2:
-            ax.text(0.31, 0, "wrong\nsign", fontsize=FS["small"], color=PAL["output"]["stroke"], ha="center",
-                    va="center", linespacing=0.95, zorder=5)
-    axs[i, 0].text(-1.07, 1.035, f"({'ab'[i]})", transform=axs[i, 0].transAxes, fontsize=FS["panel"], fontweight="bold",
-                   ha="left", va="bottom", color=INK)
-    axs[i, 0].text(-0.95, 1.035, st_name, transform=axs[i, 0].transAxes, fontsize=FS["label"], fontweight="bold",
-                   ha="left", va="bottom", color=INK)
-fig.text((0.262 + 0.992) / 2 - 0.03, 0.022, "Elasticity read from the no-time-of-use counterfactual (diamond: mean; circles: seeds)",
-         fontsize=FS["label"], color=INK, ha="center", va="bottom")
-save(fig, "Fig_R_ess")
-
-# ================================================================= 图 3：先验敏感性（E-PS）
+seed_sd = runs[runs.group == "v2_main_A0"].val.std(ddof=1)          # seed-to-seed s.d. of the validation loss
 eps = pd.read_csv(os.path.join(CMP, "eps_summary.csv"))
-fig, axs = plt.subplots(1, 2, figsize=(190 * MM, 78 * MM),
-                        gridspec_kw={"wspace": 0.30, "left": 0.085, "right": 0.985, "top": 0.87, "bottom": 0.16,
-                                     "width_ratios": [1.2, 1]})
-ax = axs[0]
-clean(ax)
-lim = (0.07, 4.2)
-ax.plot(lim, lim, color=RULE, lw=0.8, zorder=1)
-ax.axhspan(lim[0], -(ANCHOR - ANCHOR_SE), color=PAL["causal"]["fill"], lw=0, zorder=0)
-ax.axhline(-ANCHOR, color=C_OURS, lw=1.0, ls=(0, (4, 2)), zorder=1)
-ax.text(3.9, 0.118, "causal estimate −0.21 (±1 s.e.)", fontsize=FS["small"], color=C_OURS, va="center", ha="left")
 pp, pr = eps[eps.method == "pag_paper"], eps[eps.method == "pag_released"]
-pc, pn = eps[eps.method == "piast_clamp"], eps[eps.method == "piast_noclamp"]
+pc = eps[eps.method == "piast_clamp"]
 S = [(pp, "arc_mean", C_DATA, "o", True, "PAG, published form"),
      (pr, "arc_mean", C_DATA, "o", False, "PAG, released code"),
      (pc, "piast_lambda_mean_tou", C_PIAST, "s", True, r"PIAST, learned coefficient $\lambda$"),
      (pc, "arc_mean", C_PIAST, "^", True, "PIAST, perturbation response")]
-for d, col_, c, mk, filled, lab in S:
-    d = d.sort_values("prior_injected")
-    ax.plot(-d.prior_injected, -d[col_], color=c, lw=1.1 if filled else 0, marker=mk, ms=4.6 if filled else 7.0,
-            mfc=c if filled else "none", mec="white" if filled else c, mew=0.6 if filled else 0.9, label=lab, zorder=4)
-g = pd.read_csv(os.path.join(CMP, "groups_mean.csv")).set_index("group")
 ours_b = [0.213, 0.45, 0.76, 1.48]
-ax.plot(ours_b, ours_b, ls="none", marker="D", ms=4.8, color=C_OURS, mec="white", mew=0.6, zorder=5,
-        label="CPA-STGNN, anchor set to the prior")
-neg_log_axis(ax, "x", [3, 1.48, 0.76, 0.45, 0.21, 0.1], *lim)
-neg_log_axis(ax, "y", [3, 1.48, 0.76, 0.45, 0.21, 0.1], *lim)
-ax.set_xlabel("Elasticity injected as prior", fontsize=FS["label"], color=INK)
-ax.set_ylabel("Elasticity read from the trained model", fontsize=FS["label"], color=INK)
-ax.legend(loc="lower right", fontsize=FS["small"], frameon=False, handletextpad=0.4, borderaxespad=0.1,
-          labelspacing=0.35, bbox_to_anchor=(1.0, 0.0))
-ax.text(2.3, 2.3, "read-out = injected prior", fontsize=FS["small"], color=INK2, rotation=diag_angle(ax, lim),
-        rotation_mode="anchor", ha="center", va="bottom")
-panel_label(ax, "(a)", "What the model reads back")
-
-ax = axs[1]
-clean(ax)
-ax.axhline(0, color=RULE, lw=0.6)
-three = runs[(runs.seed <= 2)]
-ours_m = [three[three.group == grp].MAE.mean() for grp in
-          ("v2_main_A0", "v2_abl_A3_prior-0.45", "v2_abl_A3_prior-0.76", "v2_abl_A3_prior-1.48")]
-ours_sd = runs[runs.group == "v2_main_A0"].MAE.std(ddof=1) / np.mean(ours_m) * 100
-ax.axhspan(-ours_sd, ours_sd, color=PAL["gray"]["fill"], lw=0, zorder=0)
-ax.text(3.9, ours_sd * 0.80, "seed-to-seed s.d. (CPA-STGNN)", fontsize=FS["small"], color=INK2, va="center", ha="left")
-for d, c, mk, lab in ((pp, C_DATA, "o", "PAG, published form"), (pc, C_PIAST, "s", "PIAST")):
-    d = d.sort_values("prior_injected")
-    ax.plot(-d.prior_injected, (d.MAE / d.MAE.mean() - 1) * 100, color=c, lw=1.1, marker=mk, ms=4.6, mec="white",
-            mew=0.6, label=lab, zorder=4)
-ax.plot(ours_b, (np.array(ours_m) / np.mean(ours_m) - 1) * 100, color=C_OURS, lw=1.1, marker="D", ms=4.8, mec="white",
-        mew=0.6, label="CPA-STGNN, anchor set to the prior", zorder=5)
-neg_log_axis(ax, "x", [3, 1.48, 0.76, 0.45, 0.21, 0.1], *lim)
-ax.set_ylim(-3.2, 3.2)
-ax.set_xlabel("Elasticity injected as prior", fontsize=FS["label"], color=INK)
-ax.set_ylabel("Test MAE relative to the method's own mean (%)", fontsize=FS["label"], color=INK)
-ax.grid(axis="y", color=RULE, lw=0.3, alpha=0.5)
-ax.legend(loc="lower right", fontsize=FS["small"], frameon=False, handletextpad=0.4, borderaxespad=0.1, labelspacing=0.35)
-panel_label(ax, "(b)", "Accuracy does not tell the priors apart", dx=-0.02)
-save(fig, "Fig_R_prior_sensitivity")
+print(f"seed s.d. of the validation loss (x100): {seed_sd * 100:.4f} over {int((runs.group == 'v2_main_A0').sum())} seeds")
 
 # ================================================================= 图 4：分步长精度与区间覆盖率（论文 4.4 节）
 # 输入：metrics_by_step.csv、conformal_by_step.csv（scripts/collect_by_step.py）、dm_wilcoxon.csv（scripts/significance_tests.py）
@@ -297,9 +130,9 @@ if os.path.exists(f_ms):
     clean(ax)
     SER = [("baseline_naive_last_utilization", "Last value", C_GRAY, (0, (1, 1.5)), 0.9, None),
            ("baseline_naive_seasonal_utilization", "Seasonal naive", C_GRAY, (0, (4, 2)), 0.9, None),
-           ("base_stgcn", "STGCN", C_GRAPH, "-", 1.0, "s"),
-           ("base_lstm", "LSTM", C_LSTM, "-", 1.0, "^"),
-           ("base_fcnn", "FCNN", C_FCNN, "-", 1.0, "o"),
+           ("r2_stgcn", "STGCN", C_GRAPH, "-", 1.0, "s"),
+           ("r2_stid", "STID", C_LSTM, "-", 1.0, "^"),
+           ("r2_fcnn", "FCNN", C_FCNN, "-", 1.0, "o"),
            ("v2_main_A0", "CPA-STGNN", C_OURS, "-", 1.5, "D")]
     for g, lab, col, ls, lw, mk in SER:
         m, s = by_step(g)
@@ -321,10 +154,10 @@ if os.path.exists(f_ms):
     ax = axs[1]
     clean(ax)
     ax.axhline(0, color=INK2, lw=0.6, zorder=1)
-    CMPS = [("v2_main_A0", "base_fcnn", "FCNN", C_FCNN, "o"),
-            ("v2_main_A0", "base_lstm", "LSTM", C_LSTM, "^"),
-            ("v2_main_A0", "base_gwn_blind", "Graph WaveNet", C_GRAPH, "s"),
-            ("v2_main_A0", "v2_gwn_blind", "Price-blind variant", C_GRAY, "v")]
+    CMPS = [("v2_main_A0", "r2_fcnn", "FCNN", C_FCNN, "o"),
+            ("v2_main_A0", "r2_stid", "STID", C_LSTM, "^"),
+            ("v2_main_A0", "r2_dlinear", "DLinear", C_GRAY, "v"),
+            ("v2_main_A0", "v2_gwn_blind", "Graph WaveNet", C_GRAPH, "s")]
     for ref, vs, lab, col, mk in CMPS:
         d = dm[(dm.ref == ref) & (dm.vs == vs)].sort_values("step")
         ax.plot(d.step, d.rel_diff_pct, color=col, lw=1.0, zorder=3)
@@ -334,8 +167,8 @@ if os.path.exists(f_ms):
         ax.plot([], [], color=col, lw=1.0, marker=mk, ms=3.8, mec="white", mew=0.5, label=lab)
     ax.set_xticks([1, 3, 6, 9, 12, 24])
     ax.set_xlim(0, 25)
-    ax.set_ylim(-7.5, 10.5)
-    ax.text(24.6, -7.1, "CPA-STGNN more accurate", fontsize=FS["small"], color=INK2, ha="right", va="bottom")
+    ax.set_ylim(-11.5, 10.5)
+    ax.text(24.6, -11.1, "CPA-STGNN more accurate", fontsize=FS["small"], color=INK2, ha="right", va="bottom")
     ax.text(24.6, 10.1, "CPA-STGNN less accurate", fontsize=FS["small"], color=INK2, ha="right", va="top")
     ax.set_xlabel("Forecast horizon (h)", fontsize=FS["label"], color=INK)
     ax.set_ylabel("MAE of CPA-STGNN relative to model (%)", fontsize=FS["label"], color=INK)

@@ -12,26 +12,30 @@ Model & MAE & RMSE & CRPS & 1 h & 6 h & 24 h \\
 \hspace{0.6em}Seasonal naive & 5.12 & 7.91 & 3.28 & 5.11 & 5.12 & 5.14 \\
 \hspace{0.6em}Historical profile & 5.84 & 8.42 & 3.70 & 5.92 & 5.88 & 5.79 \\
 \addlinespace[2pt]
-\multicolumn{7}{@{}l}{\textit{Networks without a graph}} \\
-\hspace{0.6em}FCNN & \underline{4.40} & 6.73 & 2.62 & \underline{2.31} & \textbf{4.14} & 4.76 \\
-\hspace{0.6em}LSTM & 4.42 & 6.72 & 2.61 & 2.43 & 4.17 & \underline{4.76} \\
+\multicolumn{7}{@{}l}{\textit{Models without a graph}} \\
+\hspace{0.6em}FCNN & 4.41 & 6.76 & 2.63 & 2.29 & 4.14 & 4.77 \\
+\hspace{0.6em}LSTM & 4.42 & 6.73 & 2.61 & 2.48 & 4.17 & 4.75 \\
+\hspace{0.6em}STID & \textbf{4.31} & \textbf{6.41} & \textbf{2.48} & 2.67 & \textbf{4.11} & \underline{4.65} \\
+\hspace{0.6em}DLinear & 4.40 & 6.74 & 2.63 & \underline{2.25} & \underline{4.13} & 4.75 \\
+\hspace{0.6em}Gradient boosting & 4.40 & 6.51 & 2.55 & 2.74 & 4.24 & \textbf{4.64} \\
 \addlinespace[2pt]
 \multicolumn{7}{@{}l}{\textit{Spatio-temporal graph networks}} \\
-\hspace{0.6em}GCN & 5.19$^{\ast}$ & 7.68 & 3.03 & 3.55 & 5.01 & 5.27 \\
-\hspace{0.6em}GCN-LSTM & 5.25$^{\ast}$ & 7.72 & 3.08 & 3.78 & 5.06 & 5.34 \\
-\hspace{0.6em}STGCN & 5.17$^{\ast}$ & 7.47 & 3.00 & 4.60 & 5.04 & 5.30 \\
-\hspace{0.6em}ASTGCN & 4.93$^{\ast}$ & 7.31 & 2.90 & 3.13 & 4.70 & 5.17 \\
-\hspace{0.6em}AGCRN & 5.09$^{\ast}$ & 7.41 & 2.96 & 4.56 & 5.00 & 5.22 \\
-\hspace{0.6em}Graph WaveNet & 4.44$^{\ast}$ & \underline{6.61} & \underline{2.58} & 2.63 & 4.25 & 4.80 \\
-\hspace{0.6em}STAEformer & 4.55$^{\ast}$ & 6.74 & 2.62 & 3.32 & 4.38 & 4.83 \\
+\hspace{0.6em}GCN & 5.27$^{\ast}$ & 7.71 & 3.09 & 3.77 & 5.05 & 5.32 \\
+\hspace{0.6em}GCN-LSTM & 5.30$^{\ast}$ & 7.75 & 3.11 & 3.85 & 5.12 & 5.35 \\
+\hspace{0.6em}STGCN & 5.17$^{\ast}$ & 7.51 & 2.99 & 4.61 & 5.04 & 5.30 \\
+\hspace{0.6em}ASTGCN & 4.82$^{\ast}$ & 7.17 & 2.82 & 3.03 & 4.58 & 5.10 \\
+\hspace{0.6em}AGCRN & 5.02$^{\ast}$ & 7.29 & 2.91 & 4.43 & 4.92 & 5.18 \\
+\hspace{0.6em}Graph WaveNet & \underline{4.35}$^{\circ}$ & \underline{6.49} & \underline{2.52} & 2.44 & 4.13 & 4.71 \\
+\hspace{0.6em}STAEformer & 4.52$^{\ast}$ & 6.70 & 2.60 & 3.30 & 4.32 & 4.81 \\
 \addlinespace[2pt]
-\multicolumn{7}{@{}l}{\textit{Price as an ordinary input}} \\
+\multicolumn{7}{@{}l}{\textit{Models with prices}} \\
 \hspace{0.6em}STGCN + price & 5.21$^{\ast}$ & 7.55 & 3.00 & 4.68 & 5.08 & 5.37 \\
 \hspace{0.6em}AGCRN + price & 5.13$^{\ast}$ & 7.45 & 2.99 & 4.60 & 5.06 & 5.26 \\
+\hspace{0.6em}PAG & 5.66$^{\ast}$ & 8.37 & 3.51 & 3.82 & 5.51 & 5.94 \\
 \addlinespace[2pt]
 \multicolumn{7}{@{}l}{\textit{Proposed}} \\
-\hspace{0.6em}\model{} & \textbf{4.37} & \textbf{6.53} & \textbf{2.54} & 2.50 & \underline{4.16} & \textbf{4.74} \\
+\hspace{0.6em}\model{} & 4.36 & 6.51 & 2.53 & 2.43 & 4.14 & 4.73 \\
 \bottomrule
 \end{tabular*}\par}
-\tblnote{Bold: best; underlined: second best. $^{\ast}$ Significantly less accurate than \model{} (Diebold--Mariano test, Holm-adjusted $p<0.05$).}
+\tblnote{Means over ten seeds (five for the models with prices; one PAG run stopped after 18 epochs). Bold: best; underlined: second best. $^{\ast}$/$^{\circ}$ Significantly less/more accurate than \model{} (Diebold--Mariano test, Holm-adjusted $p<0.05$).}
 \end{table}

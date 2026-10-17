@@ -1,0 +1,21 @@
+{
+ "n_obs": 267409,
+ "n_zones": 90,
+ "var_D": 0.004339162260293961,
+ "G1_zone_hour_daytype": {
+  "R2_price": 0.8877696990966797,
+  "sd_V": 0.022067749872803688,
+  "sd_MY": 0.40141403675079346,
+  "amplification_sdMY_over_sdV": 18.190074920654297,
+  "corr_V_MY": -0.006609153535698859,
+  "naive_loss_based_beta": -0.12022100389003754
+ },
+ "G2_zonehour_plus_datehour": {
+  "R2_price": 0.9004141092300415,
+  "sd_V": 0.02078748308122158,
+  "sd_MY": 0.384691059589386,
+  "amplification_sdMY_over_sdV": 18.50589942932129,
+  "corr_V_MY": -0.018925312274789476,
+  "naive_loss_based_beta": -0.3502299189567566
+ }
+}

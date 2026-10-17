@@ -1,0 +1,51 @@
+{
+ "agcrn": [
+  "baseline.D=32",
+  "train.lr=2e-3",
+  "baseline.dropout=0.1"
+ ],
+ "astgcn": [
+  "baseline.D=64",
+  "train.lr=2e-3",
+  "baseline.dropout=0.1"
+ ],
+ "dlinear": [
+  "baseline.D=64",
+  "train.lr=1e-3",
+  "baseline.dropout=0.1"
+ ],
+ "fcnn": [
+  "baseline.D=64",
+  "train.lr=2e-3",
+  "baseline.dropout=0.1"
+ ],
+ "gcn": [
+  "baseline.D=64",
+  "train.lr=2e-3",
+  "baseline.dropout=0.1"
+ ],
+ "gcnlstm": [
+  "baseline.D=32",
+  "train.lr=2e-3",
+  "baseline.dropout=0.1"
+ ],
+ "lstm": [
+  "baseline.D=64",
+  "train.lr=2e-3",
+  "baseline.dropout=0.1"
+ ],
+ "staeformer": [
+  "train.lr=1e-3",
+  "model.staeformer.dropout=0.1"
+ ],
+ "stgcn": [
+  "baseline.D=64",
+  "train.lr=2e-3",
+  "baseline.dropout=0.1"
+ ],
+ "stid": [
+  "baseline.D=32",
+  "train.lr=1e-3",
+  "baseline.dropout=0.1"
+ ]
+}
