@@ -76,7 +76,7 @@ for kind, lab, g, ns, el in ROWS:
         rel = (d.MAE.mean() / r.MAE.mean() - 1) * 100
         key = (REF if ns == 10 else f"{REF}@{ns}", g)            # reference averaged over the same seeds as the variant
         t = dm.loc[key]
-        p = float(t.dm_p_holm)
+        p = float(t.dm_p_holm_table3)
         mark = ""
         if p < 0.05:
             mark = "$^{\\ast}$" if t.rel_diff_pct < 0 else "$^{\\circ}$"       # rel_diff_pct < 0：参照模型（主模型）更准

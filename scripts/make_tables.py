@@ -57,7 +57,7 @@ def mark(k):
     if k == a.ref or k not in dm.index:
         return ""
     r = dm.loc[k]
-    if r.dm_p_holm >= 0.05:
+    if not r.dm_p_holm_table2 < 0.05:
         return ""
     return "$^{\\ast}$" if r.rel_diff_pct < 0 else "$^{\\circ}$"
 
@@ -82,7 +82,7 @@ for gi, (head, rs) in enumerate(ROWS):
                      **{c: g.loc[k, c] * 100 for c, _ in COLS},
                      **{c + "_sd": g.loc[k].get(c + "_std", np.nan) * 100 for c, sd in COLS if sd},
                      "dm_rel_diff_pct": dm.rel_diff_pct.get(k, np.nan), "dm_p": dm.dm_p.get(k, np.nan),
-                     "dm_p_holm": dm.dm_p_holm.get(k, np.nan), "wilcoxon_p_holm": dm.wilcoxon_p_holm.get(k, np.nan),
+                     "dm_p_holm": dm.dm_p_holm_table2.get(k, np.nan), "wilcoxon_p_holm": dm.wilcoxon_p_holm_table2.get(k, np.nan),
                      "share_zones_ref_better": dm.share_zones_better.get(k, np.nan)})
 L += ["\\bottomrule", "\\end{tabular*}\\par}",
       "\\tblnote{Means over ten seeds (five for the models with prices; one PAG run stopped after 18 epochs). "
