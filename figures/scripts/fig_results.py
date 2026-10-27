@@ -10,6 +10,7 @@ Outputs: Fig_R_context, Fig_R_horizon, Fig_R_validation, Fig_R_scenario as pdf /
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 
@@ -381,30 +382,37 @@ if os.path.exists(os.path.join(EDA, "zone_tariff_type.csv")) and os.path.exists(
         return r.iloc[0]
     pp_ = psu[(psu["method"].str.startswith("PPML")) & (psu["sample"] == "TOU zones")].iloc[0]
     dm_ = psu[psu["method"].str.startswith("DML")].iloc[0]
-    LAD = [("Pooled regression", nv.loc["pooled"], C_DATA, False, 0),
-           ("+ zone and hour effects", nv.loc["zone+hour"], C_DATA, False, 1),
-           ("+ zone×hour, date×hour", nv.loc[[i for i in nv.index if "date" in i][0]], C_DATA, False, 2),
-           ("Switch events, design C", pk("C", False), C_GRAY, False, 3.35),
-           ("Switch events, design D", pk("D", True), C_OURS, True, 4.35),
-           ("Hourly panel, PPML", pp_, C_OURS, False, 5.35),
-           ("Hourly panel, DML", dm_, C_OURS, False, 6.35)]
+    # 锚定值（设计 D）的不确定性以按小区整群自助法为准（论文 4.5 节）：画 95% 百分位区间，其余行为 ±1.96 × 聚类标准误
+    with open(os.path.join(RES_ROOT, "causal", "round2", "summary.json"), encoding="utf-8") as f:
+        boot = json.load(f)["bootstrap"]["D_exp"]
+    # 分组：朴素回归 / 切换事件设计（设计 C 未通过安慰剂检验）/ 小时级面板（依赖残差价格变动，受定理 1 的偏差影响）
+    LAD = [("Pooled regression", nv.loc["pooled"], C_DATA, False, 0, None),
+           ("+ zone and hour effects", nv.loc["zone+hour"], C_DATA, False, 1, None),
+           ("+ zone×hour, date×hour", nv.loc[[i for i in nv.index if "date" in i][0]], C_DATA, False, 2, None),
+           ("Design C (fails placebo)", pk("C", False), C_GRAY, False, 3.35, None),
+           ("Design D (anchor)", pk("D", True), C_OURS, True, 4.35, (boot["q025"], boot["q975"])),
+           ("PPML", pp_, INK2, False, 5.70, None),
+           ("Double ML", dm_, INK2, False, 6.70, None)]
     ax.axvline(0, color=INK2, lw=0.6, zorder=1)
-    for lab, r, col, main, yy in LAD:
+    for lab, r, col, main, yy, ci in LAD:
         b, se = float(r["beta"]), float(r["se"])
-        ax.plot([b - 1.96 * se, b + 1.96 * se], [yy, yy], color=col, lw=1.3 if main else 1.0, zorder=3, solid_capstyle="butt")
+        lo, hi = ci if ci is not None else (b - 1.96 * se, b + 1.96 * se)
+        ax.plot([lo, hi], [yy, yy], color=col, lw=1.3 if main else 1.0, zorder=3, solid_capstyle="butt")
         ax.plot([b], [yy], ls="none", marker="D" if main else "o", ms=5.0 if main else 4.0, color=col, mec="white", mew=0.6, zorder=4)
         ax.text(1.18, yy, f"−{abs(b):.2f}" if b < 0 else f"{b:.2f}", fontsize=FS["small"], color=INK, ha="right", va="center",
                 fontweight="bold" if main else "normal")
-    ax.set_ylim(6.9, -1.1)
+    ax.set_ylim(7.25, -1.1)
     ax.set_yticks([r[4] for r in LAD])
     ax.set_yticklabels([r[0] for r in LAD], fontsize=FS["small"], color=INK)
     ax.set_xlim(-2.35, 1.22)
     ax.set_xticks([-2, -1, 0])
     ax.set_xticklabels(["−2", "−1", "0"])
-    ax.set_xlabel("Slope of log demand\non log price (95% CI)", fontsize=FS["label"], color=INK)
-    ax.axhline(2.42, color=RULE, lw=0.4, ls=(0, (2, 2)))
+    ax.set_xlabel("Slope of log demand\non log price (95% interval)", fontsize=FS["label"], color=INK)
+    for yy in (2.42, 4.85):
+        ax.axhline(yy, color=RULE, lw=0.4, ls=(0, (2, 2)))
     ax.text(-2.33, -0.72, "naive regressions", fontsize=FS["small"], color=C_DATA, ha="left", va="center", style="italic")
-    ax.text(-2.33, 2.80, "identification designs", fontsize=FS["small"], color=C_OURS, ha="left", va="center", style="italic")
+    ax.text(-2.33, 2.80, "switch-event designs", fontsize=FS["small"], color=C_OURS, ha="left", va="center", style="italic")
+    ax.text(-2.33, 5.23, "hourly panel", fontsize=FS["small"], color=INK2, ha="left", va="center", style="italic")
     ftitle(0.655, "(c)", "From correlation to causation")
     save(fig, "Fig_R_context")
 
