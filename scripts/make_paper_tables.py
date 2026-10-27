@@ -75,7 +75,7 @@ L = ["\\begin{table}", "\\tblcaption{tab:data}{Descriptive statistics of the hou
      "Charging piles & " + " & ".join(f"{r['piles']:,}".replace(",", "{,}") for r in A_) + " \\\\",
      "Utilisation rate, mean & " + " & ".join(f"{r['util_mean']:.3f}" for r in A_) + " \\\\",
      "Price, mean (CNY/kWh) & " + " & ".join(f"{r['price_mean']:.2f}" for r in A_) + " \\\\",
-     "Within-day price range (\\%) & " + " & ".join(f"{r['day_range_median_pct']:.1f}" for r in A_) + " \\\\",
+     "Within-day range, median (\\%) & " + " & ".join(f"{r['day_range_median_pct']:.1f}" for r in A_) + " \\\\",
      "Imputed zone-hours (\\%) & " + " & ".join(f"{r['imputed_pct']:.1f}" for r in A_) + " \\\\",
      "\\bottomrule", "\\end{tabular*}\\par}",
      # no table note: the definitions are in Section 4.1
