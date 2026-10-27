@@ -99,6 +99,7 @@ Single runs:
 ```bash
 python scripts/train.py --config configs/experiment/final_main.yaml train.seed=0                       # CPA-STGNN
 python scripts/train_baseline.py --config configs/experiment/final_main.yaml baseline.name=stid train.seed=0
+python scripts/train_baseline.py --config configs/experiment/final_main.yaml baseline.name=stid baseline.anchor=cut train.seed=0   # STID + anchored price term
 python scripts/run_baseline.py model.name=profile          # reference methods (naive_last, naive_seasonal, profile), gbdt
 ```
 
@@ -113,6 +114,7 @@ The runs of the paper are scripted in four PowerShell files (`-Phase` takes a co
 | `run_round2_baselines.ps1 -Phase tune`, then `python scripts/select_round2.py` | tuning grid of every deep baseline (12 configurations, 4 for STAEformer, seed 0) | Section 4.2, `round2_tuning.csv`, `configs/experiment/round2_best.json` |
 | `run_round2_baselines.ps1 -Phase seeds,pag,t2,gbdt` | baselines with ten seeds (`r2_*`), seeds 5-9 of CPA-STGNN and Graph WaveNet, model without a graph, PAG on utilisation, sign-constrained elasticity learned from zero (`r2_proj0`), gradient boosting | Tables 2 and 3, Section 4.5 |
 | `run_round2_baselines.ps1 -Phase dm` | loss series for the Diebold-Mariano tests (`results/comparisons/dm/loss_r2.npz`) | Tables 2 and 3 |
+| `run_backbones.ps1 -Phase anchor,learn,dm,summary` | anchored price term on the STID and LSTM backbones (`r2_stid_anchor`, `r2_lstm_anchor`, 10 seeds, paired with `r2_stid`, `r2_lstm`); sign-constrained elasticity learned from zero on both (`r2_*_learn0`); loss series and summary | multi-backbone check, `results/comparisons/backbones/` |
 | `run_ess_v3.ps1 -Phase main,oracle,endo` | semi-synthetic benchmark: 2 variation settings x 2 true elasticities x 5 alignments x 5 models x 5 seeds, anchors at the true value, endogenous deviations (570 runs) | Section 4.6, Fig. 8, Table S5 |
 
 ### 3. Summaries, tests and scenarios (CPU)
@@ -127,6 +129,9 @@ python scripts/merge_loss_series.py --first results/comparisons/dm/loss_a.npz \
        --second results/comparisons/dm/loss_r2.npz --out results/comparisons/dm/loss_r2m.npz v2_main_A0 v2_gwn_blind
 python scripts/significance_tests.py --dir results/comparisons      # dm_wilcoxon.csv, dm_wilcoxon_overall.csv
 python scripts/real_deviation_test.py --runs-dir results/runs   # realdev_slopes.csv: errors on real price departures (Table S6)
+python scripts/summarize_backbones.py --runs results/runs --dm results/comparisons/dm/loss_r2.npz \
+       results/comparisons/dm/loss_r2m.npz results/comparisons/backbones/loss_bb.npz \
+       --le results/comparisons/learned_elasticity.csv results/comparisons/backbones/learned_elasticity_bb.csv   # backbones
 python scripts/simulate_scenarios.py --runs results/runs --out results/scenarios --se 0.3131                      # anchor
 python scripts/simulate_scenarios.py --runs results/runs --out results/scenarios/adaptive --beta -0.343 --se 0.3131
 python scripts/simulate_scenarios.py --runs results/runs --out results/scenarios/steady_state_mu60 --beta -0.3119 --se 0.4582

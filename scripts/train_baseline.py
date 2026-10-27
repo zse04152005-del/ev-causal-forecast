@@ -6,6 +6,7 @@
     python scripts/train_baseline.py baseline.name=piast data.target=occupancy baseline.piast.prior=-1.48   # E-PS
     python scripts/train_baseline.py baseline.name=pag data.target=occupancy "baseline.pag.laws=[-3.0]"     # E-PS
     python scripts/train_baseline.py --config configs/experiment/smoke.yaml baseline.name=fcnn
+    python scripts/train_baseline.py --config configs/experiment/final_main.yaml baseline.name=stid baseline.anchor=cut   # 多骨干锚定
 可选基线：fcnn、lstm、gcn、gcnlstm（UrbanEV 官方）、stgcn、astgcn、agcrn、pag、piast。
 输出：results/runs/<run_name>/，另有 model.pt、train_log.csv、train.log、price_params.json（价格响应读出、切换点一致性；
 PIAST 另有各小区 λ）。
@@ -24,6 +25,7 @@ import pandas as pd  # noqa: E402
 import torch  # noqa: E402
 
 import _bootstrap  # noqa: E402,F401
+from src.causal.anchors import load_anchors  # noqa: E402
 from src.causal.switch_did import PanelSpec  # noqa: E402
 from src.data.dataset import prepare  # noqa: E402
 from src.data.windows import WindowDataset  # noqa: E402
@@ -73,6 +75,8 @@ def main():
         tag = f"prior{bc.piast.prior}"
     elif name == "pag":
         tag = f"{bc.pag.pretrain}_laws{'_'.join(str(v) for v in bc.pag.laws)}"
+    elif (bc.get("anchor") or "none") != "none":
+        tag = f"anchor{bc.anchor}"
     else:
         tag = bc.price_input
     run = tc.get("run_name") or f"baseline_{name}_{tag}_{cfg.data.target}_s{tc.seed}"
@@ -96,7 +100,17 @@ def main():
     quantiles = list(cfg.model.quantiles)
     tr = P.split.train_end
     init_q = np.quantile(P.y[: tr + 1][P.valid[: tr + 1]], quantiles)
-    model = build_baseline(cfg, P, W_tr.n_cov_fut, init_q, seed=int(tc.seed)).to(device)
+    anchor_mode = bc.get("anchor") or "none"
+    anchors = None
+    if anchor_mode != "none":                                     # 多骨干锚定：编码器价格盲，价格只经锚定价格项进入
+        anchors = load_anchors(resolve(cfg.anchor.file, root), G=P.G, K=P.K)
+        if anchors.is_placeholder:
+            if not cfg.anchor.get("allow_placeholder", True):
+                raise SystemExit("锚定文件是占位值，而配置不允许使用占位锚定")
+            log.warning("正在使用占位锚定：结果只能用于调试，不能写进论文")
+        log.info(f"锚定价格项：方式 {anchor_mode}，锚定来源 {anchors.source}"
+                 + (f"，起点 β={cfg.anchor.get('init_beta')}" if anchor_mode == "proj" else ""))
+    model = build_baseline(cfg, P, W_tr.n_cov_fut, init_q, seed=int(tc.seed), anchors=anchors).to(device)
     is_piast, is_pag = isinstance(model, PIAST), isinstance(model, PAG)
     point = bool(getattr(model, "point", False))
     keys = readout_keys_of(model)
@@ -149,6 +163,13 @@ def main():
             raise ValueError(f"baseline.pag.pretrain 只能是 paper 或 none，收到 {gc.pretrain}")
         opt = torch.optim.Adam(model.parameters(), lr=float(gc.lr), weight_decay=float(gc.weight_decay))
         phases = [("微调", int(tc.epochs), None)]
+    elif anchor_mode == "proj":
+        # 与 train.py 相同：价格参数不加权重衰减，否则 β 会被拉向 0
+        price_ids = {id(p) for p in model.price.parameters()}
+        opt = torch.optim.AdamW([
+            {"params": [p for p in model.parameters() if id(p) not in price_ids], "weight_decay": float(tc.weight_decay)},
+            {"params": [p for p in model.parameters() if id(p) in price_ids], "weight_decay": 0.0}], lr=float(tc.lr))
+        phases = [("训练", int(tc.epochs), None)]
     else:
         opt = torch.optim.AdamW(model.parameters(), lr=float(tc.lr), weight_decay=float(tc.weight_decay))
         phases = [("训练", int(tc.epochs), None)]
@@ -182,6 +203,8 @@ def main():
                 opt.step()
                 if is_piast:
                     model.clamp_lambda(lo, hi)
+                if getattr(model, "price", None) is not None:
+                    model.price.project_()                                    # proj 模式的符号投影；cut 模式无操作
                 tot += loss.item()
                 nb += 1
                 if time.time() - t_log > 120:                                   # 慢模型：每 2 分钟报告一次进度，避免看起来像卡住
@@ -233,6 +256,13 @@ def main():
     tou = P.tou_mask()
     price_in = "target_time_price" if is_piast else ("history_price" if is_pag else bc.price_input)
     report = {"baseline": name, "price_input": price_in, "readout_keys": list(keys)}
+    if anchor_mode != "none":
+        # 与 train.py 的 price_params.json 同名同格式，scripts/learned_elasticity.py 可直接读取
+        bt = model.price_parameters()["beta"]
+        report.update({"anchor_mode": anchor_mode, "anchor_source": anchors.source, "anchor_placeholder": anchors.is_placeholder,
+                       "beta_tou_by_group_ctx": [[float(bt[tou & (P.groups == g), c].mean()) if (tou & (P.groups == g)).any()
+                                                  else None for c in range(bt.shape[1])] for g in range(P.G)]})
+        log.info(f"锚定价格项（{anchor_mode}）：分时小区平均 β {float(bt[tou].mean()):+.3f}")
     if keys:
         up = torch.as_tensor(np.where(tou, math.log1p(READOUT_PCT), 0.0), dtype=torch.float32, device=device)
         key = "y" if point else "y_q"
@@ -280,6 +310,8 @@ def main():
         extra.update({"pag_pretrain": bc.pag.pretrain, "pag_laws": report["laws"]})
     if "arc_elasticity_tou" in report:
         extra["arc_elasticity_tou_mean"] = report["arc_elasticity_tou"]["mean"]
+    if anchor_mode != "none":
+        extra.update({"anchor_mode": anchor_mode, "anchor_source": anchors.source})
     s = save_run(out_dir, P, cfg, W_va, W_te, yq_va, yq_te, extra)
     log.info(f"测试期 MAE {s['test_MAE']:.4f}  WAPE {s['test_WAPE']:.3f}  CRPS {s['test_CRPS_q']:.4f}  "
              f"PICP90 原始 {s['test_PICP90_raw']:.3f} / ACI {s['test_PICP90_aci_mean']:.3f}；输出 {out_dir}")

@@ -278,6 +278,83 @@ class TestPAG(unittest.TestCase):
         self.assertTrue(moved)                                                  # 与发布代码不同：全局参数确实被更新
 
 
+def anchor_set(beta=-0.21, G=2):
+    from src.causal.anchors import AnchorSet
+    return AnchorSet(beta=np.full((G, 4), beta), se=np.full((G, 4), 0.3), delta=np.zeros(3), delta_se=np.ones(3),
+                     source="test")
+
+
+def build_anchored(name, mode="cut", seed=0, beta=-0.21, **over):
+    torch.manual_seed(seed)
+    P = fake_prepared()
+    P.groups = np.arange(N) % 2
+    m = build_baseline(cfg_for(name, **{"baseline.anchor": mode, **over}), P, 12, np.linspace(0.02, 0.5, Q), seed=seed,
+                       anchors=anchor_set(beta))
+    m.eval()
+    return m
+
+
+def batch_ctx(seed=0):
+    b = batch(seed)
+    b["ctx_fut"] = torch.as_tensor(np.random.default_rng(seed).integers(0, 4, (B, H)), dtype=torch.long)
+    return b
+
+
+@requires_torch
+class TestAnchoredBaselines(unittest.TestCase):
+    """多骨干锚定：编码器价格盲，价格只经 exp(β Δℓ) 进入（与 CPA-STGNN 的论文公式 (6) 相同）。"""
+
+    def test_same_init_as_blind_and_exact_elasticity(self):
+        for name in ("stid", "lstm"):
+            blind, anch = build(name, seed=3), build_anchored(name, seed=3)
+            self.assertEqual(readout_keys_of(anch), ("dl_fut",))
+            self.assertEqual(sum(p.numel() for p in anch.parameters()), sum(p.numel() for p in blind.parameters()))
+            b = batch_ctx(1)
+            yb, ya = blind(b)["y_q"].detach().numpy(), anch(b)["y_q"].detach().numpy()
+            below = (ya < 1.0 - 1e-6) & (yb < 1.0 - 1e-6)
+            expect = np.broadcast_to((-0.21 * b["dl_fut"].numpy())[..., None], ya.shape)
+            np.testing.assert_allclose(np.log(ya / yb)[below], expect[below], atol=1e-5, err_msg=name)
+            self.assertTrue(bool((np.diff(ya, axis=-1) >= -1e-6).all()), name)          # 分位数仍不交叉
+
+    def test_encoder_blind_and_counterfactual(self):
+        m = build_anchored("stid")
+        b1, b2 = batch_ctx(0), batch_ctx(0)
+        b2["dl_hist"] = b2["dl_hist"] * 3                                              # 历史价格不进入编码器
+        np.testing.assert_allclose(m(b1)["y_q"].detach().numpy(), m(b2)["y_q"].detach().numpy(), rtol=1e-6)
+        cf = m(b1, price_override={"dl_fut": b1["dl_fut"] + 0.1})["y_q"].detach().numpy()
+        base = m(b1)["y_q"].detach().numpy()
+        below = (cf < 1.0 - 1e-6) & (base < 1.0 - 1e-6)
+        np.testing.assert_allclose(np.log(cf / base)[below], -0.021, atol=1e-5)        # 反事实 = 事实 × exp(β · 0.1)
+
+    def test_cut_has_no_gradient_and_proj_keeps_sign(self):
+        from src.models.losses import pinball_loss
+        m = build_anchored("lstm")
+        self.assertEqual(len(list(m.price.parameters())), 0)                           # 截断反馈：β 是缓冲区
+        mp = build_anchored("lstm", mode="proj", **{"anchor.init_beta": 0.0})
+        np.testing.assert_allclose(mp.price_parameters()["beta"], 0.0)
+        mp.train()
+        opt = torch.optim.Adam(mp.parameters(), lr=0.05)
+        b = batch_ctx(2)
+        b["y_fut"] = b["y_fut"] * torch.exp(2.0 * b["dl_fut"])                         # 正的价格响应：投影后 β 应停在 0
+        for _ in range(20):
+            loss = pinball_loss(mp(b)["y_q"], b["y_fut"], b["valid_fut"], mp.quantiles)
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
+            mp.price.project_()
+        self.assertLessEqual(float(mp.price_parameters()["beta"].max()), 1e-7)
+
+    def test_invalid_combinations(self):
+        with self.assertRaises(ValueError):
+            build_anchored("stid", **{"baseline.price_input": "hist"})
+        with self.assertRaises(ValueError):
+            build_anchored("stid", **{"baseline.loss": "mse"})
+        with self.assertRaises(ValueError):
+            build("stid", **{"baseline.anchor": "cut"})                                 # 没有锚定文件
+        with self.assertRaises(ValueError):
+            build_anchored("stid", mode="soft")
+
+
 @requires_torch
 @requires_data
 class TestBaselinesRealBatch(unittest.TestCase):

@@ -71,6 +71,7 @@ baseline:                             # 深度基线（scripts/train_baseline.py
   price_input: none                   # none 价格盲 | hist 历史价格作输入（UrbanEV 因子实验口径）| hist_fut 再加未来价格（对照 P3）
   use_cov: true                       # 历史日历与天气作为节点输入（与 CPA-STGNN 相同）
   loss: pinball                       # pinball 统一分位数头 | mse 点预测 + 验证期残差分位数（pag、piast 固定为 mse）
+  anchor: none                        # none 不加价格项 | cut 价格盲编码器 + 锚定价格项（多骨干锚定，用 anchor.file）| proj 符号约束、从 anchor.init_beta 学起
   D: 64                               # 编码器输出维度
   dropout: 0.1
   lstm: {hidden: 16, layers: 2}                                     # UrbanEV 官方

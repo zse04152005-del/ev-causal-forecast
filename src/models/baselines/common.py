@@ -5,6 +5,9 @@
 PIAST 例外：保留原文的点预测、MSE 与三阶段物理约束训练，区间由验证期残差分位数给出（见 piast.py）。
 
 编码器接口：encoder(X) → z，X 为 [B, L, N, C]，z 为 [B, N, D]。
+
+锚定价格项（投稿前补充，2026-10-27）：传入 price（src/models/heads/price.py 的 PriceResponse）时，编码器与输出头保持价格盲，
+价格只经 ŷ^(q) = min{1, b^(q) exp(β Δℓ_{t+h})} 进入，与 CPA-STGNN 的论文公式 (6) 完全相同，用来检验锚定与骨干网络无关。
 """
 from __future__ import annotations
 
@@ -46,19 +49,22 @@ class BaselineModel(nn.Module):
     loss="pinball"：输出 y_q [B, H, N, Q]（非交叉分位数）；loss="mse"：输出点预测 y [B, H, N]，区间由训练脚本用验证期残差补上。
     price_input="hist_fut" 时，未来价格 Δℓ_{t+h} 作为输出头的额外输入（对照 P3：反事实时直接替换价格输入）。
     price_override 可替换未来价格，也可替换历史价格 dl_hist（价格响应读出时"模型看得到的价格全部上调"）。
+    price 不为 None 时为锚定价格项（只允许 price_input="none" 与 pinball 损失），读出时上调未来价格 dl_fut。
     """
 
     def __init__(self, encoder: nn.Module, D: int, H: int, cov_fut_dim: int, quantiles, head_hidden: int = 64,
                  init_quantiles=None, price_input: str = "none", use_cov: bool = True, loss: str = "pinball",
-                 clip_max: float | None = 1.0, dropout: float = 0.0):
+                 clip_max: float | None = 1.0, dropout: float = 0.0, price: nn.Module | None = None):
         super().__init__()
         if price_input not in PRICE_INPUTS:
             raise ValueError(f"price_input 只能是 {PRICE_INPUTS}，收到 {price_input}")
         if loss not in ("pinball", "mse"):
             raise ValueError(f"loss 只能是 pinball 或 mse，收到 {loss}")
+        if price is not None and (price_input != "none" or loss != "pinball"):
+            raise ValueError("锚定价格项要求编码器价格盲（price_input=none）且使用 pinball 损失")
         self.encoder = encoder
         self.price_input, self.use_cov, self.loss = price_input, use_cov, loss
-        self.readout = readout_keys(price_input)
+        self.readout = ("dl_fut",) if price is not None else readout_keys(price_input)
         self.point = loss == "mse"
         self.quantiles = list(quantiles)
         self.clip_max = clip_max
@@ -69,6 +75,11 @@ class BaselineModel(nn.Module):
             init = [iq[len(iq) // 2]] if self.point else iq
         self.head = QuantileHead(D, cov_fut_dim, H, Q, head_hidden, init, extra_dim=int(price_input == "hist_fut"),
                                  dropout=dropout)
+        self.price = price                                  # cut、proj 的初始化都不用随机数：同一种子下编码器与输出头的初始值与价格盲版本相同
+
+    def price_parameters(self) -> dict:
+        """报告用：当前弹性表 [N, C]（numpy），与 CPASTGNN.price_parameters 相同；价格盲时为空。"""
+        return {} if self.price is None else {"beta": self.price.beta_table().detach().cpu().numpy()}
 
     def forward(self, batch: dict, price_override: dict | None = None) -> dict:
         pf = dict(batch)
@@ -80,6 +91,8 @@ class BaselineModel(nn.Module):
         z = self.encoder(assemble_inputs(pf, self.price_input, self.use_cov))          # 只有显式替换 dl_hist 时历史价格才变
         extra = pf["dl_fut"].unsqueeze(-1) if self.price_input == "hist_fut" else None
         out = self.head(z, batch["cov_fut"], extra)                                     # [B, H, N, Q]，恒为正
+        if self.price is not None:                                                      # 锚定价格项：所有分位数共用
+            out = out * torch.exp(self.price(pf["dl_fut"], batch["ctx_fut"])).unsqueeze(-1)
         if self.clip_max is not None:
             out = torch.clamp(out, max=float(self.clip_max))
         if self.point:

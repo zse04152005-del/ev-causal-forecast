@@ -12,9 +12,13 @@
 | dlinear | Zeng et al. 2023（第二轮审稿后补充） | 无 |
 
 Graph WaveNet 与 STAEformer 已作为 CPA-STGNN 的骨干实现：`scripts/train.py model.use_price=false` 即为它们的价格盲版本。
+
+`baseline.anchor=cut`（或 proj）：编码器保持价格盲，在统一输出头之后乘上锚定价格项 exp(β Δℓ)（多骨干锚定实验，
+scripts/run_backbones.ps1）。锚定值来自 `anchor.file`，proj 模式的起点为 `anchor.init_beta`。PAG、PIAST 不支持。
 """
 from __future__ import annotations
 
+from ..heads.price import PriceResponse
 from .agcrn import AGCRNEncoder
 from .astgcn import ASTGCNEncoder
 from .common import BaselineModel, n_input_channels
@@ -27,11 +31,20 @@ from .urbanev import FCNNEncoder, GCNEncoder, GCNLSTMEncoder, LSTMEncoder
 NAMES = ("fcnn", "lstm", "gcn", "gcnlstm", "stgcn", "astgcn", "agcrn", "pag", "piast", "stid", "dlinear")
 
 
-def build_baseline(cfg, P, n_cov_fut: int, init_quantiles=None, seed: int | None = None):
+ANCHOR_MODES = ("none", "cut", "proj")
+
+
+def build_baseline(cfg, P, n_cov_fut: int, init_quantiles=None, seed: int | None = None, anchors=None):
+    """anchors：AnchorSet；baseline.anchor 不为 none 时必须给出（P 还需提供功能区 groups）。"""
     bc = cfg.baseline
     name = bc.name
     if name not in NAMES:
         raise ValueError(f"未知基线 {name}；可选 {NAMES}")
+    anchor_mode = bc.get("anchor", "none") or "none"
+    if anchor_mode not in ANCHOR_MODES:
+        raise ValueError(f"baseline.anchor 只能是 {ANCHOR_MODES}，收到 {anchor_mode}")
+    if anchor_mode != "none" and (name in ("pag", "piast") or anchors is None):
+        raise ValueError(f"baseline.anchor={anchor_mode} 需要锚定文件，且不适用于 PAG、PIAST（当前 {name}）")
     L, H, N = int(cfg.data.L), int(cfg.data.H), P.N
     if P.adj is None:
         raise ValueError("Prepared 缺少邻接矩阵 adj")
@@ -79,9 +92,13 @@ def build_baseline(cfg, P, n_cov_fut: int, init_quantiles=None, seed: int | None
     clip = cfg.model.get("clip_max")
     if cfg.data.target == "volume":
         clip = None
+    price = None
+    if anchor_mode != "none":
+        init_beta = cfg.anchor.get("init_beta") if anchor_mode == "proj" else None
+        price = PriceResponse(P.groups, anchors, anchor_mode, init_beta=init_beta)
     return BaselineModel(enc, D, H, n_cov_fut, cfg.model.quantiles, int(cfg.model.head_hidden), init_quantiles,
                          price_input=bc.price_input, use_cov=bool(bc.use_cov), loss=bc.loss, clip_max=clip,
-                         dropout=float(bc.dropout))
+                         dropout=float(bc.dropout), price=price)
 
 
 def official_init(module) -> None:
