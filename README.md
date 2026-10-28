@@ -135,6 +135,7 @@ python scripts/summarize_backbones.py --runs results/runs --dm results/compariso
 python scripts/simulate_scenarios.py --runs results/runs --out results/scenarios --se 0.3131                      # anchor
 python scripts/simulate_scenarios.py --runs results/runs --out results/scenarios/adaptive --beta -0.343 --se 0.3131
 python scripts/simulate_scenarios.py --runs results/runs --out results/scenarios/steady_state_mu60 --beta -0.3119 --se 0.4582
+python scripts/scenario_energy.py --out results/scenarios/energy   # energy (MWh) and load (MW) of the scenarios; needs only the data
 ```
 
 `loss_a.npz` holds the loss series of seeds 0-4 of CPA-STGNN and Graph WaveNet from the first batch; `merge_loss_series.py` combines them with seeds 5-9, so that the tests use all ten seeds.
@@ -169,7 +170,7 @@ node render_svg.cjs ../fig_overview.svg     # Fig. 1 (needs Node.js and Playwrig
 | Fig. 6 (accuracy by horizon) | `figures/paper/fig_horizon.pdf`; `results/comparisons/metrics_by_step.csv`, `conformal_by_step.csv` | `fig_results.py` |
 | Fig. 7 (loss profile, injected priors) | `figures/paper/fig_validation.pdf`; `results/comparisons/eid_summary.csv`, `eps_summary.csv` | `fig_results.py` |
 | Fig. 8 (semi-synthetic benchmark) | `figures/paper/fig_ess.pdf`; `results/comparisons/ess_v3_runs.csv`, `ess_v3_summary.csv` | `fig_ess_v3.py` |
-| Fig. 9 (price adjustment) | `figures/paper/fig_scenario.pdf`; `results/scenarios/` (with `adaptive/`, `steady_state_mu60/`) | `fig_results.py` |
+| Fig. 9 (price adjustment) | `figures/paper/fig_scenario.pdf`; `results/scenarios/` (with `adaptive/`, `steady_state_mu60/`, `energy/`) | `fig_results.py`, `scenario_energy.py` |
 | Table S1 (Theorem 1 on the data) | `results/theory/t1_data_numbers.json` | `theory_data.py` |
 | Tables S2 and S3 (Monte Carlo) | `results/theory/mc_t1_t2.json` | `theory_montecarlo.py` |
 | Table S4, Fig. S1 (robustness, event study) | `results/causal/round2*/`; `figures/paper/fig_S_event_direction.pdf` | `causal_round2.py`, `causal_round2_influence.py`, `fig_event_direction.py` |

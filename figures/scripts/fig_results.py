@@ -202,12 +202,17 @@ if os.path.exists(f_ms):
     panel_label(ax, "(c)", "Interval coverage", dx=-0.19, gap=0.14)
     save(fig, "Fig_R_horizon")
 
-# ================================================================= 图 5：分时电价情景（论文 4.9 节）
-# 输入：results/scenarios/scenario_summary.csv、scenario_profiles.csv（scripts/simulate_scenarios.py）
+# ================================================================= 图 9：分时电价情景（论文 4.7 节）
+# 输入：results/scenarios/scenario_summary.csv、scenario_profiles.csv（scripts/simulate_scenarios.py，锚定值）、
+#       steady_state_mu60/、adaptive/ 下的同名文件（到达弹性 −0.31、自适应锚定 −0.34）、
+#       energy/energy_profiles.csv（scripts/scenario_energy.py，负荷变化）
 SCN = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(os.path.abspath(CMP)), "scenarios")
 if os.path.exists(os.path.join(SCN, "scenario_profiles.csv")):
     sp = pd.read_csv(os.path.join(SCN, "scenario_profiles.csv"))
     ss = pd.read_csv(os.path.join(SCN, "scenario_summary.csv"))
+    ss_a = pd.read_csv(os.path.join(SCN, "steady_state_mu60", "scenario_summary.csv"))
+    ss_ad = pd.read_csv(os.path.join(SCN, "adaptive", "scenario_summary.csv"))
+    ep = pd.read_csv(os.path.join(SCN, "energy", "energy_profiles.csv"))
     SC = [("flat", "No time-of-use tariff", C_GRAY, (0, (4, 2))),
           ("spread2", "Peak–valley spread doubled", PAL["demand"]["stroke"], "-"),
           ("evening", "Surcharge of 20%, 18:00–22:00", PAL["price"]["stroke"], "-")]
@@ -236,50 +241,57 @@ if os.path.exists(os.path.join(SCN, "scenario_profiles.csv")):
               handlelength=1.8)
     panel_label(ax, "(a)", "Price change by scenario", dx=-0.14, gap=0.12)
 
+    # (b) 负荷变化（MW）：预测的比例变化乘到测试期记录的电量上；粗线与带 = 窗口估计 −0.21，细线 = 到达弹性 −0.31
     ax = axs[1]
     clean(ax)
     ax.axhline(0, color=INK2, lw=0.6, zorder=1)
     for k, lab, col, ls in SC:
-        d = sp[sp.scenario == k].sort_values("hour")
-        lo, hi = (d.cf_lo / d.fact - 1).values * 100, (d.cf_hi / d.fact - 1).values * 100
+        d = ep[(ep.scenario == k) & (ep.elasticity == "anchor")].sort_values("hour")
+        da = ep[(ep.scenario == k) & (ep.elasticity == "arrival_mu60")].sort_values("hour")
+        lo, hi = d.d_MW_lo.values, d.d_MW_hi.values
         ax.fill_between(hrs, np.r_[lo, lo[-1]], np.r_[hi, hi[-1]], step="post", color=col, alpha=0.18, lw=0, zorder=2)
-        stepline(ax, (d.cf / d.fact - 1).values * 100, color=col, lw=1.2, ls=ls, zorder=3)
+        stepline(ax, da.d_MW.values, color=col, lw=0.6, ls=ls, zorder=3)
+        stepline(ax, d.d_MW.values, color=col, lw=1.2, ls=ls, zorder=4)
     ax.set_xlim(0, 24)
     ax.set_xticks([0, 6, 12, 18, 24])
-    ext = [((sp.cf_lo / sp.fact - 1) * 100).min(), ((sp.cf_hi / sp.fact - 1) * 100).max()]
-    y_lo, y_hi = min(-10.5, np.floor(ext[0]) - 0.5), max(4.5, np.ceil(ext[1]) + 0.5)   # bands are never clipped
+    eb = ep[ep.elasticity == "anchor"]
+    y_lo, y_hi = np.floor(eb.d_MW_lo.min()) - 1.5, np.ceil(eb.d_MW_hi.max()) + 0.5   # bands are never clipped
     ax.set_ylim(y_lo, y_hi)
     ax.set_xlabel("Hour of day", fontsize=FS["label"], color=INK)
-    ax.set_ylabel("Change in predicted charging (%)", fontsize=FS["label"], color=INK)
+    ax.set_ylabel("Change in charging load (MW)", fontsize=FS["label"], color=INK)
     ax.grid(axis="y", color=RULE, lw=0.3, alpha=0.5)
-    ax.text(0.5, y_lo + 0.5, "bands: 90% interval,\nuncertainty of the elasticity", fontsize=FS["small"], color=INK2,
-            ha="left", va="bottom", linespacing=1.0)
-    panel_label(ax, "(b)", "Predicted response", dx=-0.14, gap=0.12)
+    ax.text(0.5, y_lo + 0.25, "thick lines, bands: −0.21 (90% interval)\nthin lines: −0.31 (persistent change)",
+            fontsize=FS["small"], color=INK2, ha="left", va="bottom", linespacing=1.0)
+    panel_label(ax, "(b)", "Change in charging load", dx=-0.14, gap=0.12)
 
     ax = axs[2]
     clean(ax)
     ax.spines["left"].set_visible(False)
     ax.tick_params(axis="y", length=0)
     ax.axvline(0, color=INK2, lw=0.6, zorder=1)
-    EL = [("anchor", "−0.21, causal estimate", C_OURS, "D"), ("prior_0.45", "−0.45", C_GRAY, "o"),
-          ("kuang_0.76", "−0.76", C_GRAY, "s"), ("naive_1.58", "−1.58, pooled regression", C_GRAY, "^")]
+    # 本文的三个弹性用紫色（实心 = 窗口估计，空心 = 到达弹性与自适应锚定），对照弹性用灰色；区间只画前两个
+    EL = [(ss, "anchor", "−0.21, window estimate", C_OURS, "D", True, 1.4),
+          (ss_a, "anchor", "−0.31, persistent change", C_OURS, "D", False, 0.8),
+          (ss_ad, "anchor", "−0.34, adaptive anchoring", C_OURS, "o", False, None),
+          (ss, "kuang_0.76", "−0.76", C_GRAY, "s", False, None),
+          (ss, "naive_1.58", "−1.58, pooled regression", C_GRAY, "^", False, None)]
     for i, (k, lab, col, ls) in enumerate(SC):
-        for j, (e, elab, ecol, mk) in enumerate(EL):
-            r = ss[(ss.scenario == k) & (ss.elasticity == e)].iloc[0]
-            yy = i + (j - 1.5) * 0.19
-            if e == "anchor":
-                ax.plot([r.up_pct_lo, r.up_pct_hi], [yy, yy], color=ecol, lw=1.4, zorder=3, solid_capstyle="butt")
-            ax.plot([r.up_pct], [yy], ls="none", marker=mk, ms=4.6 if e == "anchor" else 4.0, color=ecol,
-                    mfc=ecol if e == "anchor" else "white", mec="white" if e == "anchor" else INK2, mew=0.6 if e == "anchor" else 0.8,
-                    zorder=4, label=elab if i == 0 else None)
+        for j, (tab, e, elab, ecol, mk, filled, lw) in enumerate(EL):
+            r = tab[(tab.scenario == k) & (tab.elasticity == e)].iloc[0]
+            yy = i + (j - 2) * 0.16
+            if lw is not None:
+                ax.plot([r.up_pct_lo, r.up_pct_hi], [yy, yy], color=ecol, lw=lw, zorder=3, solid_capstyle="butt")
+            ax.plot([r.up_pct], [yy], ls="none", marker=mk, ms=4.6 if filled else 4.0, color=ecol,
+                    mfc=ecol if filled else "white", mec="white" if filled else (ecol if ecol == C_OURS else INK2),
+                    mew=0.6 if filled else 0.8, zorder=4, label=elab if i == 0 else None)
     ax.set_ylim(len(SC) - 0.45, -0.55)
     ax.set_yticks(range(len(SC)))
     ax.set_yticklabels(["No time-of-\nuse tariff", "Spread\ndoubled", "Evening\nsurcharge"], fontsize=FS["small"], color=INK)
     ax.set_xlim(-27, 1.5)
     ax.set_xlabel("Change in charging where the price rises (%)", fontsize=FS["label"], color=INK)
     ax.grid(axis="x", color=RULE, lw=0.3, alpha=0.5)
-    ax.legend(loc="center left", fontsize=FS["small"], frameon=False, handletextpad=0.3, borderaxespad=0.1, labelspacing=0.3,
-              title="Elasticity", title_fontsize=FS["small"], alignment="left", bbox_to_anchor=(0.0, 0.56))
+    ax.legend(loc="upper left", fontsize=FS["small"], frameon=False, handletextpad=0.3, borderaxespad=0.1, labelspacing=0.3,
+              title="Elasticity", title_fontsize=FS["small"], alignment="left", bbox_to_anchor=(0.0, 1.0))
     panel_label(ax, "(c)", "Dependence on the elasticity", dx=-0.22, gap=0.13)
     save(fig, "Fig_R_scenario")
 
