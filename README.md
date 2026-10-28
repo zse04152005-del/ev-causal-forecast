@@ -132,6 +132,8 @@ python scripts/real_deviation_test.py --runs-dir results/runs   # realdev_slopes
 python scripts/summarize_backbones.py --runs results/runs --dm results/comparisons/dm/loss_r2.npz \
        results/comparisons/dm/loss_r2m.npz results/comparisons/backbones/loss_bb.npz \
        --le results/comparisons/learned_elasticity.csv results/comparisons/backbones/learned_elasticity_bb.csv   # backbones
+# (--runs takes several folders when the runs were returned separately, e.g. Graph WaveNet seeds 0-4 and 5-9;
+#  --dm-prev backbones_summary.csv keeps the DM columns of an earlier summary for backbones without loss series)
 python scripts/simulate_scenarios.py --runs results/runs --out results/scenarios --se 0.3131                      # anchor
 python scripts/simulate_scenarios.py --runs results/runs --out results/scenarios/adaptive --beta -0.343 --se 0.3131
 python scripts/simulate_scenarios.py --runs results/runs --out results/scenarios/steady_state_mu60 --beta -0.3119 --se 0.4582
@@ -176,6 +178,7 @@ node render_svg.cjs ../fig_overview.svg     # Fig. 1 (needs Node.js and Playwrig
 | Table S4, Fig. S1 (robustness, event study) | `results/causal/round2*/`; `figures/paper/fig_S_event_direction.pdf` | `causal_round2.py`, `causal_round2_influence.py`, `fig_event_direction.py` |
 | Table S5 (benchmark, all combinations) | `results/comparisons/ess_v3_summary.csv` | `summarize_ess_v3.py` |
 | Table S6 (real price departures) | `results/comparisons/realdev_slopes.csv` | `real_deviation_test.py` |
+| Table S7 (anchoring on other backbones) | `results/comparisons/backbones/` | `summarize_backbones.py` |
 | Tuning | `results/comparisons/runs_tune.csv` (CPA-STGNN), `round2_tuning.csv` (baselines) | `summarize_runs.py --prefix tune_`, `select_round2.py` |
 
 `results/comparisons/all_runs_flat.csv` lists the test metrics of every individual run (model, seed, MAE, RMSE, CRPS, coverage). Per-run logs, checkpoints and point forecasts (about 24 MB per run) are not included because of their size; they are available from the author on request.

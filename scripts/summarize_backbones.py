@@ -42,8 +42,11 @@ METRICS = {"MAE": "test_MAE", "RMSE": "test_RMSE", "CRPS": "test_CRPS_q", "PICP_
            "PICP_aci": "test_PICP90_aci_mean"}
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--runs", default="results/runs")
+ap.add_argument("--runs", nargs="+", default=["results/runs"],
+                help="runs folders, searched in order (the Graph WaveNet seeds 0-4 and 5-9 were returned separately)")
 ap.add_argument("--dm", nargs="*", default=[], help="loss_*.npz files; later files override earlier keys")
+ap.add_argument("--dm-prev", default=None,
+                help="earlier backbones_summary.csv: DM columns are taken from it for backbones without loss series")
 ap.add_argument("--le", nargs="*", default=[], help="learned_elasticity csv files")
 ap.add_argument("--anchor", default="configs/anchor/fivemin_main.json")
 ap.add_argument("--boot", default="results/causal/round2/summary.json", help="zone-bootstrap s.e. of the anchor")
@@ -58,10 +61,11 @@ print(f"anchor beta_A = {beta_a:.4f}, bootstrap s.e. s_A = {s_a:.4f}")
 
 
 def read_run(group: str, s: int):
-    d = os.path.join(a.runs, f"{group}_s{s}")
-    p = os.path.join(d, "summary.json")
-    if not os.path.exists(p):
+    d = next((os.path.join(r, f"{group}_s{s}") for r in a.runs
+              if os.path.exists(os.path.join(r, f"{group}_s{s}", "summary.json"))), None)
+    if d is None:
         return None
+    p = os.path.join(d, "summary.json")
     sm = json.load(open(p, encoding="utf-8"))
     row = {"group": group, "seed": s, **{k: sm.get(v) for k, v in METRICS.items()},
            "epochs": sm.get("epochs_run"), "seconds": sm.get("seconds"), "readout": sm.get("arc_elasticity_tou_mean")}
@@ -76,7 +80,7 @@ def read_run(group: str, s: int):
 rows = [r for _, *gs in BACKBONES for g in gs for s in range(a.seeds) if (r := read_run(g, s)) is not None]
 seeds = pd.DataFrame(rows)
 if seeds.empty:
-    raise SystemExit(f"no runs found under {a.runs}")
+    raise SystemExit(f"no runs found under {', '.join(a.runs)}")
 le = pd.concat([pd.read_csv(f) for f in a.le if os.path.exists(f)], ignore_index=True) if a.le else pd.DataFrame()
 if not le.empty:
     le["seed"] = le.run.str.extract(r"_s(\d+)$").astype(int)
@@ -99,6 +103,7 @@ def adaptive(beta_l: float):
     return w, min(w * min(beta_a, 0.0) + (1 - w) * beta_l, 0.0)
 
 
+prev = pd.read_csv(a.dm_prev).set_index("backbone") if a.dm_prev else None
 out = []
 for name, blind, anch, learn in BACKBONES:
     b = seeds[seeds.group == blind].set_index("seed")
@@ -110,7 +115,9 @@ for name, blind, anch, learn in BACKBONES:
             r[f"{m}_blind"], r[f"{m}_blind_sd"] = 100 * b.loc[common, m].mean(), 100 * b.loc[common, m].std()
             r[f"{m}_anch"], r[f"{m}_anch_sd"] = 100 * c.loc[common, m].mean(), 100 * c.loc[common, m].std()
             r[f"d{m}_pct"] = 100 * (c.loc[common, m].mean() / b.loc[common, m].mean() - 1)
-        r["t_p_MAE"] = float(stats.ttest_rel(c.loc[common, "MAE"], b.loc[common, "MAE"]).pvalue) if len(common) > 1 else np.nan
+        for m in ("MAE", "CRPS"):
+            r[f"t_p_{m}"] = float(stats.ttest_rel(c.loc[common, m], b.loc[common, m]).pvalue) if len(common) > 1 else np.nan
+        r["seeds_anch_better_MAE"] = int((c.loc[common, "MAE"] < b.loc[common, "MAE"]).sum())
         r["PICP_raw_anch"], r["PICP_aci_anch"] = c.loc[common, "PICP_raw"].mean(), c.loc[common, "PICP_aci"].mean()
         r["readout_anch"] = c.loc[common, "readout"].mean()
     for m in ("mae", "crps"):
@@ -121,6 +128,11 @@ for name, blind, anch, learn in BACKBONES:
             r[f"dm_{m}"], r[f"dm_p_{m}"] = d["dm"], d["p"]
             r[f"share_origins_anch_better_{m}"] = float(np.mean(x < y))
             r[f"dm_seeds_{m}"] = (len(L[f"{anch}|seed_mae"]), len(L[f"{blind}|seed_mae"]))
+            r["dm_source"] = "loss series"
+        elif prev is not None and name in prev.index and pd.notna(prev.loc[name].get(f"dm_p_{m}")):
+            for k in (f"dm_{m}", f"dm_p_{m}", f"share_origins_anch_better_{m}", f"dm_seeds_{m}"):
+                r[k] = prev.loc[name][k]
+            r["dm_source"] = f"earlier summary ({os.path.basename(a.dm_prev)})"
     lr = seeds[seeds.group == learn]
     if "beta_learned" in seeds and lr.beta_learned.notna().any():
         bl = lr.beta_learned.dropna()
@@ -154,21 +166,32 @@ def pfmt(p):
     return "--" if p is None or not np.isfinite(p) else ("$<0.001$" if p < 0.001 else f"{p:.3f}")
 
 
+def neg(v, nd=2):
+    return fmt(v, nd).replace("-", "$-$", 1)
+
+
 lines = [r"\begin{table}[h]", r"\centering\footnotesize",
-         r"\caption{Price-blind and anchored versions of three backbones (errors $\times100$, means over seeds; "
-         r"$\Delta$MAE: anchored minus price-blind).}", r"\label{tab:backbones}",
-         r"\begin{tabular}{lccccccc}", r"\toprule",
-         r"Backbone & Seeds & MAE, blind & MAE, anchored & $\Delta$MAE (\%) & DM $p$ & $t$-test $p$ & Implied $\beta$ \\",
+         r"\caption{Price-blind and anchored versions of three backbones (errors $\times100$, means over the seeds; "
+         r"$\Delta$: anchored minus price-blind).}", r"\label{tab:backbones}",
+         r"\setlength{\tabcolsep}{4pt}",
+         r"\begin{tabular}{lccccccccc}", r"\toprule",
+         r"Backbone & Seeds & \multicolumn{2}{c}{MAE} & $\Delta$MAE & $\Delta$CRPS & $t$-test & DM statistic & "
+         r"\multicolumn{2}{c}{Elasticity} \\", r"\cmidrule(lr){3-4}\cmidrule(lr){9-10}",
+         r" & & blind & anchored & (\%) & (\%) & $p$ & (Holm $p$) & implied & learned \\",
          r"\midrule"]
 for _, r in summ.iterrows():
-    dm = r.get("dMAE_pct", np.nan)
+    d1, d2 = r.get("dMAE_pct", np.nan), r.get("dCRPS_pct", np.nan)
+    dm = r.get("dm_mae", np.nan)
+    dms = "--" if not np.isfinite(dm) else f"${dm:+.2f}$ ({pfmt(r.get('dm_p_mae_holm', np.nan))})"
     lines.append(f"{r.backbone} & {int(r.seeds)} & {fmt(r.get('MAE_blind'))} & {fmt(r.get('MAE_anch'))} & "
-                 f"{'--' if not np.isfinite(dm) else f'${dm:+.1f}$'} & {pfmt(r.get('dm_p_mae_holm', np.nan))} & "
-                 f"{pfmt(r.get('t_p_MAE', np.nan))} & {fmt(r.get('readout_anch')).replace('-', '$-$', 1) if fmt(r.get('readout_anch')) != '--' else '--'} \\\\")
+                 f"${d1:+.2f}$ & ${d2:+.2f}$ & {pfmt(r.get('t_p_MAE', np.nan))} & {dms} & "
+                 f"{neg(r.get('readout_anch'))} & {neg(r.get('beta_learned', np.nan))} \\\\")
 lines += [r"\bottomrule", r"\end{tabular}",
-          r"\par\smallskip{\footnotesize DM: Diebold--Mariano test on the MAE per forecast origin, Holm-adjusted over the "
-          r"backbones; $t$-test: paired across seeds. Implied $\beta$: response of the forecasts to a 5\% price rise in "
-          r"the TOU zones.}", r"\end{table}"]
+          r"\par\smallskip\parbox{\linewidth}{\footnotesize $t$-test: paired across seeds, on the MAE averaged over the 24 "
+          r"horizons. DM: Diebold--Mariano statistic on the seed-mean MAE per forecast origin (nine stored horizons, "
+          r"positive: anchored less accurate), Holm-adjusted over the backbones. Implied: response of the anchored "
+          r"forecasts to a 5\% price rise in the TOU zones. Learned: sign-constrained elasticity learned from zero, "
+          r"mean over ten seeds.}", r"\end{table}"]
 with open(os.path.join(a.out, "tab_backbones.tex"), "w", encoding="utf-8") as f:
     f.write("\n".join(lines) + "\n")
 print(f"\nwritten: {a.out}/backbones_seeds.csv, backbones_summary.csv, tab_backbones.tex")

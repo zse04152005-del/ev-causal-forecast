@@ -1,0 +1,18 @@
+\begin{table}[h]
+\centering\footnotesize
+\caption{Price-blind and anchored versions of three backbones (errors $\times100$, means over the seeds; $\Delta$: anchored minus price-blind).}
+\label{tab:backbones}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccccccc}
+\toprule
+Backbone & Seeds & \multicolumn{2}{c}{MAE} & $\Delta$MAE & $\Delta$CRPS & $t$-test & DM statistic & \multicolumn{2}{c}{Elasticity} \\
+\cmidrule(lr){3-4}\cmidrule(lr){9-10}
+ & & blind & anchored & (\%) & (\%) & $p$ & (Holm $p$) & implied & learned \\
+\midrule
+Graph WaveNet & 10 & 4.35 & 4.36 & $+0.24$ & $+0.24$ & 0.148 & $+4.29$ ($<0.001$) & $-$0.21 & $-$0.34 \\
+STID & 10 & 4.31 & 4.31 & $-0.04$ & $+0.00$ & 0.827 & $-3.81$ ($<0.001$) & $-$0.21 & $-$0.33 \\
+LSTM & 10 & 4.37 & 4.38 & $+0.21$ & $+0.23$ & 0.614 & $+1.49$ (0.138) & $-$0.21 & $-$0.39 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\parbox{\linewidth}{\footnotesize $t$-test: paired across seeds, on the MAE averaged over the 24 horizons. DM: Diebold--Mariano statistic on the seed-mean MAE per forecast origin (nine stored horizons, positive: anchored less accurate), Holm-adjusted over the backbones. Implied: response of the anchored forecasts to a 5\% price rise in the TOU zones. Learned: sign-constrained elasticity learned from zero, mean over ten seeds.}
+\end{table}
