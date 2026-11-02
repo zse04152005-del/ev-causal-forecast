@@ -1,0 +1,8 @@
+{
+  "reps": 999,
+  "beta": -0.21305661064652498,
+  "se": 0.32954376105047295,
+  "bootstrap_sha256": "5c9465de714846abc26843769d604313eb0cc75e0a01557b61557608f9054404",
+  "adaptive_max_weight": 0,
+  "status": "Scenario energy, forecast scenarios, adaptive weights and result figures regenerated; root detection in fig_results.py corrected."
+}

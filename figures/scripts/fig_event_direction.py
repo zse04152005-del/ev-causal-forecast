@@ -1,8 +1,9 @@
-"""Event study of design D by direction of the price change (results/causal/round2/event_study_D_direction.csv).
+"""Event study of design D by direction of the price change (results/causal/round3/event_study_k1.csv).
 
-Each point is the PPML slope of log(mu_k / mu_pre) on the switch size x for a 15-min bin k, where mu_pre is the mean
-over the 180-min pre window; bars are 95% intervals with zone-clustered standard errors. A negative slope means that
-charging rises after a price decrease (x < 0) and falls after an increase (x > 0).
+Each point is the PPML slope of log(mu_k / mu_-1) on the switch size x for a 15-min bin k, where mu_-1 is the mean over
+the last 15 min before the switch (the base bin, open marker; 2026-10-28, previously the whole 180-min pre window);
+bands are 95% intervals with zone-clustered standard errors. A negative slope means that charging rises after a price
+decrease (x < 0) and falls after an increase (x > 0).
 Usage: python figures/scripts/fig_event_direction.py [csv] [out_dir]
 """
 import os
@@ -14,7 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from figlib import FS, INK, INK2, LW, MM, PAL, RULE, plt, setup_rc  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-csv = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "results", "causal", "round2", "event_study_D_direction.csv")
+csv = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "results", "causal", "round3", "event_study_k1.csv")
 out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(ROOT, "figures", "results")
 os.makedirs(out, exist_ok=True)
 setup_rc()
@@ -29,6 +30,9 @@ for ax, (key, title) in zip(axes, panels):
     ax.fill_between(m, lo, hi, color=PAL["causal"]["mid"], lw=0, zorder=1)
     ax.plot(m, d.beta, color=C, lw=LW["flow"] * 1.2, ls="-", zorder=3)
     ax.scatter(m, d.beta, s=5, color=C, linewidth=0, zorder=4)
+    if "bin" in d:                                                    # base bin: fixed at zero
+        b0 = d[d["bin"] == -1]
+        ax.scatter(b0.minutes, b0.beta, s=9, facecolor="white", edgecolor=C, linewidth=LW["thin"], zorder=5)
     ax.axhline(0, color=RULE, lw=LW["thin"], zorder=2)
     ax.axvline(0, color=INK2, lw=LW["thin"], ls=(0, (3, 2)), zorder=2)
     ax.set_title(title, fontsize=FS["label"], color=INK, loc="left")
@@ -43,6 +47,6 @@ for ax, (key, title) in zip(axes, panels):
         ax.spines[s].set_color(RULE)
 axes[0].set_ylabel("Slope on switch size (semi-elasticity)", fontsize=FS["body"], color=INK)
 fig.tight_layout(w_pad=1.2)
-for ext in ("pdf", "png"):
+for ext in ("pdf", "png", "svg"):
     fig.savefig(os.path.join(out, f"Fig_S_event_direction.{ext}"), dpi=600 if ext == "png" else None)
 print("saved", out)

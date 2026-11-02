@@ -1,0 +1,14 @@
+{
+  "bootstrap_reps": 999,
+  "resumed_reps_preserved": 464,
+  "bootstrap_all_finite": true,
+  "event_vcov_checks": {
+    "round3_all": 4.163336342344337e-17,
+    "round3_up": 2.7755575615628914e-17,
+    "round3_down": 8.326672684688674e-17,
+    "round3_base2_all": 3.469446951953614e-17,
+    "round3_base2_up": 2.0816681711721685e-17,
+    "round3_base2_down": 5.551115123125783e-17
+  },
+  "bootstrap_sha256": "5c9465de714846abc26843769d604313eb0cc75e0a01557b61557608f9054404"
+}

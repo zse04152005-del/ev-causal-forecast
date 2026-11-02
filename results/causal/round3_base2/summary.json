@@ -1,0 +1,43 @@
+{
+ "panel_rows": 70294,
+ "events": 14000,
+ "zones": 87,
+ "event_base2": {
+  "all": {
+   "base": "bin -2",
+   "clusters": 87,
+   "events": 14000,
+   "leads_wald": 8.80986290735472,
+   "leads_df": 9,
+   "leads_p": 0.45500758687240406,
+   "lead_mean": 0.14256797560346685,
+   "lag_mean": -0.17162929141820224,
+   "lag_mean_se": 0.25311442226269776,
+   "lag_mean_minus_lead_mean": -0.31419726702166906
+  },
+  "up": {
+   "base": "bin -2",
+   "clusters": 87,
+   "events": 8566,
+   "leads_wald": 27.772928343663438,
+   "leads_df": 9,
+   "leads_p": 0.0010408470688455776,
+   "lead_mean": -0.049110614050147376,
+   "lag_mean": -0.07791498158821987,
+   "lag_mean_se": 0.14229734855612583,
+   "lag_mean_minus_lead_mean": -0.028804367538072494
+  },
+  "down": {
+   "base": "bin -2",
+   "clusters": 69,
+   "events": 5434,
+   "leads_wald": 115.72723799296747,
+   "leads_df": 9,
+   "leads_p": 9.989116584505446e-21,
+   "lead_mean": 0.3522347733017152,
+   "lag_mean": -0.304265546649876,
+   "lag_mean_se": 0.5615480465241941,
+   "lag_mean_minus_lead_mean": -0.6565003199515912
+  }
+ }
+}

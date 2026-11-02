@@ -362,19 +362,22 @@ def _demean_w(M: np.ndarray, codes: list, w: np.ndarray, tol: float = 1e-8, max_
     return M
 
 
-def ppml_pair(df: pd.DataFrame, xs: list, fe: list, clusters=("zone",), pseudo: float = 0.1, max_iter: int = 30) -> dict:
+def ppml_pair(df: pd.DataFrame, xs: list, fe: list, clusters=("zone",), pseudo: float = 0.1, max_iter: int = 30,
+              return_if: bool = False) -> dict:
     """窗口后/前的计数比：条件泊松 ⇔ 后窗份额的二项 logit，logit = Σ β x + FE。系数 = 半弹性口径的 log(μ_post/μ_pre) 对 x 的斜率。
 
-    pseudo：给两个窗口计数各加的桩·小时数（防止一侧为 0 时 logit 发散；只影响计数很小的行）。
+    pseudo：给两个窗口计数各加的桩·小时数（防止一侧为 0 时 logit 发散；只影响计数很小的行）。pseudo = 0 时两窗都为 0 的行不含信息，去掉。
     返回 coef、se（按 clusters 聚类；双向聚类用 CGM）、n、迭代次数。
+    return_if（单向聚类）：另返回各聚类的影响函数之和 if_by_cluster = (聚类标签, [G, len(xs)])，
+    用于把几个回归的系数合成一个联合协方差（事件研究的前导系数联合检验）。
     """
     a1 = df["Apost"].to_numpy() + pseudo
     a0 = df["Apre"].to_numpy() + pseudo
     n = a1 + a0
-    y = a1 / n
+    y = np.divide(a1, n, out=np.zeros_like(n), where=n > 0)
     X = df[xs].to_numpy(dtype=np.float64)
     # 去掉只有 1 个观测的 FE 单元（不携带信息），迭代到没有
-    keep = np.ones(len(df), dtype=bool)
+    keep = n > 0
     for _ in range(10):
         changed = False
         for f in fe:
@@ -434,8 +437,14 @@ def ppml_pair(df: pd.DataFrame, xs: list, fe: list, clusters=("zone",), pseudo: 
         m = (vv * np.clip(ww, 0, None)) @ vv.T
         G = min(G1, G2)
     V = A @ m @ A
-    return {"coef": dict(zip(xs, b)), "se": dict(zip(xs, np.sqrt(np.clip(np.diag(V), 0, None)))), "n": int(len(d)),
-            "n_clusters": int(G), "iters": it}
+    out = {"coef": dict(zip(xs, b)), "se": dict(zip(xs, np.sqrt(np.clip(np.diag(V), 0, None)))), "n": int(len(d)),
+           "n_clusters": int(G), "iters": it}
+    if return_if and len(clusters) == 1:
+        lab, g = np.unique(d[clusters[0]].to_numpy(), return_inverse=True)
+        sc = np.zeros((len(lab), len(xs)))
+        np.add.at(sc, g, score_i @ A)                         # A 对称：第 i 行的影响函数 = A · score_i
+        out["if_by_cluster"] = (lab, sc)
+    return out
 
 
 # ============================================================ 事件研究（5 分钟）
