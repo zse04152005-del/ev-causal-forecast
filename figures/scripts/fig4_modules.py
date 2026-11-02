@@ -72,22 +72,22 @@ def panel_a(c: Canvas, lead: float = 0.0):
     gx0, gy0, gx1, gy1 = 8.9, 26.0, 37.1, 43.3
     c.box(gx0, gy0, gx1 - gx0, gy1 - gy0, fc="none", ec=INK2, lw=LW["hair"], ls=(0, (1.0, 1.0)), r=0.8, z=1.8)
     T(gx0 + 1.0, gy0 + 1.8, "Gated TCN", ha="left", size=FS["body"], color=INK2, fit=(gx0, xc - 0.8))
-    ya, yt, yg = 40.1, 35.3, 30.9                                   # TCN 框、tanh/σ、⊗ 的纵坐标
+    ya, yt, yg = 40.6, 34.6, 30.9                                   # TCN 框、tanh/σ、⊗ 的纵坐标（2026-10-28 拉开间距，箭头露出线段）
     for x0, lab in ((16.0, "TCN-a"), (30.0, "TCN-b")):
-        tbox(c, x0 - 4.6, ya - 1.7, 9.2, 3.4, lab, fc=B["mid"], ec=B["stroke"], lw=LW["thin"])
+        tbox(c, x0 - 4.6, ya - 1.5, 9.2, 3.0, lab, fc=B["mid"], ec=B["stroke"], lw=LW["thin"])
     for x0, lab in ((16.0, r"$\tanh$"), (30.0, r"$\sigma$")):      # 椭圆：7 pt 的 tanh 放得下
-        c.ax.add_patch(Ellipse((x0, yt), 6.4, 3.9, fc=N["mid"], ec=N["stroke"], lw=LW["thin"], zorder=4))
+        c.ax.add_patch(Ellipse((x0, yt), 6.4, 3.4, fc=N["mid"], ec=N["stroke"], lw=LW["thin"], zorder=4))
         T(x0, yt + 0.05, lab, size=7.0 if "tanh" in lab else 7.5, z=5, fit=(x0 - 3.2, x0 + 3.2))
     c.op(xc, yg, "x", r=1.45)
     # 输入分叉：J1（残差分支）→ J0（两路 TCN）
     j1, j0 = 46.6, 44.8
     c.line([(xc, fy + fh + 0.02), (xc, j0)], arrow=False)
-    c.line([(xc, j0), (16.0, j0), (16.0, ya + 1.7)], head=(1.0, 0.75))
-    c.line([(xc, j0), (30.0, j0), (30.0, ya + 1.7)], head=(1.0, 0.75))
+    c.line([(xc, j0), (16.0, j0), (16.0, ya + 1.5)], head=(1.0, 0.75))
+    c.line([(xc, j0), (30.0, j0), (30.0, ya + 1.5)], head=(1.0, 0.75))
     for x0 in (16.0, 30.0):
-        c.line([(x0, ya - 1.7), (x0, yt + 1.95)], head=(1.0, 0.75))
-    c.line([(16.0, yt - 1.95), (16.0, yg), (xc - 1.45, yg)], head=(1.0, 0.75))
-    c.line([(30.0, yt - 1.95), (30.0, yg), (xc + 1.45, yg)], head=(1.0, 0.75))
+        c.line([(x0, ya - 1.5), (x0, yt + 1.7)], head=(1.0, 0.75))
+    c.line([(16.0, yt - 1.7), (16.0, yg), (xc - 1.45, yg)], head=(1.0, 0.75))
+    c.line([(30.0, yt - 1.7), (30.0, yg), (xc + 1.45, yg)], head=(1.0, 0.75))
     for yy in (j1, j0):
         c.ax.add_patch(Circle((xc, yy), 0.42, fc=INK, ec="none", zorder=5))
     # 跳连接：门控输出 → 1×1 → 跳连接汇总
@@ -96,21 +96,21 @@ def panel_a(c: Canvas, lead: float = 0.0):
     tbox(c, 36.0, ys - 1.5, 6.6, 3.0, r"1$\times$1", fc=B["mid"], ec=B["stroke"])
     c.line([(xc, ys), (36.0, ys)], head=(1.0, 0.75))
     # 多图扩散卷积 + 图结构小图标
-    gcy = 20.4
+    gcy = 20.9
     tbox(c, 10.3, gcy - 1.95, 25.4, 3.9, "Graph convolution", fc=B["mid"], ec=B["stroke"])
     c.line([(xc, yg - 1.45), (xc, gcy + 1.95)], head=(1.0, 0.75))
     c.graph_icon(37.4, 13.4, s=5.0, color=N["stroke"])
     c.line([(38.0, 17.6), (35.8, gcy - 0.4)], color=N["stroke"], lw=LW["thin"], head=(0.9, 0.6))
     T(34.7, 14.3, r"$\tilde{A}$", ha="right", size=FS["body"], color=INK2)
     # 残差 ⊕ → BN → 下一层
-    yr = 14.7
+    yr = 15.0
     c.op(xc, yr, "+", r=1.45)
     c.line([(xc, gcy - 1.95), (xc, yr + 1.45)], head=(1.0, 0.75))
     c.line([(xc, j1), (5.5, j1), (5.5, yr), (xc - 1.45, yr)], head=(1.0, 0.75))
     T(7.0, 36.0, "residual", rotation=90, size=FS["body"], color=INK2)
-    tbox(c, xc - 3.6, 9.35, 7.2, 2.9, "BN", fc=N["mid"], ec=N["stroke"])
-    c.line([(xc, yr - 1.45), (xc, 12.25)], head=(0.9, 0.7))
-    c.line([(xc, 9.35), (xc, 4.9)], head=(1.0, 0.75))
+    tbox(c, xc - 3.6, 8.6, 7.2, 2.6, "BN", fc=N["mid"], ec=N["stroke"])
+    c.line([(xc, yr - 1.45), (xc, 11.2)], head=(0.9, 0.7))
+    c.line([(xc, 8.6), (xc, 4.9)], head=(1.0, 0.75))
 
     # ---- 跳连接汇总与输出层（列）
     ox, sy = 56.3, 27.4
