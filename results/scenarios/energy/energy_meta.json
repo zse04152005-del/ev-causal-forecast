@@ -1,6 +1,6 @@
 {
  "beta": -0.21305661064652498,
- "se_bootstrap": 0.313052505895325,
+ "se_bootstrap": 0.32954376105047295,
  "window_min": 180.0,
  "draws": 4000,
  "truncation": "beta <= 0",

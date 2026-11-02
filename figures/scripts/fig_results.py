@@ -27,7 +27,7 @@ from figlib import FS, INK, INK2, PAL, RULE, fix_svg_fonts, setup_rc  # noqa: E4
 def find_root(start):
     p = os.path.abspath(start)
     for _ in range(6):
-        if os.path.isdir(os.path.join(p, "results")):
+        if os.path.isdir(os.path.join(p, "results")) and os.path.isdir(os.path.join(p, "configs")):
             return p
         p = os.path.dirname(p)
     return None
@@ -38,7 +38,9 @@ CMP = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT or HERE, "results"
 OUT = sys.argv[2] if len(sys.argv) > 2 else (os.path.join(ROOT, "figures", "results") if ROOT else os.path.join(HERE, "out"))
 os.makedirs(OUT, exist_ok=True)
 MM = 1 / 25.4
-ANCHOR, ANCHOR_SE = -0.213, 0.313         # 设计 D 全市合并估计；s.e. 为按小区整群自助法（第二轮，results/causal/round2）
+_anchor = json.load(open(os.path.join(ROOT, "configs", "anchor", "fivemin_main.json")))["own"][0]
+_boot = json.load(open(os.path.join(ROOT, "results", "causal", "round2", "summary.json")))["bootstrap"]["D_exp"]
+ANCHOR, ANCHOR_SE = float(_anchor["beta"]), float(_boot["se"])
 C_OURS = PAL["causal"]["stroke"]          # 因果锚定（本文）
 C_FREE = PAL["cov"]["stroke"]             # 只约束符号的自由学习
 C_DATA = PAL["price"]["stroke"]           # 纯数据驱动 / PAG
@@ -425,7 +427,7 @@ if os.path.exists(os.path.join(EDA, "zone_tariff_type.csv")) and os.path.exists(
     ax.text(-2.33, -0.72, "naive regressions", fontsize=FS["small"], color=C_DATA, ha="left", va="center", style="italic")
     ax.text(-2.33, 2.80, "switch-event designs", fontsize=FS["small"], color=C_OURS, ha="left", va="center", style="italic")
     ax.text(-2.33, 5.23, "hourly panel", fontsize=FS["small"], color=INK2, ha="left", va="center", style="italic")
-    ftitle(0.655, "(c)", "From correlation to causation")
+    ftitle(0.655, "(c)", "Price–demand estimates")
     save(fig, "Fig_R_context")
 
 # ================================================================= 图 7：可识别性与先验敏感性合并图（论文 4.6 节）
