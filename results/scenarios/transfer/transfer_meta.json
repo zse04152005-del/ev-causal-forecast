@@ -1,5 +1,5 @@
 {
-  "rule": "Energy disappearance versus capacity-limited shifting, conditional accounting scenarios.\nUses measured/inferred hourly energy and a repeated-day boundary (each zone-day repeats every 24 h).\nRemoved 18:00--22:00 energy is queued at 22:00, then allocated chronologically to the next\nminimum-tariff non-evening hours within 24 h. No cross-zone transfer or recursive response.\nCapacity proxy = pile count * training-period energy/duration power; not feeder capacity.\n",
+  "rule": "Energy disappearance versus capacity-limited shifting, conditional accounting scenarios.\nUses measured/inferred hourly energy and a repeated-day boundary (each zone-day repeats every 24 h).\nRemoved 18:00--22:00 energy is reallocated within 24 h under three rules: 'shift' queues it at 22:00 and\nfills the next minimum-tariff non-evening hours chronologically; 'spread' splits it evenly over all of\nthose minimum-tariff hours; 'overnight' splits it over 22:00--07:59 in proportion to the recorded load.\nAll rules respect the same headroom. No cross-zone transfer or recursive response.\nCapacity proxy = pile count * training-period energy/duration power; not feeder capacity.\n",
   "boundary": "Each observed zone-day is repeated periodically; hours 0--17 receive charging from the previous identical evening. Not a chronological simulation across different dates.",
   "capacity_proxy_MW_total": 239.7745105949038,
   "baseline_hours_above_proxy": 0,
@@ -13,9 +13,37 @@
   "checks": [
     {
       "elasticity": "anchor",
+      "mode": "spread",
+      "conservation_error_MWh": 2.220446049250313e-16,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 8.599676485786419e-15
+    },
+    {
+      "elasticity": "anchor",
+      "mode": "overnight",
+      "conservation_error_MWh": 2.220446049250313e-16,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 9.309718794481281e-15
+    },
+    {
+      "elasticity": "anchor",
       "conservation_error_MWh": 0.0,
       "capacity_violation_MW": 0.0,
       "unallocated_MWh": 0.0
+    },
+    {
+      "elasticity": "arrival_mu30",
+      "mode": "spread",
+      "conservation_error_MWh": 2.220446049250313e-16,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 1.1371369883043936e-14
+    },
+    {
+      "elasticity": "arrival_mu30",
+      "mode": "overnight",
+      "conservation_error_MWh": 2.220446049250313e-16,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 1.0327993004550194e-14
     },
     {
       "elasticity": "arrival_mu30",
@@ -25,9 +53,37 @@
     },
     {
       "elasticity": "arrival_mu60",
+      "mode": "spread",
+      "conservation_error_MWh": 4.440892098500626e-16,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 1.1800090527099016e-14
+    },
+    {
+      "elasticity": "arrival_mu60",
+      "mode": "overnight",
+      "conservation_error_MWh": 2.220446049250313e-16,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 1.2157677344243681e-14
+    },
+    {
+      "elasticity": "arrival_mu60",
       "conservation_error_MWh": 0.0,
       "capacity_violation_MW": 0.0,
       "unallocated_MWh": 0.0
+    },
+    {
+      "elasticity": "arrival_mu120",
+      "mode": "spread",
+      "conservation_error_MWh": 4.440892098500626e-16,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 1.8083031952257148e-14
+    },
+    {
+      "elasticity": "arrival_mu120",
+      "mode": "overnight",
+      "conservation_error_MWh": 4.440892098500626e-16,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 1.8709643209713356e-14
     },
     {
       "elasticity": "arrival_mu120",
@@ -37,9 +93,37 @@
     },
     {
       "elasticity": "adaptive",
+      "mode": "spread",
+      "conservation_error_MWh": 4.440892098500626e-16,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 1.2951719910317752e-14
+    },
+    {
+      "elasticity": "adaptive",
+      "mode": "overnight",
+      "conservation_error_MWh": 2.220446049250313e-16,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 1.2847941433620155e-14
+    },
+    {
+      "elasticity": "adaptive",
       "conservation_error_MWh": 0.0,
       "capacity_violation_MW": 0.0,
       "unallocated_MWh": 0.0
+    },
+    {
+      "elasticity": "naive_1.58",
+      "mode": "spread",
+      "conservation_error_MWh": 1.7763568394002505e-15,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 0.14089424551881244
+    },
+    {
+      "elasticity": "naive_1.58",
+      "mode": "overnight",
+      "conservation_error_MWh": 1.7763568394002505e-15,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 5.4528633670024307e-14
     },
     {
       "elasticity": "naive_1.58",

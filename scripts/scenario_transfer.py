@@ -1,7 +1,9 @@
 """Energy disappearance versus capacity-limited shifting, conditional accounting scenarios.
 Uses measured/inferred hourly energy and a repeated-day boundary (each zone-day repeats every 24 h).
-Removed 18:00--22:00 energy is queued at 22:00, then allocated chronologically to the next
-minimum-tariff non-evening hours within 24 h. No cross-zone transfer or recursive response.
+Removed 18:00--22:00 energy is reallocated within 24 h under three rules: 'shift' queues it at 22:00 and
+fills the next minimum-tariff non-evening hours chronologically; 'spread' splits it evenly over all of
+those minimum-tariff hours; 'overnight' splits it over 22:00--07:59 in proportion to the recorded load.
+All rules respect the same headroom. No cross-zone transfer or recursive response.
 Capacity proxy = pile count * training-period energy/duration power; not feeder capacity.
 """
 import argparse,json
@@ -27,7 +29,16 @@ assert np.isfinite(E).all() and E.min()>=0
 headroom=np.maximum(cap[None,None,:]-E,0)
 B=json.loads(Path('configs/anchor/fivemin_main.json').read_text())['own'][0]['beta']
 betas={'anchor':B,**{f'arrival_mu{mu}':B/(1-mu/180*(1-np.exp(-180/mu))) for mu in [30,60,120]},'adaptive':-.343,'naive_1.58':-1.58}
-order=np.r_[22,23,np.arange(18)]; rows=[];profs=[];allocs=[]; checks=[]
+order=np.r_[22,23,np.arange(18)]; night=np.r_[22,23,np.arange(8)]; rows=[];profs=[];allocs=[]; checks=[]
+
+def waterfill(energy,weights,room):
+    """Allocate energy in proportion to weights without exceeding room; refill the remainder."""
+    out=np.zeros_like(room); w=np.asarray(weights,float).copy()
+    for _ in range(len(room)+1):
+        free=(room-out>1e-15)&(w>0)
+        if energy<1e-12 or not free.any(): break
+        share=energy*w*free/(w*free).sum(); take=np.minimum(share,room-out); out+=take; energy-=take.sum()
+    return out,max(0.,energy)
 fact=E.sum(axis=(0,2))/nd
 for label,b in betas.items():
     removed=np.zeros_like(E);removed[:,18:22]=E[:,18:22]*(1-np.exp(b*np.log(1.2)))
@@ -45,9 +56,24 @@ for label,b in betas.items():
     err=float(np.max(np.abs(removed.sum(axis=1)-added.sum(axis=1)-unallocated)))
     capacity_violation=float(np.maximum(added-headroom,0).max())
     assert err<1e-9 and capacity_violation<1e-9 and np.min(shifted)>=0
-    for mode,cf in [('disappear',lost),('shift',shifted)]:
+    alt={}
+    for mode in ['spread','overnight']:
+        add2=np.zeros_like(E);un2=np.zeros((nd,nz))
+        for day in range(nd):
+            for z in range(nz):
+                energy=removed[day,:,z].sum()
+                if mode=='spread':
+                    low=price[day,order,z].min();hrs=order[np.isclose(price[day,order,z],low,rtol=1e-6,atol=1e-8)];w=np.ones(len(hrs))
+                else:
+                    hrs=night;w=E[day,night,z]+1e-9
+                a2,left=waterfill(energy,w,headroom[day,hrs,z]);add2[day,hrs,z]=a2;un2[day,z]=left
+        e2=float(np.max(np.abs(removed.sum(axis=1)-add2.sum(axis=1)-un2)));v2=float(np.maximum(add2-headroom,0).max())
+        assert e2<1e-9 and v2<1e-9
+        alt[mode]=(lost+add2,add2,un2)
+        checks.append(dict(elasticity=label,mode=mode,conservation_error_MWh=e2,capacity_violation_MW=v2,unallocated_MWh=float(un2.sum())))
+    for mode,cf,ad,un in [('disappear',lost,None,None),('shift',shifted,added,unallocated)]+[(m,*alt[m]) for m in alt]:
         profile=cf.sum(axis=(0,2))/nd;d=profile-fact
-        rows.append(dict(elasticity=label,beta=b,mode=mode,n_days=nd,n_zones=nz,removed_MWh_day=removed.sum()/nd,restored_MWh_day=added.sum()/nd if mode=='shift' else 0,unallocated_MWh_day=unallocated.sum()/nd if mode=='shift' else 0,net_MWh_day=d.sum(),evening_delta_MW=d[18:22].mean(),peak_MW=profile.max(),peak_hour=int(profile.argmax()),peak_delta_MW=profile.max()-fact.max(),fact_peak_MW=fact.max(),fact_peak_hour=int(fact.argmax())))
+        rows.append(dict(elasticity=label,beta=b,mode=mode,n_days=nd,n_zones=nz,removed_MWh_day=removed.sum()/nd,restored_MWh_day=ad.sum()/nd if ad is not None else 0,unallocated_MWh_day=un.sum()/nd if un is not None else 0,net_MWh_day=d.sum(),evening_delta_MW=d[18:22].mean(),rebound_MW=d[22:].max() if mode!='disappear' else 0.,max_increase_MW=d.max(),max_increase_hour=int(d.argmax()),peak_MW=profile.max(),peak_hour=int(profile.argmax()),peak_delta_MW=profile.max()-fact.max(),fact_peak_MW=fact.max(),fact_peak_hour=int(fact.argmax())))
         profs.extend(dict(elasticity=label,mode=mode,hour=h,fact_MW=fact[h],cf_MW=profile[h],delta_MW=d[h]) for h in range(24))
     checks.append(dict(elasticity=label,conservation_error_MWh=err,capacity_violation_MW=capacity_violation,unallocated_MWh=float(unallocated.sum())))
 pd.DataFrame(rows).to_csv(out/'transfer_summary.csv',index=False);pd.DataFrame(profs).to_csv(out/'transfer_profiles.csv',index=False);pd.DataFrame(allocs).to_csv(out/'transfer_allocations.csv',index=False)

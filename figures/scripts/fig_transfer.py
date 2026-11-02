@@ -5,7 +5,7 @@ from figlib import plt,setup_rc,PAL,MM
 root=Path(__file__).resolve().parents[2];setup_rc();d=pd.read_csv(root/'results/scenarios/transfer/transfer_profiles.csv')
 fig,axes=plt.subplots(1,2,figsize=(190*MM,65*MM),sharey=True)
 for ax,(e,title) in zip(axes,[('anchor','(a) Window elasticity: −0.21'),('arrival_mu60','(b) Arrival elasticity: −0.31')]):
-    for mode,label,color,ls in [('disappear','Energy disappears',PAL['gray']['stroke'],'--'),('shift','Shift to low-price hours',PAL['causal']['stroke'],'-')]:
+    for mode,label,color,ls in [('disappear','Energy disappears',PAL['gray']['stroke'],'--'),('shift','Shift, earliest low-price hours',PAL['causal']['stroke'],'-'),('spread','Shift, spread over low-price hours',PAL['price']['stroke'],'-'),('overnight','Shift, overnight in proportion to load',PAL['cov']['stroke'],':')]:
         q=d[(d.elasticity==e)&(d['mode']==mode)].sort_values('hour');v=q.delta_MW.to_numpy()
         ax.step(range(25),[*v,v[-1]],where='post',color=color,ls=ls,lw=1.2,label=label)
     ax.axhline(0,color='#999999',lw=.5);ax.axvspan(18,22,color='#eeeeee',zorder=0)
