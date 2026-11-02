@@ -1,0 +1,52 @@
+{
+  "rule": "Energy disappearance versus capacity-limited shifting, conditional accounting scenarios.\nUses measured/inferred hourly energy and a repeated-day boundary (each zone-day repeats every 24 h).\nRemoved 18:00--22:00 energy is queued at 22:00, then allocated chronologically to the next\nminimum-tariff non-evening hours within 24 h. No cross-zone transfer or recursive response.\nCapacity proxy = pile count * training-period energy/duration power; not feeder capacity.\n",
+  "boundary": "Each observed zone-day is repeated periodically; hours 0--17 receive charging from the previous identical evening. Not a chronological simulation across different dates.",
+  "capacity_proxy_MW_total": 239.7745105949038,
+  "baseline_hours_above_proxy": 0,
+  "baseline_max_excess_MW": 0.0,
+  "n_days": 35,
+  "n_zones": 90,
+  "test_dates": [
+    "2023-01-25",
+    "2023-02-28"
+  ],
+  "checks": [
+    {
+      "elasticity": "anchor",
+      "conservation_error_MWh": 0.0,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 0.0
+    },
+    {
+      "elasticity": "arrival_mu30",
+      "conservation_error_MWh": 0.0,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 0.0
+    },
+    {
+      "elasticity": "arrival_mu60",
+      "conservation_error_MWh": 0.0,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 0.0
+    },
+    {
+      "elasticity": "arrival_mu120",
+      "conservation_error_MWh": 0.0,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 0.0
+    },
+    {
+      "elasticity": "adaptive",
+      "conservation_error_MWh": 0.0,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 0.0
+    },
+    {
+      "elasticity": "naive_1.58",
+      "conservation_error_MWh": 0.0,
+      "capacity_violation_MW": 0.0,
+      "unallocated_MWh": 0.14089424551875668
+    }
+  ],
+  "interpretation": "Conditional point scenarios, not confidence bounds, observed behavioural redistribution, station-access feasibility or grid dispatch."
+}
